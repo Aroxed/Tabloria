@@ -1,0 +1,1020 @@
+.publishly-admin-wrap {
+	margin: 0;
+}
+
+#wpcontent {
+	padding-left: 0;
+}
+
+.publishly-app {
+	--publishly-primary: #3525cd;
+	--publishly-primary-soft: #e2dfff;
+	--publishly-cyan: #57dffe;
+	--publishly-bg: #fcf8ff;
+	--publishly-surface: #ffffff;
+	--publishly-surface-low: #f5f2ff;
+	--publishly-border: #d8d4e8;
+	--publishly-text: #1b1b24;
+	--publishly-muted: #5f5d70;
+	min-height: calc(100vh - 32px);
+	background: var(--publishly-bg);
+	color: var(--publishly-text);
+	font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.publishly-topbar {
+	position: sticky;
+	top: 32px;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+	min-height: 64px;
+	padding: 0 32px;
+	background: rgba(255, 255, 255, 0.92);
+	border-bottom: 1px solid var(--publishly-border);
+	backdrop-filter: blur(14px);
+}
+
+.publishly-brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 22px;
+	font-weight: 750;
+	color: var(--publishly-primary);
+}
+
+.publishly-logo {
+	display: inline-grid;
+	width: 34px;
+	height: 34px;
+	place-items: center;
+	border-radius: 8px;
+	background: var(--publishly-primary);
+	color: #fff;
+	font-size: 18px;
+}
+
+.publishly-nav {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.publishly-nav button {
+	border: 0;
+	border-bottom: 2px solid transparent;
+	background: transparent;
+	color: var(--publishly-muted);
+	cursor: pointer;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 650;
+	padding: 21px 14px 19px;
+}
+
+.publishly-nav button.is-active {
+	border-color: var(--publishly-primary);
+	color: var(--publishly-primary);
+}
+
+.publishly-shell {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 48px 32px 72px;
+}
+
+.publishly-hero {
+	max-width: 760px;
+	margin: 0 0 48px;
+}
+
+.publishly-kicker {
+	margin: 0 0 12px;
+	color: var(--publishly-primary);
+	font-size: 13px;
+	font-weight: 750;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.publishly-app h1 {
+	margin: 0 0 16px;
+	color: var(--publishly-text);
+	font-size: 48px;
+	font-weight: 800;
+	line-height: 1.12;
+	letter-spacing: 0;
+}
+
+.publishly-app h2 {
+	margin: 0 0 10px;
+	font-size: 26px;
+	font-weight: 750;
+	line-height: 1.25;
+}
+
+.publishly-app h3 {
+	margin: 0 0 8px;
+	font-size: 19px;
+	font-weight: 750;
+}
+
+.publishly-subtitle,
+.publishly-muted {
+	color: var(--publishly-muted);
+	font-size: 16px;
+	line-height: 1.55;
+}
+
+.publishly-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	margin-top: 28px;
+}
+
+.publishly-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 42px;
+	border: 1px solid var(--publishly-border);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--publishly-text);
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 0 18px;
+	text-decoration: none;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.publishly-button:hover {
+	border-color: #bcb7d7;
+	box-shadow: 0 8px 20px rgba(53, 37, 205, 0.08);
+	transform: translateY(-1px);
+}
+
+.publishly-button.is-primary {
+	border-color: var(--publishly-primary);
+	background: var(--publishly-primary);
+	color: #fff;
+	box-shadow: 0 10px 20px rgba(53, 37, 205, 0.16);
+}
+
+.publishly-button.is-ghost {
+	background: transparent;
+}
+
+.publishly-button.is-danger {
+	border-color: #ffd2d2;
+	color: #ba1a1a;
+}
+
+.publishly-button[disabled] {
+	cursor: not-allowed;
+	opacity: 0.55;
+	transform: none;
+}
+
+.publishly-badge {
+	display: inline-flex;
+	align-items: center;
+	border-radius: 999px;
+	background: var(--publishly-cyan);
+	color: #00333b;
+	font-size: 12px;
+	font-weight: 750;
+	padding: 3px 9px;
+}
+
+.publishly-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+}
+
+.publishly-grid.is-two {
+	grid-template-columns: minmax(0, 0.82fr) minmax(360px, 0.38fr);
+	align-items: start;
+}
+
+.publishly-card,
+.publishly-panel {
+	border: 1px solid var(--publishly-border);
+	border-radius: 12px;
+	background: var(--publishly-surface);
+	box-shadow: 0 10px 24px rgba(53, 37, 205, 0.05);
+}
+
+.publishly-card {
+	cursor: pointer;
+	min-height: 228px;
+	padding: 24px;
+	transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.publishly-card:hover,
+.publishly-card.is-selected {
+	border-color: var(--publishly-primary);
+	box-shadow: 0 16px 36px rgba(53, 37, 205, 0.1);
+	transform: translateY(-2px);
+}
+
+.publishly-card__preview {
+	display: grid;
+	gap: 8px;
+	height: 104px;
+	margin-bottom: 22px;
+	border-radius: 10px;
+	background: var(--publishly-surface-low);
+	padding: 14px;
+}
+
+.publishly-preview-lines {
+	display: grid;
+	gap: 8px;
+}
+
+.publishly-line,
+.publishly-thumb,
+.publishly-dot {
+	border-radius: 999px;
+	background: #d9d5e8;
+}
+
+.publishly-thumb {
+	border-radius: 8px;
+}
+
+.publishly-dot {
+	width: 24px;
+	height: 24px;
+}
+
+.publishly-card p {
+	margin: 0;
+	color: var(--publishly-muted);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.publishly-panel {
+	padding: 28px;
+}
+
+.publishly-panel + .publishly-panel {
+	margin-top: 24px;
+}
+
+.publishly-upload {
+	display: grid;
+	place-items: center;
+	min-height: 260px;
+	border: 2px dashed #c9c3df;
+	border-radius: 16px;
+	background: #fff;
+	text-align: center;
+}
+
+.publishly-upload input {
+	margin: 18px auto 0;
+}
+
+.publishly-columns {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.publishly-column {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	border: 1px solid var(--publishly-border);
+	border-radius: 10px;
+	background: #fff;
+	padding: 16px;
+}
+
+.publishly-column strong {
+	display: block;
+	margin-bottom: 3px;
+}
+
+.publishly-type {
+	border-radius: 999px;
+	background: var(--publishly-primary-soft);
+	color: var(--publishly-primary);
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	padding: 4px 8px;
+	text-transform: uppercase;
+}
+
+.publishly-table-wrap {
+	overflow-x: auto;
+	border: 1px solid var(--publishly-border);
+	border-radius: 12px;
+	background: #fff;
+}
+
+.publishly-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.publishly-table th,
+.publishly-table td {
+	border-bottom: 1px solid #ebe7f5;
+	padding: 12px 16px;
+	text-align: left;
+	vertical-align: top;
+}
+
+.publishly-table th {
+	background: var(--publishly-surface-low);
+	color: #343242;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.publishly-form-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.publishly-field {
+	display: grid;
+	gap: 7px;
+}
+
+.publishly-field label,
+.publishly-label {
+	color: #343242;
+	font-size: 13px;
+	font-weight: 750;
+}
+
+.publishly-field input,
+.publishly-field select,
+.publishly-field textarea,
+.publishly-select,
+.publishly-input {
+	width: 100%;
+	max-width: none;
+	min-height: 42px;
+	border: 1px solid #c9c3df;
+	border-radius: 8px;
+	background: #fff;
+	color: var(--publishly-text);
+	font-size: 14px;
+	padding: 8px 12px;
+}
+
+.publishly-role-row,
+.publishly-check-row {
+	display: grid;
+	grid-template-columns: 1fr 240px;
+	align-items: center;
+	gap: 16px;
+	border-radius: 10px;
+	background: var(--publishly-surface-low);
+	padding: 14px 16px;
+}
+
+.publishly-role-row + .publishly-role-row,
+.publishly-check-row + .publishly-check-row {
+	margin-top: 10px;
+}
+
+.publishly-check-row {
+	grid-template-columns: 26px 1fr;
+	background: #fff;
+	border: 1px solid #ebe7f5;
+}
+
+.publishly-filter-builder {
+	display: grid;
+	grid-template-columns: 1fr 160px 1fr;
+	gap: 10px;
+}
+
+.publishly-swatch-row {
+	display: flex;
+	gap: 10px;
+}
+
+.publishly-swatch {
+	width: 34px;
+	height: 34px;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background: var(--swatch);
+	cursor: pointer;
+}
+
+.publishly-swatch.is-selected {
+	border-color: var(--publishly-text);
+	box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--publishly-primary);
+}
+
+.publishly-segmented {
+	display: inline-grid;
+	grid-template-columns: repeat(2, 1fr);
+	border-radius: 10px;
+	background: var(--publishly-surface-low);
+	padding: 4px;
+}
+
+.publishly-segmented button {
+	border: 0;
+	border-radius: 7px;
+	background: transparent;
+	cursor: pointer;
+	font-weight: 700;
+	padding: 10px 14px;
+}
+
+.publishly-segmented button.is-selected {
+	background: #fff;
+	box-shadow: 0 1px 4px rgba(27, 27, 36, 0.08);
+}
+
+.publishly-toggle-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 18px;
+	padding: 12px 0;
+}
+
+.publishly-preview {
+	border: 1px solid var(--publishly-border);
+	border-radius: 16px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.publishly-preview__bar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 44px;
+	background: var(--publishly-surface-low);
+	border-bottom: 1px solid var(--publishly-border);
+	color: var(--publishly-muted);
+	font-size: 13px;
+}
+
+.publishly-preview__body {
+	padding: 28px;
+}
+
+.publishly-preview-note {
+	color: var(--publishly-muted);
+	font-size: 13px;
+	margin: 0 0 12px;
+}
+
+.publishly-mini-controls {
+	display: grid;
+	gap: 10px;
+	margin: 14px 0 16px;
+}
+
+.publishly-mini-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.publishly-mini-filters select {
+	flex: 1 1 140px;
+	min-width: 0;
+}
+
+.publishly-mini-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	margin-top: 18px;
+}
+
+.publishly-mini-preview.is-compact .publishly-mini-grid {
+	gap: 10px;
+}
+
+.publishly-mini-card {
+	border: 1px solid #e2deef;
+	border-radius: 10px;
+	overflow: hidden;
+	background: #fff;
+}
+
+.publishly-mini-card__image {
+	height: 110px;
+	background: linear-gradient(135deg, #e2dfff, #acedff);
+	overflow: hidden;
+}
+
+.publishly-mini-preview.is-compact .publishly-mini-card__image {
+	height: 84px;
+}
+
+.publishly-mini-preview.is-square .publishly-mini-card,
+.publishly-mini-preview.is-square .publishly-mini-card__image {
+	border-radius: 2px;
+}
+
+.publishly-mini-card__image img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.publishly-mini-card__body {
+	padding: 14px;
+}
+
+.publishly-mini-preview.is-compact .publishly-mini-card__body {
+	padding: 10px;
+}
+
+.publishly-mini-card h4 {
+	margin: 0 0 6px;
+	font-size: 15px;
+}
+
+.publishly-mini-card p {
+	margin: 0;
+	color: var(--publishly-muted);
+	font-size: 13px;
+}
+
+.publishly-mini-card strong {
+	display: block;
+	margin-top: 12px;
+	color: var(--publishly-primary);
+	font-size: 20px;
+}
+
+.publishly-mini-card__fields {
+	display: grid;
+	gap: 8px;
+	margin: 14px 0 0;
+}
+
+.publishly-mini-card__fields div {
+	display: grid;
+	gap: 3px;
+}
+
+.publishly-mini-card__fields dt,
+.publishly-mini-card__fields dd {
+	margin: 0;
+	min-width: 0;
+	font-size: 12px;
+}
+
+.publishly-mini-card__fields dt {
+	color: var(--publishly-muted);
+	font-weight: 750;
+}
+
+.publishly-mini-card__fields dd {
+	overflow-wrap: break-word;
+	color: var(--publishly-text);
+	line-height: 1.35;
+}
+
+.publishly-mini-pagination {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 18px;
+	padding-top: 16px;
+	border-top: 1px solid #ebe7f5;
+}
+
+.publishly-mini-pagination p {
+	margin: 0;
+	color: var(--publishly-muted);
+	font-size: 13px;
+}
+
+.publishly-mini-pagination p span {
+	display: inline;
+	min-width: 0;
+	height: auto;
+	border: 0;
+	background: transparent;
+	color: var(--publishly-muted);
+	font-size: 12px;
+	font-weight: 500;
+	padding: 0;
+}
+
+.publishly-mini-pagination nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+}
+
+.publishly-mini-pagination button,
+.publishly-mini-pagination span {
+	display: inline-grid;
+	min-width: 32px;
+	height: 32px;
+	place-items: center;
+	border: 1px solid #c9c3df;
+	border-radius: 8px;
+	background: #fff;
+	color: var(--publishly-text);
+	font-size: 12px;
+	font-weight: 750;
+	padding: 0 10px;
+}
+
+.publishly-mini-pagination button.is-active {
+	border-color: var(--publishly-primary);
+	background: var(--publishly-primary);
+	color: #fff;
+}
+
+.publishly-mini-pagination button:disabled {
+	opacity: 0.5;
+}
+
+.publishly-mini-pagination span {
+	border-color: transparent;
+	background: transparent;
+	color: var(--publishly-muted);
+}
+
+.publishly-success {
+	display: grid;
+	grid-template-columns: 52px 1fr auto;
+	align-items: start;
+	gap: 20px;
+	border: 1px solid #c9c3ff;
+	border-radius: 16px;
+	background: #fff;
+	padding: 24px;
+}
+
+.publishly-success__icon {
+	display: grid;
+	width: 46px;
+	height: 46px;
+	place-items: center;
+	border-radius: 999px;
+	background: var(--publishly-primary-soft);
+	color: var(--publishly-primary);
+	font-size: 24px;
+	font-weight: 800;
+}
+
+.publishly-display-cards {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+}
+
+.publishly-display-card {
+	border: 1px solid var(--publishly-border);
+	border-radius: 12px;
+	background: #fff;
+	padding: 22px;
+	box-shadow: 0 10px 24px rgba(53, 37, 205, 0.05);
+}
+
+.publishly-display-card__meta {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin: 18px 0;
+	border-radius: 10px;
+	background: var(--publishly-surface-low);
+	padding: 12px;
+	color: var(--publishly-muted);
+	font-size: 13px;
+}
+
+.publishly-display-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	border-top: 1px solid #ebe7f5;
+	padding-top: 16px;
+}
+
+.publishly-editor-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 24px;
+	margin-bottom: 28px;
+}
+
+.publishly-editor-header h1 {
+	margin-bottom: 10px;
+}
+
+.publishly-editor-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.publishly-editor-layout {
+	display: grid;
+	grid-template-columns: 188px minmax(0, 1fr) minmax(320px, 420px);
+	gap: 22px;
+	align-items: start;
+}
+
+.publishly-editor-layout.is-preview-tab {
+	grid-template-columns: 188px minmax(0, 1fr);
+}
+
+.publishly-editor-tabs {
+	position: sticky;
+	top: 116px;
+	display: grid;
+	gap: 6px;
+	border: 1px solid var(--publishly-border);
+	border-radius: 12px;
+	background: #fff;
+	padding: 8px;
+}
+
+.publishly-editor-tabs button {
+	min-height: 40px;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: var(--publishly-muted);
+	cursor: pointer;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 750;
+	padding: 0 12px;
+	text-align: left;
+}
+
+.publishly-editor-tabs button.is-active {
+	background: var(--publishly-primary);
+	color: #fff;
+}
+
+.publishly-editor-main,
+.publishly-editor-side {
+	min-width: 0;
+}
+
+.publishly-editor-side {
+	position: sticky;
+	top: 116px;
+}
+
+.publishly-editor-side .publishly-preview__body {
+	padding: 22px;
+}
+
+.publishly-editor-side .publishly-mini-grid {
+	grid-template-columns: 1fr;
+}
+
+.publishly-editor-section {
+	border: 1px solid var(--publishly-border);
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0 10px 24px rgba(53, 37, 205, 0.05);
+	padding: 28px;
+}
+
+.publishly-editor-stack {
+	display: grid;
+	gap: 24px;
+	margin-top: 24px;
+}
+
+.publishly-editor-subsection {
+	border-top: 1px solid #ebe7f5;
+	padding-top: 20px;
+}
+
+.publishly-source-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 22px;
+}
+
+.publishly-source-stat {
+	display: grid;
+	gap: 6px;
+	border: 1px solid #ebe7f5;
+	border-radius: 10px;
+	background: var(--publishly-surface-low);
+	padding: 14px;
+}
+
+.publishly-source-stat span {
+	color: var(--publishly-muted);
+	font-size: 12px;
+	font-weight: 750;
+	text-transform: uppercase;
+}
+
+.publishly-source-stat strong {
+	overflow-wrap: anywhere;
+	font-size: 15px;
+}
+
+.publishly-update-summary {
+	margin-top: 24px;
+	border-top: 1px solid #ebe7f5;
+	padding-top: 20px;
+}
+
+.publishly-match-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.publishly-match-card {
+	border: 1px solid #ebe7f5;
+	border-radius: 10px;
+	background: #fff;
+	padding: 16px;
+}
+
+.publishly-match-card > span {
+	color: var(--publishly-muted);
+	font-size: 12px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.publishly-match-card > strong {
+	display: block;
+	margin: 8px 0 10px;
+	color: var(--publishly-primary);
+	font-size: 28px;
+}
+
+.publishly-match-card ul {
+	margin: 0;
+	padding-left: 18px;
+	color: var(--publishly-muted);
+	font-size: 13px;
+}
+
+.publishly-copy-box {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 20px;
+	border: 1px solid #ebe7f5;
+	border-radius: 10px;
+	background: var(--publishly-surface-low);
+	padding: 14px;
+}
+
+.publishly-copy-box code {
+	background: #fff;
+	border-radius: 8px;
+	color: var(--publishly-text);
+	font-size: 14px;
+	padding: 10px 12px;
+}
+
+.publishly-empty {
+	border: 1px dashed var(--publishly-border);
+	border-radius: 16px;
+	background: #fff;
+	padding: 48px;
+	text-align: center;
+}
+
+.publishly-error {
+	border: 1px solid #ffb4ab;
+	border-radius: 10px;
+	background: #fff2f0;
+	color: #93000a;
+	margin-bottom: 18px;
+	padding: 12px 14px;
+}
+
+.publishly-notice-banner {
+	border: 1px solid #b8e2c8;
+	border-radius: 10px;
+	background: #f0fff5;
+	color: #0d5f2e;
+	margin-bottom: 18px;
+	padding: 12px 14px;
+}
+
+.publishly-loading {
+	color: var(--publishly-muted);
+	padding: 48px;
+	text-align: center;
+}
+
+@media (max-width: 1100px) {
+	.publishly-grid,
+	.publishly-grid.is-two,
+	.publishly-display-cards,
+	.publishly-editor-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.publishly-columns,
+	.publishly-mini-grid,
+	.publishly-source-grid,
+	.publishly-match-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.publishly-editor-tabs,
+	.publishly-editor-side {
+		position: static;
+	}
+
+	.publishly-editor-tabs {
+		display: flex;
+		flex-wrap: wrap;
+	}
+}
+
+@media (max-width: 782px) {
+	.publishly-app {
+		min-height: calc(100vh - 46px);
+	}
+
+	.publishly-topbar {
+		top: 46px;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 14px 18px 0;
+	}
+
+	.publishly-nav {
+		width: 100%;
+		overflow-x: auto;
+	}
+
+	.publishly-shell {
+		padding: 32px 18px 52px;
+	}
+
+	.publishly-app h1 {
+		font-size: 34px;
+	}
+
+	.publishly-columns,
+	.publishly-form-grid,
+	.publishly-mini-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.publishly-role-row,
+	.publishly-filter-builder,
+	.publishly-success,
+	.publishly-editor-header,
+	.publishly-source-grid,
+	.publishly-match-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.publishly-editor-header {
+		display: grid;
+	}
+
+	.publishly-editor-actions {
+		justify-content: flex-start;
+	}
+}

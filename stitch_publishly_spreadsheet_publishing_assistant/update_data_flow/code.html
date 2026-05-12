@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Update Data - Publishly</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with specific configuration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-container": "#ffd2be",
+                "tertiary-fixed-dim": "#ffb695",
+                "surface-container-highest": "#e4e1ee",
+                "on-surface": "#1b1b24",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed": "#351000",
+                "on-primary-fixed": "#0f0069",
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#004e5c",
+                "surface-container-lowest": "#ffffff",
+                "inverse-surface": "#302f39",
+                "surface-container-low": "#f5f2ff",
+                "secondary": "#00687a",
+                "surface-dim": "#dcd8e5",
+                "surface-container": "#f0ecf9",
+                "tertiary": "#7e3000",
+                "on-secondary": "#ffffff",
+                "surface": "#fcf8ff",
+                "on-surface-variant": "#464555",
+                "secondary-container": "#57dffe",
+                "surface-tint": "#4d44e3",
+                "primary-fixed": "#e2dfff",
+                "secondary-fixed-dim": "#4cd7f6",
+                "primary": "#3525cd",
+                "primary-container": "#4f46e5",
+                "on-background": "#1b1b24",
+                "outline-variant": "#c7c4d8",
+                "surface-bright": "#fcf8ff",
+                "on-secondary-container": "#006172",
+                "on-tertiary-fixed-variant": "#7b2f00",
+                "on-error": "#ffffff",
+                "surface-container-high": "#eae6f4",
+                "surface-variant": "#e4e1ee",
+                "outline": "#777587",
+                "on-primary": "#ffffff",
+                "error": "#ba1a1a",
+                "on-secondary-fixed": "#001f26",
+                "inverse-primary": "#c3c0ff",
+                "on-tertiary": "#ffffff",
+                "inverse-on-surface": "#f3effc",
+                "tertiary-fixed": "#ffdbcc",
+                "background": "#fcf8ff",
+                "on-primary-fixed-variant": "#3323cc",
+                "secondary-fixed": "#acedff",
+                "tertiary-container": "#a44100",
+                "primary-fixed-dim": "#c3c0ff",
+                "on-primary-container": "#dad7ff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "2xl": "48px",
+                "container-max": "1280px",
+                "base": "8px",
+                "sm": "8px",
+                "xs": "4px",
+                "lg": "24px",
+                "3xl": "64px",
+                "md": "16px",
+                "xl": "32px"
+        },
+        "fontFamily": {
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "headline-sm": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Inter"
+                ],
+                "display-lg": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        /* Ensuring Material Symbols render correctly */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Focused Task Header -->
+<header class="h-[64px] w-full px-lg flex items-center justify-between bg-surface-container-lowest border-b border-surface-variant sticky top-0 z-10">
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+<span class="font-headline-sm text-headline-sm text-on-surface">Update Data</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Step 2 of 3</span>
+<div class="flex gap-xs">
+<div class="h-2 w-8 rounded-full bg-primary"></div>
+<div class="h-2 w-8 rounded-full bg-primary"></div>
+<div class="h-2 w-8 rounded-full bg-surface-variant"></div>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 w-full max-w-container-max mx-auto py-2xl px-lg flex flex-col gap-2xl">
+<!-- Context Header -->
+<div class="flex flex-col gap-xs">
+<h1 class="font-display-lg text-display-lg text-on-surface">Available Apartments</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Review how your new spreadsheet maps to your existing display.</p>
+</div>
+<!-- Step 1: Completed State (Collapsed) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between opacity-80 hover:opacity-100 transition-opacity">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Step 1 Completed</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Source spreadsheet replaced</span>
+</div>
+</div>
+<div class="flex items-center gap-sm bg-surface px-md py-sm rounded-lg border border-surface-variant">
+<span class="material-symbols-outlined text-outline text-[18px]">description</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">apartments_updated.csv</span>
+</div>
+</div>
+<!-- Step 2: Active State -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant flex flex-col overflow-hidden">
+<div class="p-lg border-b border-surface-variant bg-surface-container-lowest">
+<div class="flex items-center gap-sm mb-md">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-sm text-[16px]">2</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Column Matching Result</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Publishly has automatically analyzed your new file and re-mapped the data columns. Please review the summary below to ensure everything aligns correctly before publishing.
+                </p>
+</div>
+<div class="p-lg flex flex-col gap-xl bg-surface-container-lowest">
+<!-- Bento Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Matched Panel -->
+<div class="bg-primary-fixed/30 p-md rounded-lg flex flex-col gap-sm border border-primary-fixed">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-headline-sm text-headline-sm">Matched</span>
+</div>
+<span class="font-display-lg text-display-lg text-primary text-[32px]">6</span>
+</div>
+<div class="flex flex-wrap gap-xs mt-sm">
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant">Apartment Name</span>
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant">Photo</span>
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant">Price</span>
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant">Status</span>
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant">Building</span>
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant">Rooms</span>
+</div>
+</div>
+<!-- New Panel -->
+<div class="bg-secondary-fixed/30 p-md rounded-lg flex flex-col gap-sm border border-secondary-fixed">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xs text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_box</span>
+<span class="font-headline-sm text-headline-sm">New</span>
+</div>
+<span class="font-display-lg text-display-lg text-secondary text-[32px]">1</span>
+</div>
+<div class="flex flex-wrap gap-xs mt-sm">
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant shadow-sm">Discount</span>
+</div>
+</div>
+<!-- Missing Panel -->
+<div class="bg-error-container/50 p-md rounded-lg flex flex-col gap-sm border border-error-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xs text-error">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-headline-sm text-headline-sm">Missing</span>
+</div>
+<span class="font-display-lg text-display-lg text-error text-[32px]">1</span>
+</div>
+<div class="flex flex-wrap gap-xs mt-sm">
+<span class="bg-surface-container-lowest px-sm py-xs rounded-md font-body-sm text-body-sm text-on-surface border border-surface-variant shadow-sm line-through text-outline">Old Price</span>
+</div>
+</div>
+</div>
+<!-- Data Preview Section -->
+<div class="flex flex-col gap-md mt-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Data Preview</h3>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing first 3 rows</span>
+</div>
+<div class="overflow-x-auto rounded-lg border border-surface-variant">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low font-label-md text-label-md text-on-surface-variant uppercase border-b border-surface-variant">
+<th class="py-md px-lg font-semibold">Apartment Name</th>
+<th class="py-md px-lg font-semibold">Price</th>
+<th class="py-md px-lg font-semibold">Status</th>
+<th class="py-md px-lg font-semibold text-secondary">Discount (New)</th>
+<th class="py-md px-lg font-semibold">Rooms</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface bg-surface-container-lowest">
+<tr class="border-b border-surface-variant hover:bg-surface-container-low transition-colors">
+<td class="py-md px-lg font-medium">Sunset Views</td>
+<td class="py-md px-lg">$1,200</td>
+<td class="py-md px-lg">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-primary-fixed text-primary text-[12px] font-medium leading-none">Available</span>
+</td>
+<td class="py-md px-lg text-secondary font-medium">10%</td>
+<td class="py-md px-lg">2</td>
+</tr>
+<tr class="border-b border-surface-variant hover:bg-surface-container-low transition-colors">
+<td class="py-md px-lg font-medium">City Center Loft</td>
+<td class="py-md px-lg">$1,800</td>
+<td class="py-md px-lg">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-surface-variant text-on-surface-variant text-[12px] font-medium leading-none">Leased</span>
+</td>
+<td class="py-md px-lg text-secondary font-medium">0%</td>
+<td class="py-md px-lg">1</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-md px-lg font-medium">Parkside Flats</td>
+<td class="py-md px-lg">$1,500</td>
+<td class="py-md px-lg">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-primary-fixed text-primary text-[12px] font-medium leading-none">Available</span>
+</td>
+<td class="py-md px-lg text-secondary font-medium">5%</td>
+<td class="py-md px-lg">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center justify-end gap-md mt-lg pt-lg border-t border-surface-variant">
+<button class="px-lg py-sm h-10 rounded-lg font-label-md text-label-md text-primary border border-outline-variant hover:bg-surface-container-low transition-colors">
+                Review columns
+            </button>
+<button class="px-lg py-sm h-10 rounded-lg font-label-md text-label-md bg-primary text-on-primary hover:bg-primary-container transition-colors flex items-center gap-xs">
+                Continue update
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Set up your Display - Publishly</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-container": "#ffd2be",
+                "tertiary-fixed-dim": "#ffb695",
+                "surface-container-highest": "#e4e1ee",
+                "on-surface": "#1b1b24",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed": "#351000",
+                "on-primary-fixed": "#0f0069",
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#004e5c",
+                "surface-container-lowest": "#ffffff",
+                "inverse-surface": "#302f39",
+                "surface-container-low": "#f5f2ff",
+                "secondary": "#00687a",
+                "surface-dim": "#dcd8e5",
+                "surface-container": "#f0ecf9",
+                "tertiary": "#7e3000",
+                "on-secondary": "#ffffff",
+                "surface": "#fcf8ff",
+                "on-surface-variant": "#464555",
+                "secondary-container": "#57dffe",
+                "surface-tint": "#4d44e3",
+                "primary-fixed": "#e2dfff",
+                "secondary-fixed-dim": "#4cd7f6",
+                "primary": "#3525cd",
+                "primary-container": "#4f46e5",
+                "on-background": "#1b1b24",
+                "outline-variant": "#c7c4d8",
+                "surface-bright": "#fcf8ff",
+                "on-secondary-container": "#006172",
+                "on-tertiary-fixed-variant": "#7b2f00",
+                "on-error": "#ffffff",
+                "surface-container-high": "#eae6f4",
+                "surface-variant": "#e4e1ee",
+                "outline": "#777587",
+                "on-primary": "#ffffff",
+                "error": "#ba1a1a",
+                "on-secondary-fixed": "#001f26",
+                "inverse-primary": "#c3c0ff",
+                "on-tertiary": "#ffffff",
+                "inverse-on-surface": "#f3effc",
+                "tertiary-fixed": "#ffdbcc",
+                "background": "#fcf8ff",
+                "on-primary-fixed-variant": "#3323cc",
+                "secondary-fixed": "#acedff",
+                "tertiary-container": "#a44100",
+                "primary-fixed-dim": "#c3c0ff",
+                "on-primary-container": "#dad7ff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "2xl": "48px",
+                "container-max": "1280px",
+                "base": "8px",
+                "sm": "8px",
+                "xs": "4px",
+                "lg": "24px",
+                "3xl": "64px",
+                "md": "16px",
+                "xl": "32px"
+        },
+        "fontFamily": {
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "headline-sm": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Inter"
+                ],
+                "display-lg": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .custom-shadow { box-shadow: 0 4px 15px -3px rgba(70, 72, 212, 0.05), 0 4px 6px -4px rgba(70, 72, 212, 0.05); }
+        .drag-handle { cursor: grab; }
+        .drag-handle:active { cursor: grabbing; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-lg antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col gap-sm p-md h-full w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant z-20">
+<div class="mb-xl px-sm flex items-center gap-sm">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div>
+<h1 class="font-display-lg text-headline-md text-primary tracking-tight">Publishly</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">V2.4.0</p>
+</div>
+</div>
+<nav class="flex-1 space-y-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Overview
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-primary-container text-on-primary-container font-bold font-label-md text-label-md active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+                Editor
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors font-label-md text-label-md active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">extension</span>
+                Integration
+            </a>
+</nav>
+<div class="mt-auto">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm rounded-lg font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-sm">
+<span class="material-symbols-outlined">add</span>
+                New Display
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-64 h-full overflow-y-auto">
+<div class="max-w-[1200px] mx-auto p-xl">
+<!-- Header -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-xs">Set up your Display</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Choose how spreadsheet fields should appear on the page.</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-sm shadow-[0_2px_0_0_rgba(0,0,0,0.1)]">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                    Preview Display
+                </button>
+</header>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter items-start">
+<!-- Left Column (8 cols) -->
+<div class="xl:col-span-8 space-y-gutter flex flex-col">
+<!-- Basic Info Card -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter custom-shadow border border-outline-variant/30">
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-sm" for="display-name">Display Name</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" id="display-name" type="text" value="Available Apartments"/>
+</div>
+</section>
+<!-- Field Roles Mapping Card -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter custom-shadow border border-outline-variant/30">
+<div class="mb-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Field Roles</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Map your spreadsheet columns to specific visual elements in the layout.</p>
+</div>
+<div class="space-y-sm">
+<!-- Role Row 1 -->
+<div class="flex items-center gap-md p-md rounded-lg bg-surface-container-low/50 hover:bg-surface-container border border-transparent hover:border-outline-variant transition-colors group">
+<div class="w-10 h-10 rounded bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">title</span>
+</div>
+<div class="flex-1">
+<div class="font-label-md text-label-md text-on-surface mb-xs">Title field</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Primary heading</div>
+</div>
+<div class="w-48 shrink-0">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+<option>Apartment Name</option>
+<option>Building</option>
+<option>Price</option>
+</select>
+</div>
+</div>
+<!-- Role Row 2 -->
+<div class="flex items-center gap-md p-md rounded-lg bg-surface-container-low/50 hover:bg-surface-container border border-transparent hover:border-outline-variant transition-colors group">
+<div class="w-10 h-10 rounded bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">image</span>
+</div>
+<div class="flex-1">
+<div class="font-label-md text-label-md text-on-surface mb-xs">Image field</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Visual media</div>
+</div>
+<div class="w-48 shrink-0">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+<option>Photo</option>
+<option>Floorplan</option>
+<option>None</option>
+</select>
+</div>
+</div>
+<!-- Role Row 3 -->
+<div class="flex items-center gap-md p-md rounded-lg bg-surface-container-low/50 hover:bg-surface-container border border-transparent hover:border-outline-variant transition-colors group">
+<div class="w-10 h-10 rounded bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div class="flex-1">
+<div class="font-label-md text-label-md text-on-surface mb-xs">Price field</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Highlighted numerical value</div>
+</div>
+<div class="w-48 shrink-0">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+<option>Price</option>
+<option>Deposit</option>
+<option>None</option>
+</select>
+</div>
+</div>
+<!-- Role Row 4 -->
+<div class="flex items-center gap-md p-md rounded-lg bg-surface-container-low/50 hover:bg-surface-container border border-transparent hover:border-outline-variant transition-colors group">
+<div class="w-10 h-10 rounded bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">label</span>
+</div>
+<div class="flex-1">
+<div class="font-label-md text-label-md text-on-surface mb-xs">Badge field</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Status or category tag</div>
+</div>
+<div class="w-48 shrink-0">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+<option>Status</option>
+<option>Type</option>
+<option>None</option>
+</select>
+</div>
+</div>
+<!-- Role Row 5 -->
+<div class="flex items-center gap-md p-md rounded-lg bg-surface-container-low/50 hover:bg-surface-container border border-transparent hover:border-outline-variant transition-colors group">
+<div class="w-10 h-10 rounded bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">subtitles</span>
+</div>
+<div class="flex-1">
+<div class="font-label-md text-label-md text-on-surface mb-xs">Subtitle field</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Secondary context</div>
+</div>
+<div class="w-48 shrink-0">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+<option>Building</option>
+<option>Neighborhood</option>
+<option>None</option>
+</select>
+</div>
+</div>
+</div>
+</section>
+<!-- Data Controls Card -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter custom-shadow border border-outline-variant/30">
+<div class="mb-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Filtering &amp; Sorting</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Control what data appears and how users can interact with it.</p>
+</div>
+<div class="space-y-xl">
+<!-- Default Filter -->
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm">Default Filter</h3>
+<div class="flex flex-wrap items-center gap-sm bg-surface-container-low p-md rounded-lg border border-outline-variant/50">
+<span class="font-body-sm text-body-sm text-on-surface">Show rows where</span>
+<select class="bg-surface border border-outline-variant rounded-lg px-sm py-xs font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary outline-none">
+<option>Status</option>
+<option>Building</option>
+<option>Rooms</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded-lg px-sm py-xs font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary outline-none">
+<option>is</option>
+<option>is not</option>
+<option>contains</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded-lg px-sm py-xs font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary outline-none">
+<option>Available</option>
+<option>Rented</option>
+<option>Maintenance</option>
+</select>
+</div>
+</div>
+<!-- Visitor Filters -->
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm">Visitor Filters</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Allow visitors to filter by these fields.</p>
+<div class="flex flex-wrap gap-sm">
+<label class="flex items-center gap-xs px-md py-sm rounded-full bg-primary-container text-on-primary-container border border-primary-container cursor-pointer transition-colors">
+<input checked="" class="rounded border-outline text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm font-medium">Building</span>
+</label>
+<label class="flex items-center gap-xs px-md py-sm rounded-full bg-primary-container text-on-primary-container border border-primary-container cursor-pointer transition-colors">
+<input checked="" class="rounded border-outline text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm font-medium">Rooms</span>
+</label>
+<label class="flex items-center gap-xs px-md py-sm rounded-full bg-primary-container text-on-primary-container border border-primary-container cursor-pointer transition-colors">
+<input checked="" class="rounded border-outline text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm font-medium">Status</span>
+</label>
+<button class="flex items-center gap-xs px-md py-sm rounded-full bg-surface border border-outline-variant text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span class="font-body-sm text-body-sm">Add Filter</span>
+</button>
+</div>
+</div>
+<!-- Sort By -->
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm">Default Sort</h3>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant">sort</span>
+<select class="bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary outline-none w-64">
+<option>Price (Low to high)</option>
+<option>Price (High to low)</option>
+<option>Apartment Name (A-Z)</option>
+<option>Newest first</option>
+</select>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column (4 cols) -->
+<div class="xl:col-span-4">
+<!-- Visible Fields Card -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter custom-shadow border border-outline-variant/30 sticky top-md">
+<div class="flex items-center justify-between mb-lg">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Visible Fields</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Select and reorder visible data.</p>
+</div>
+</div>
+<div class="space-y-xs">
+<!-- Field Item 1 -->
+<div class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-highest transition-colors group">
+<span class="material-symbols-outlined text-outline-variant drag-handle group-hover:text-on-surface-variant">drag_indicator</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 ml-xs" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface ml-xs flex-1">Apartment Name</span>
+</div>
+<!-- Field Item 2 -->
+<div class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-highest transition-colors group">
+<span class="material-symbols-outlined text-outline-variant drag-handle group-hover:text-on-surface-variant">drag_indicator</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 ml-xs" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface ml-xs flex-1">Photo</span>
+</div>
+<!-- Field Item 3 -->
+<div class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-highest transition-colors group">
+<span class="material-symbols-outlined text-outline-variant drag-handle group-hover:text-on-surface-variant">drag_indicator</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 ml-xs" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface ml-xs flex-1">Price</span>
+</div>
+<!-- Field Item 4 -->
+<div class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-highest transition-colors group">
+<span class="material-symbols-outlined text-outline-variant drag-handle group-hover:text-on-surface-variant">drag_indicator</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 ml-xs" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface ml-xs flex-1">Status</span>
+</div>
+<!-- Field Item 5 -->
+<div class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-highest transition-colors group">
+<span class="material-symbols-outlined text-outline-variant drag-handle group-hover:text-on-surface-variant">drag_indicator</span>
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 ml-xs" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface ml-xs flex-1">Building</span>
+</div>
+<!-- Field Item 6 (Unchecked) -->
+<div class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-highest transition-colors group opacity-60 hover:opacity-100">
+<span class="material-symbols-outlined text-outline-variant drag-handle group-hover:text-on-surface-variant">drag_indicator</span>
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 ml-xs" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface ml-xs flex-1">Square Footage</span>
+</div>
+<!-- Field Item 7 (Unchecked) -->
+<div class="flex items-center gap-sm p-sm rounded-lg hover:bg-surface-container-highest transition-colors group opacity-60 hover:opacity-100">
+<span class="material-symbols-outlined text-outline-variant drag-handle group-hover:text-on-surface-variant">drag_indicator</span>
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 ml-xs" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface ml-xs flex-1">Agent Contact</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>

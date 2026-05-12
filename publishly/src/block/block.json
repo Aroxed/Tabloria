@@ -1,0 +1,23 @@
+{
+  "apiVersion": 2,
+  "name": "publishly/display",
+  "title": "Publishly Display",
+  "category": "widgets",
+  "icon": "screenoptions",
+  "description": "Insert a searchable display created from your spreadsheet.",
+  "textdomain": "publishly",
+  "attributes": {
+    "displayId": {
+      "type": "number",
+      "default": 0
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "overrideTitle": {
+      "type": "string",
+      "default": ""
+    }
+  }
+}

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gutenberg Integration - Publishly</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-tertiary-container": "#ffd2be",
+                "tertiary-fixed-dim": "#ffb695",
+                "surface-container-highest": "#e4e1ee",
+                "on-surface": "#1b1b24",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed": "#351000",
+                "on-primary-fixed": "#0f0069",
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#004e5c",
+                "surface-container-lowest": "#ffffff",
+                "inverse-surface": "#302f39",
+                "surface-container-low": "#f5f2ff",
+                "secondary": "#00687a",
+                "surface-dim": "#dcd8e5",
+                "surface-container": "#f0ecf9",
+                "tertiary": "#7e3000",
+                "on-secondary": "#ffffff",
+                "surface": "#fcf8ff",
+                "on-surface-variant": "#464555",
+                "secondary-container": "#57dffe",
+                "surface-tint": "#4d44e3",
+                "primary-fixed": "#e2dfff",
+                "secondary-fixed-dim": "#4cd7f6",
+                "primary": "#3525cd",
+                "primary-container": "#4f46e5",
+                "on-background": "#1b1b24",
+                "outline-variant": "#c7c4d8",
+                "surface-bright": "#fcf8ff",
+                "on-secondary-container": "#006172",
+                "on-tertiary-fixed-variant": "#7b2f00",
+                "on-error": "#ffffff",
+                "surface-container-high": "#eae6f4",
+                "surface-variant": "#e4e1ee",
+                "outline": "#777587",
+                "on-primary": "#ffffff",
+                "error": "#ba1a1a",
+                "on-secondary-fixed": "#001f26",
+                "inverse-primary": "#c3c0ff",
+                "on-tertiary": "#ffffff",
+                "inverse-on-surface": "#f3effc",
+                "tertiary-fixed": "#ffdbcc",
+                "background": "#fcf8ff",
+                "on-primary-fixed-variant": "#3323cc",
+                "secondary-fixed": "#acedff",
+                "tertiary-container": "#a44100",
+                "primary-fixed-dim": "#c3c0ff",
+                "on-primary-container": "#dad7ff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "2xl": "48px",
+                "container-max": "1280px",
+                "base": "8px",
+                "sm": "8px",
+                "xs": "4px",
+                "lg": "24px",
+                "3xl": "64px",
+                "md": "16px",
+                "xl": "32px"
+        },
+        "fontFamily": {
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "body-sm": [
+                        "Inter"
+                ],
+                "headline-sm": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Inter"
+                ],
+                "display-lg": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Custom soft shadow as per style guidance */
+        .shadow-soft {
+            box-shadow: 0 4px 15px 0 rgba(79, 70, 229, 0.05);
+        }
+        .shadow-popover {
+            box-shadow: 0 8px 24px 0 rgba(79, 70, 229, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex h-screen overflow-hidden">
+<!-- SideNavBar (from JSON blueprint) -->
+<nav class="bg-surface-container-low border-r border-outline-variant h-screen w-64 fixed left-0 top-0 flex flex-col gap-sm p-md z-50">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-xl mt-sm px-sm">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[20px]" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Publishly</h1>
+<p class="font-label-sm text-label-sm uppercase text-on-surface-variant">V2.4.0</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-xs flex-1">
+<!-- Overview (Inactive) -->
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm uppercase">Overview</span>
+</a>
+<!-- Analytics (Inactive) -->
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-label-sm text-label-sm uppercase">Analytics</span>
+</a>
+<!-- Editor (Inactive) -->
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="font-label-sm text-label-sm uppercase">Editor</span>
+</a>
+<!-- Integration (Active) -->
+<a class="flex items-center gap-sm px-md py-sm bg-primary-container text-on-primary-container rounded-lg font-bold hover:bg-surface-container-highest transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="extension" data-weight="fill" style="font-variation-settings: 'FILL' 1;">extension</span>
+<span class="font-label-sm text-label-sm uppercase">Integration</span>
+</a>
+</div>
+<!-- CTA -->
+<button class="mt-auto w-full bg-primary text-on-primary font-label-sm text-label-sm uppercase py-md rounded-lg flex items-center justify-center gap-sm shadow-soft hover:bg-secondary transition-colors relative overflow-hidden group">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+            New Display
+            <div class="absolute inset-x-0 bottom-0 h-[2px] bg-black/10"></div>
+</button>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 flex flex-col h-screen overflow-y-auto bg-surface relative">
+<!-- Header Section -->
+<header class="px-xl pt-xl pb-md">
+<h2 class="font-display-lg text-display-lg text-on-surface mb-xs">WordPress Integration</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                See exactly how your Publishly displays behave inside the native WordPress Gutenberg editor. The seamless block integration requires zero coding.
+            </p>
+</header>
+<!-- Simulated Gutenberg Editor Canvas -->
+<div class="px-xl pb-xl flex-1 flex flex-col">
+<div class="flex-1 bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant flex flex-col overflow-hidden relative">
+<!-- Mock WordPress Toolbar -->
+<div class="h-14 bg-surface border-b border-outline-variant flex items-center justify-between px-md shrink-0">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="wordpress">Compass</span> <!-- Using a placeholder icon as WP might not be in material -->
+</div>
+<div class="flex gap-xs">
+<button class="w-8 h-8 rounded hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Saved</span>
+<button class="px-md py-sm border border-outline-variant rounded text-on-surface font-body-sm text-body-sm hover:bg-surface-container-low transition-colors">Save draft</button>
+<button class="px-md py-sm bg-primary text-on-primary rounded font-body-sm text-body-sm hover:bg-secondary transition-colors shadow-sm">Publish</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+</button>
+</div>
+</div>
+<!-- Editor Canvas -->
+<div class="flex-1 overflow-y-auto p-xl flex flex-col items-center">
+<div class="w-full max-w-[800px] flex flex-col gap-lg">
+<!-- Post Title -->
+<input class="w-full text-[42px] leading-[1.2] font-display-lg font-bold text-on-surface border-none focus:ring-0 p-0 bg-transparent placeholder:text-outline-variant" placeholder="Add title" type="text" value="Luxury Downtown Listings"/>
+<!-- Standard Paragraph Block -->
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                            Welcome to our curated selection of premium downtown properties. These exclusive listings offer unparalleled views, state-of-the-art amenities, and immediate access to the city's finest dining and cultural districts. Browse our currently available units below.
+                        </p>
+<!-- PUBLISHLY CUSTOM BLOCK (Active/Selected State) -->
+<div class="relative mt-md group rounded-xl border-2 border-primary bg-surface-container-lowest transition-all">
+<!-- Block Toolbar (Floating above) -->
+<div class="absolute -top-12 left-0 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-popover flex items-center p-xs gap-xs z-10">
+<div class="flex items-center justify-center w-8 h-8 rounded hover:bg-surface-container-low text-primary cursor-pointer">
+<span class="material-symbols-outlined text-[18px]" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="w-[1px] h-4 bg-outline-variant mx-xs"></div>
+<button class="w-8 h-8 rounded hover:bg-surface-container-low flex items-center justify-center text-on-surface-variant transition-colors" title="Change Alignment">
+<span class="material-symbols-outlined text-[18px]" data-icon="format_align_center">format_align_center</span>
+</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-low flex items-center justify-center text-on-surface-variant transition-colors" title="Settings">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+</button>
+<div class="w-[1px] h-4 bg-outline-variant mx-xs"></div>
+<button class="w-8 h-8 rounded hover:bg-error-container hover:text-error flex items-center justify-center text-on-surface-variant transition-colors" title="Remove Block">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+<!-- Block Header & Controls -->
+<div class="p-md border-b border-outline-variant flex items-center justify-between bg-surface-container-low rounded-t-lg">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[14px]" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<span class="font-headline-md text-body-sm font-semibold text-on-surface">Publishly Display</span>
+</div>
+<div class="flex items-center gap-md">
+<!-- Display Selector -->
+<div class="relative">
+<select class="appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg pl-md pr-xl py-sm font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary w-56 shadow-sm cursor-pointer">
+<option value="featured-properties">Featured Properties</option>
+<option selected="" value="available-apartments">Available Apartments</option>
+<option value="agent-roster">Agent Roster</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none text-[18px]" data-icon="expand_more">expand_more</span>
+</div>
+<!-- Edit Link -->
+<a class="flex items-center gap-xs text-primary hover:text-secondary font-label-sm text-label-sm uppercase transition-colors" href="#">
+                                        Edit this Display in Publishly
+                                        <span class="material-symbols-outlined text-[14px]" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Block Instant Preview Canvas (Bento Layout) -->
+<div class="p-lg bg-surface rounded-b-xl">
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Preview Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm flex flex-col group cursor-pointer hover:shadow-soft transition-all">
+<div class="h-48 bg-surface-container relative overflow-hidden">
+<img alt="Modern apartment interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A luxurious, modern apartment living room with floor-to-ceiling windows overlooking a vibrant city skyline at sunset. The interior features minimalist furniture, a plush white sofa, and warm ambient lighting. The color palette is dominated by soft neutrals, warm wood tones, and hints of deep indigo, reflecting a sophisticated, high-end real estate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDmZTD8p3nH1kgh5a8_2lU4DCNnZQfsy9kMCYV-iWDcImYn3VsfvmI47sUEDnuRIatOjPZG8uYqkwotBYxvxHeTgKMOLXeR8MZj2PHYTN2QVFjPCsrqe4L_9VYbcb9VH5jx9GF4uz1LSJ4Rtncq-HeMvR67DV14cIL3j7nRAKpkBKgXIcpQtJxu-GKjlEX-z1z-hV8_PtmX9J1CSrgtvrhtMJKFz1ce45rsJMT45u3NxubXFE6769TsuJ1DbehJvMM77mMGe75b_7t"/>
+<div class="absolute top-sm right-sm bg-inverse-surface text-inverse-on-surface font-label-sm text-[10px] px-sm py-xs rounded uppercase tracking-wider">Available</div>
+</div>
+<div class="p-md flex flex-col gap-sm flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-headline-md text-[16px] text-on-surface line-clamp-1">The Grand Horizon Loft</h4>
+<span class="font-headline-md text-[16px] text-primary">$4,200<span class="text-[12px] text-outline font-normal">/mo</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Stunning panoramic views from this high-floor corner unit featuring custom finishes and wrap-around balcony.</p>
+<div class="mt-auto pt-sm border-t border-surface-variant flex items-center gap-md text-outline">
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="bed">bed</span> <span class="font-label-sm uppercase text-[11px]">2 Bed</span></div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="bathtub">bathtub</span> <span class="font-label-sm uppercase text-[11px]">2 Bath</span></div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="square_foot">square_foot</span> <span class="font-label-sm uppercase text-[11px]">1,150 sqft</span></div>
+</div>
+</div>
+</div>
+<!-- Preview Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm flex flex-col group cursor-pointer hover:shadow-soft transition-all">
+<div class="h-48 bg-surface-container relative overflow-hidden">
+<img alt="Contemporary kitchen interior" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A bright, airy contemporary kitchen in an upscale loft apartment. The design includes sleek marble countertops, matte black fixtures, and light oak cabinetry. Natural sunlight streams through large industrial-style windows. The overall aesthetic is clean, minimal, and aspirational, utilizing a palette of crisp whites, soft grays, and subtle natural textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxnsvD8akQKvDSstg1tB5eCRVl0LWQyyI7X_dwIq36XXLevjnHGMw7yd3vxIZWtPDvtzB5Vi3sgUTe5bZ6O7d47FRoR-FXGEVW73iWQT2E7Iv3mND0Mp-LpsHx5CykJ8XM71BItcQocJkxiZKU1PfvQVt6Z2L_kZuYUOdo7ku_lfZUrgrV6rabkVxsqI0LUrIYMIcUWlH3_h8uOIoawvzZ9lY3pO1CXBOUElQxV1x5u90RRfmQQpNIrd7X7PNv_Guq0YwJwOSCl6F1"/>
+<div class="absolute top-sm right-sm bg-inverse-surface text-inverse-on-surface font-label-sm text-[10px] px-sm py-xs rounded uppercase tracking-wider">Available</div>
+</div>
+<div class="p-md flex flex-col gap-sm flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-headline-md text-[16px] text-on-surface line-clamp-1">Metro Arts District Flat</h4>
+<span class="font-headline-md text-[16px] text-primary">$3,850<span class="text-[12px] text-outline font-normal">/mo</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Industrial chic meets modern luxury in this open-concept space, located steps from premier galleries and cafes.</p>
+<div class="mt-auto pt-sm border-t border-surface-variant flex items-center gap-md text-outline">
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="bed">bed</span> <span class="font-label-sm uppercase text-[11px]">1 Bed</span></div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="bathtub">bathtub</span> <span class="font-label-sm uppercase text-[11px]">1.5 Bath</span></div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="square_foot">square_foot</span> <span class="font-label-sm uppercase text-[11px]">980 sqft</span></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Preview Overlay Indicator -->
+<div class="mt-md text-center">
+<span class="inline-flex items-center gap-xs px-sm py-xs bg-surface-container-high text-on-surface-variant rounded-full font-label-sm text-[10px] uppercase tracking-widest border border-outline-variant">
+<span class="material-symbols-outlined text-[12px]" data-icon="visibility">visibility</span>
+                                        Live Editor Preview
+                                    </span>
+</div>
+</div>
+</div>
+<!-- Another paragraph to show block insertion context -->
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mt-sm">
+                            Contact our leasing office today to schedule a private walkthrough of these exceptional properties. Availability is limited and terms are subject to change.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

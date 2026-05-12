@@ -1,0 +1,381 @@
+.publishly-display {
+	--publishly-accent: #3525cd;
+	color: #1b1b24;
+	font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	margin: 2rem 0;
+}
+
+.publishly-display *,
+.publishly-display *::before,
+.publishly-display *::after {
+	box-sizing: border-box;
+}
+
+.publishly-display__header {
+	margin-bottom: 1.25rem;
+}
+
+.publishly-display__header h2 {
+	margin: 0;
+	font-size: clamp(1.8rem, 4vw, 3rem);
+	line-height: 1.1;
+	letter-spacing: 0;
+}
+
+.publishly-display__controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: center;
+	justify-content: space-between;
+	border: 1px solid #ded9ee;
+	border-radius: 12px;
+	background: #fff;
+	margin-bottom: 1.5rem;
+	padding: 1rem;
+}
+
+.publishly-display__search {
+	flex: 1 1 260px;
+}
+
+.publishly-display input[type="search"],
+.publishly-display select {
+	width: 100%;
+	min-height: 42px;
+	border: 1px solid #c9c3df;
+	border-radius: 8px;
+	background: #fff;
+	color: #1b1b24;
+	font: inherit;
+	padding: 0.55rem 0.75rem;
+}
+
+.publishly-display input[type="search"]:focus,
+.publishly-display select:focus {
+	border-color: var(--publishly-accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--publishly-accent) 18%, transparent);
+	outline: none;
+}
+
+.publishly-display__filters {
+	display: flex;
+	flex: 2 1 360px;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	justify-content: flex-end;
+}
+
+.publishly-display__filters label {
+	min-width: 150px;
+}
+
+.publishly-display__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+	gap: 1.25rem;
+}
+
+.publishly-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	border: 1px solid #e2deef;
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0 8px 22px rgba(53, 37, 205, 0.06);
+	overflow: hidden;
+	container-type: inline-size;
+}
+
+.publishly-display.is-compact .publishly-card {
+	border-radius: 8px;
+}
+
+.publishly-card[hidden] {
+	display: none;
+}
+
+.publishly-card__image {
+	position: relative;
+	aspect-ratio: 16 / 10;
+	background: #f5f2ff;
+	overflow: hidden;
+}
+
+.publishly-card__image img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.publishly-display.is-rounded .publishly-card__image img {
+	border-radius: 0;
+}
+
+.publishly-card__badge {
+	position: absolute;
+	top: 0.75rem;
+	left: 0.75rem;
+	border-radius: 999px;
+	background: var(--publishly-accent);
+	color: #fff;
+	font-size: 0.78rem;
+	font-weight: 700;
+	line-height: 1;
+	padding: 0.4rem 0.65rem;
+}
+
+.publishly-card__badge--plain {
+	position: static;
+	align-self: flex-start;
+	margin: 1rem 1rem 0;
+}
+
+.publishly-card__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	padding: 1.1rem;
+}
+
+.publishly-display.is-compact .publishly-card__body {
+	padding: 0.85rem;
+}
+
+.publishly-card h3 {
+	margin: 0 0 0.35rem;
+	font-size: 1.25rem;
+	line-height: 1.25;
+	letter-spacing: 0;
+	overflow-wrap: anywhere;
+}
+
+.publishly-card__subtitle {
+	color: #5f5d70;
+	margin: 0 0 0.8rem;
+	overflow-wrap: anywhere;
+}
+
+.publishly-card__price {
+	color: var(--publishly-accent);
+	font-size: 1.45rem;
+	font-weight: 800;
+	line-height: 1.15;
+	margin: auto 0 0.8rem;
+}
+
+.publishly-card__fields {
+	display: grid;
+	gap: 0.7rem;
+	margin: 0;
+	padding-top: 0.85rem;
+	border-top: 1px solid #eeeaf7;
+}
+
+.publishly-card__fields div {
+	display: grid;
+	grid-template-columns: minmax(92px, 0.42fr) minmax(0, 1fr);
+	gap: 0.75rem;
+	align-items: start;
+	min-width: 0;
+}
+
+.publishly-card__fields dt {
+	color: #6c687d;
+	font-size: 0.78rem;
+	font-weight: 700;
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+}
+
+.publishly-card__fields dd {
+	margin: 0;
+	color: #2d2b3b;
+	font-size: 0.9rem;
+	line-height: 1.3;
+	min-width: 0;
+	overflow-wrap: anywhere;
+	text-align: left;
+	word-break: break-word;
+}
+
+@container (max-width: 260px) {
+	.publishly-card__fields div {
+		grid-template-columns: 1fr;
+		gap: 0.25rem;
+	}
+}
+
+.publishly-display__empty {
+	border: 1px dashed #c9c3df;
+	border-radius: 12px;
+	background: #fff;
+	color: #5f5d70;
+	margin-top: 1rem;
+	padding: 2rem;
+	text-align: center;
+}
+
+.publishly-display__footer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 1.5rem;
+}
+
+.publishly-display__status {
+	color: #5f5d70;
+	font-size: 0.92rem;
+	margin: 0;
+}
+
+.publishly-display__pagination {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	justify-content: center;
+	margin-left: auto;
+}
+
+.publishly-display__pagination button {
+	display: inline-grid;
+	min-width: 38px;
+	height: 38px;
+	place-items: center;
+	border: 1px solid #c9c3df;
+	border-radius: 8px;
+	background: #fff;
+	color: #1b1b24;
+	cursor: pointer;
+	font: inherit;
+	font-weight: 700;
+	padding: 0 0.75rem;
+}
+
+.publishly-display__pagination button:disabled {
+	cursor: not-allowed;
+	opacity: 0.45;
+}
+
+.publishly-display__pagination button.is-active {
+	border-color: var(--publishly-accent);
+	background: var(--publishly-accent);
+	color: #fff;
+}
+
+.publishly-display__page-note {
+	display: inline-grid;
+	min-width: 28px;
+	height: 38px;
+	place-items: center;
+	color: #6c687d;
+	font-size: 0.9rem;
+}
+
+.publishly-notice {
+	border: 1px solid #c9c3df;
+	border-radius: 10px;
+	background: #fff;
+	color: #5f5d70;
+	padding: 1rem;
+}
+
+.publishly-editor-preview {
+	border: 2px solid #3525cd;
+	border-radius: 10px;
+	background: #fcf8ff;
+	color: #1b1b24;
+	font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	overflow: hidden;
+}
+
+.publishly-editor-preview__toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+	justify-content: space-between;
+	border-bottom: 1px solid #d8d4e8;
+	background: #f5f2ff;
+	padding: 0.75rem 1rem;
+}
+
+.publishly-editor-preview__toolbar .components-base-control {
+	min-width: 260px;
+	margin-bottom: 0;
+}
+
+.publishly-editor-preview__body {
+	padding: 1.25rem;
+}
+
+.publishly-editor-preview__body h3 {
+	margin: 0 0 1rem;
+	font-size: 1.5rem;
+}
+
+.publishly-editor-preview__grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.publishly-editor-preview__card {
+	border: 1px solid #e2deef;
+	border-radius: 8px;
+	background: #fff;
+	padding: 0.8rem;
+}
+
+.publishly-editor-preview__image {
+	height: 120px;
+	border-radius: 7px;
+	background: linear-gradient(135deg, #e2dfff, #acedff);
+	margin-bottom: 0.75rem;
+}
+
+.publishly-editor-preview__card strong,
+.publishly-editor-preview__card span,
+.publishly-editor-preview__card em {
+	display: block;
+}
+
+.publishly-editor-preview__card span {
+	color: #5f5d70;
+	margin-top: 0.25rem;
+}
+
+.publishly-editor-preview__card em {
+	color: #3525cd;
+	font-size: 1.1rem;
+	font-style: normal;
+	font-weight: 800;
+	margin-top: 0.55rem;
+}
+
+.publishly-editor-preview__note {
+	color: #5f5d70;
+	font-size: 0.85rem;
+	margin: 1rem 0 0;
+}
+
+@media (max-width: 640px) {
+	.publishly-display__grid,
+	.publishly-display__controls,
+	.publishly-display__filters {
+		grid-template-columns: 1fr;
+	}
+
+	.publishly-display__grid {
+		display: grid;
+	}
+
+	.publishly-display__filters {
+		justify-content: stretch;
+	}
+}

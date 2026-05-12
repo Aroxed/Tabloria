@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Publishly</title>
+  <rect width="64" height="64" rx="14" fill="#3525cd"/>
+  <rect x="15" y="15" width="13" height="13" rx="3" fill="#ffffff"/>
+  <rect x="36" y="15" width="13" height="13" rx="3" fill="#ffffff" opacity="0.86"/>
+  <rect x="15" y="36" width="13" height="13" rx="3" fill="#ffffff" opacity="0.86"/>
+  <path d="M37 38h11v4H37v-4Zm0 8h11v4H37v-4Z" fill="#ffffff"/>
+</svg>
