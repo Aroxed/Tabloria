@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Publishly
  * Description: A friendly spreadsheet publishing assistant for creating reusable searchable WordPress Displays.
- * Version: 0.1.8
+ * Version: 0.1.36
  * Author: Publishly
  * Text Domain: publishly
  * Requires at least: 6.3
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PUBLISHLY_VERSION', '0.1.8' );
+define( 'PUBLISHLY_VERSION', '0.1.36' );
 define( 'PUBLISHLY_FILE', __FILE__ );
 define( 'PUBLISHLY_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PUBLISHLY_URL', plugin_dir_url( __FILE__ ) );

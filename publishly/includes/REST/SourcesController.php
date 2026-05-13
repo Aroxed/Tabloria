@@ -38,7 +38,7 @@ class SourcesController {
 				'permission_callback' => array( $this, 'permissions_check' ),
 				'args'                => array(
 					'id' => array(
-						'validate_callback' => 'is_numeric',
+						'validate_callback' => static fn( $value ): bool => is_numeric( $value ),
 					),
 				),
 			)

@@ -152,6 +152,13 @@ class DisplaysController {
 		if ( is_array( $config ) ) {
 			$data['config'] = $this->generator->sanitize_config( $config, $source );
 		}
+		$display_type = $request->get_param( 'displayType' );
+		if ( null === $display_type && ! empty( $data['config']['displayType'] ) ) {
+			$display_type = $data['config']['displayType'];
+		}
+		if ( null !== $display_type ) {
+			$data['display_type'] = sanitize_key( $display_type );
+		}
 		if ( null !== $request->get_param( 'name' ) ) {
 			$data['name'] = sanitize_text_field( $request->get_param( 'name' ) );
 		}

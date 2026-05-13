@@ -36,9 +36,10 @@ class DisplayGenerator {
 				'perPage' => 12,
 			),
 			'style'          => array(
-				'accentColor' => '#3525cd',
-				'density'     => 'comfortable',
-				'imageShape'  => 'rounded',
+				'accentColor'  => '#3525cd',
+				'density'      => 'comfortable',
+				'imageShape'   => 'rounded',
+				'displayWidth' => 'normal',
 			),
 		);
 
@@ -76,10 +77,12 @@ class DisplayGenerator {
 		$config['defaultFilters'] = array_values(
 			array_map(
 				static function ( array $filter ) use ( $allowed_keys ): array {
-					$field = sanitize_key( $filter['field'] ?? '' );
+					$field             = sanitize_key( $filter['field'] ?? '' );
+					$operator          = sanitize_key( $filter['operator'] ?? 'equals' );
+					$allowed_operators = array( 'equals', 'not_equals', 'contains', 'less_than', 'greater_than' );
 					return array(
 						'field'    => in_array( $field, $allowed_keys, true ) ? $field : '',
-						'operator' => sanitize_key( $filter['operator'] ?? 'equals' ),
+						'operator' => in_array( $operator, $allowed_operators, true ) ? $operator : 'equals',
 						'value'    => sanitize_text_field( $filter['value'] ?? '' ),
 					);
 				},
@@ -98,10 +101,12 @@ class DisplayGenerator {
 			'enabled' => ! empty( $config['pagination']['enabled'] ),
 			'perPage' => max( 1, min( 100, absint( $config['pagination']['perPage'] ?? 12 ) ) ),
 		);
+		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
 		$config['style'] = array(
-			'accentColor' => sanitize_hex_color( $config['style']['accentColor'] ?? '#3525cd' ) ?: '#3525cd',
-			'density'     => 'compact' === ( $config['style']['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
-			'imageShape'  => 'square' === ( $config['style']['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
+			'accentColor'  => sanitize_hex_color( $config['style']['accentColor'] ?? '#3525cd' ) ?: '#3525cd',
+			'density'      => 'compact' === ( $config['style']['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
+			'imageShape'   => 'square' === ( $config['style']['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
+			'displayWidth' => in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal',
 		);
 
 		return $config;

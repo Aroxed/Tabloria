@@ -91,6 +91,16 @@
 	margin: 0 0 48px;
 }
 
+.publishly-choice-hero {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.publishly-choice-hero + .publishly-type-grid + .publishly-actions {
+	justify-content: center;
+}
+
 .publishly-kicker {
 	margin: 0 0 12px;
 	color: var(--publishly-primary);
@@ -221,11 +231,19 @@
 	transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.publishly-type-grid .publishly-card {
+	min-height: 232px;
+}
+
 .publishly-card:hover,
 .publishly-card.is-selected {
 	border-color: var(--publishly-primary);
 	box-shadow: 0 16px 36px rgba(53, 37, 205, 0.1);
 	transform: translateY(-2px);
+}
+
+.publishly-card.is-selected {
+	box-shadow: 0 0 0 1px var(--publishly-primary), 0 16px 36px rgba(53, 37, 205, 0.1);
 }
 
 .publishly-card__preview {
@@ -236,6 +254,166 @@
 	border-radius: 10px;
 	background: var(--publishly-surface-low);
 	padding: 14px;
+}
+
+.publishly-card__preview > div {
+	height: 100%;
+}
+
+.publishly-card__preview i,
+.publishly-card__preview b,
+.publishly-card__preview em {
+	display: block;
+	border-radius: 999px;
+	background: #d9d5e8;
+	font-style: normal;
+}
+
+.publishly-preview-listings {
+	display: grid;
+	gap: 9px;
+}
+
+.publishly-preview-listings span {
+	display: grid;
+	grid-template-columns: 58px minmax(0, 1fr);
+	gap: 8px 10px;
+	align-items: center;
+}
+
+.publishly-preview-listings i {
+	grid-row: span 2;
+	height: 38px;
+	border-radius: 8px;
+	background: #cfd7f5;
+}
+
+.publishly-preview-listings b {
+	height: 10px;
+	width: 82%;
+}
+
+.publishly-preview-listings em {
+	height: 8px;
+	width: 58%;
+}
+
+.publishly-preview-products,
+.publishly-preview-team,
+.publishly-preview-pricing {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.publishly-preview-products span,
+.publishly-preview-team span,
+.publishly-preview-pricing span {
+	display: grid;
+	min-width: 0;
+	gap: 6px;
+}
+
+.publishly-preview-products i {
+	height: 50px;
+	border-radius: 8px;
+	background: #c5e4ef;
+}
+
+.publishly-preview-products b,
+.publishly-preview-products em,
+.publishly-preview-team b,
+.publishly-preview-team em {
+	height: 7px;
+}
+
+.publishly-preview-products em,
+.publishly-preview-team em {
+	width: 68%;
+}
+
+.publishly-preview-team span {
+	justify-items: center;
+}
+
+.publishly-preview-team i {
+	width: 38px;
+	height: 38px;
+	border-radius: 999px;
+	background: #d4cff2;
+}
+
+.publishly-preview-team b {
+	width: 82%;
+}
+
+.publishly-preview-schedule {
+	display: grid;
+	gap: 8px;
+}
+
+.publishly-preview-schedule span {
+	display: grid;
+	grid-template-columns: 46px minmax(0, 1fr);
+	gap: 5px 10px;
+	align-items: center;
+}
+
+.publishly-preview-schedule i {
+	grid-row: span 2;
+	height: 24px;
+	border-radius: 7px;
+	background: #cde8dc;
+}
+
+.publishly-preview-schedule b {
+	height: 9px;
+	width: 86%;
+}
+
+.publishly-preview-schedule em {
+	height: 7px;
+	width: 54%;
+}
+
+.publishly-preview-pricing span {
+	align-content: start;
+	border: 1px solid #d9d5e8;
+	border-radius: 8px;
+	padding: 8px;
+	background: #fff;
+}
+
+.publishly-preview-pricing b {
+	height: 8px;
+	width: 70%;
+}
+
+.publishly-preview-pricing i {
+	height: 18px;
+	width: 78%;
+	border-radius: 6px;
+	background: #d1c8f7;
+}
+
+.publishly-preview-pricing em {
+	height: 6px;
+	width: 100%;
+}
+
+.publishly-preview-table {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 6px;
+}
+
+.publishly-preview-table span {
+	border-radius: 5px;
+	background: #d9d5e8;
+}
+
+.publishly-preview-table span:nth-child(-n+4) {
+	background: #c7c1dc;
 }
 
 .publishly-preview-lines {
@@ -270,8 +448,91 @@
 	padding: 28px;
 }
 
+.publishly-panel--compact {
+	padding: 20px;
+}
+
+.publishly-panel--compact h2 {
+	font-size: 20px;
+}
+
 .publishly-panel + .publishly-panel {
 	margin-top: 24px;
+}
+
+.publishly-setup-controls .publishly-panel + .publishly-panel {
+	margin-top: 12px;
+}
+
+.publishly-accordion.publishly-panel--compact {
+	padding: 0;
+	overflow: hidden;
+}
+
+.publishly-accordion__summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 14px 16px;
+	cursor: pointer;
+	list-style: none;
+}
+
+.publishly-accordion__summary::-webkit-details-marker {
+	display: none;
+}
+
+.publishly-accordion__summary strong,
+.publishly-accordion__summary small {
+	display: block;
+}
+
+.publishly-accordion__summary strong {
+	color: var(--publishly-text);
+	font-size: 16px;
+	line-height: 1.25;
+}
+
+.publishly-accordion__summary small {
+	margin-top: 3px;
+	color: var(--publishly-muted);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.publishly-accordion__summary::after {
+	content: "+";
+	display: grid;
+	place-items: center;
+	flex: 0 0 24px;
+	width: 24px;
+	height: 24px;
+	border-radius: 999px;
+	background: var(--publishly-primary-soft);
+	color: var(--publishly-primary);
+	font-size: 18px;
+	font-weight: 800;
+	line-height: 1;
+}
+
+.publishly-accordion[open] .publishly-accordion__summary::after {
+	content: "-";
+}
+
+.publishly-accordion__summary:focus-visible {
+	outline: 2px solid var(--publishly-primary);
+	outline-offset: -4px;
+}
+
+.publishly-accordion__body {
+	border-top: 1px solid #ebe7f5;
+	padding: 16px;
+}
+
+.publishly-accordion__body > h3:first-child {
+	margin-top: 0;
 }
 
 .publishly-upload {
@@ -354,10 +615,16 @@
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 14px;
+	align-items: start;
+}
+
+.publishly-form-grid--compact {
+	gap: 12px;
 }
 
 .publishly-field {
 	display: grid;
+	align-content: start;
 	gap: 7px;
 }
 
@@ -366,6 +633,12 @@
 	color: #343242;
 	font-size: 13px;
 	font-weight: 750;
+}
+
+.publishly-help {
+	color: var(--publishly-muted);
+	font-size: 12px;
+	line-height: 1.4;
 }
 
 .publishly-field input,
@@ -384,15 +657,41 @@
 	padding: 8px 12px;
 }
 
+.publishly-field select,
+.publishly-select {
+	appearance: none;
+	background-color: #fff;
+	background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6l4 4 4-4' fill='none' stroke='%235f5d70' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-position: right 12px center;
+	background-repeat: no-repeat;
+	background-size: 16px 16px;
+	padding-right: 38px;
+}
+
 .publishly-role-row,
 .publishly-check-row {
 	display: grid;
-	grid-template-columns: 1fr 240px;
-	align-items: center;
-	gap: 16px;
+	gap: 10px;
 	border-radius: 10px;
 	background: var(--publishly-surface-low);
 	padding: 14px 16px;
+}
+
+.publishly-role-row__copy {
+	display: grid;
+	gap: 4px;
+	min-width: 0;
+}
+
+.publishly-role-row__copy strong {
+	color: #343242;
+	font-size: 13px;
+	line-height: 1.25;
+}
+
+.publishly-role-row__copy span {
+	font-size: 13px;
+	line-height: 1.35;
 }
 
 .publishly-role-row + .publishly-role-row,
@@ -402,8 +701,266 @@
 
 .publishly-check-row {
 	grid-template-columns: 26px 1fr;
+	align-items: center;
 	background: #fff;
 	border: 1px solid #ebe7f5;
+}
+
+.publishly-radio-group {
+	display: grid;
+	gap: 10px;
+	border: 0;
+	margin: 0 0 14px;
+	padding: 0;
+}
+
+.publishly-radio-group legend {
+	color: #343242;
+	font-size: 13px;
+	font-weight: 800;
+	line-height: 1.25;
+	margin-bottom: 2px;
+	padding: 0;
+}
+
+.publishly-radio-row {
+	display: grid;
+	grid-template-columns: 24px 1fr;
+	align-items: center;
+	border: 1px solid #ebe7f5;
+	border-radius: 10px;
+	background: #fff;
+	padding: 10px 12px;
+}
+
+.publishly-radio-row span {
+	color: var(--publishly-text);
+	font-size: 13px;
+	line-height: 1.35;
+}
+
+.publishly-content-mapper {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
+	gap: 22px;
+	align-items: start;
+	margin-top: 20px;
+}
+
+.publishly-content-mapper.is-controls-only {
+	grid-template-columns: 1fr;
+}
+
+.publishly-content-mapper__controls {
+	min-width: 0;
+}
+
+.publishly-detail-field-list {
+	display: grid;
+	max-height: 360px;
+	overflow: auto;
+	padding-right: 4px;
+}
+
+.publishly-content-example {
+	position: sticky;
+	top: 116px;
+	min-width: 0;
+	border: 1px solid #ebe7f5;
+	border-radius: 12px;
+	background: #fff;
+	padding: 16px;
+	box-shadow: 0 12px 28px rgba(53, 37, 205, 0.07);
+}
+
+.publishly-example-label,
+.publishly-slot-label {
+	margin: 0 0 8px;
+	color: var(--publishly-primary);
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.publishly-slot-label {
+	margin-top: 12px;
+	margin-bottom: 5px;
+	color: var(--publishly-muted);
+}
+
+.publishly-mapping-card {
+	border: 1px solid #e2deef;
+	border-radius: 10px;
+	overflow: hidden;
+	background: #fff;
+}
+
+.publishly-mapping-card__body {
+	padding: 14px;
+}
+
+.publishly-mapping-card h4 {
+	margin: 0;
+	font-size: 18px;
+	line-height: 1.25;
+}
+
+.publishly-mapping-card p {
+	margin: 0;
+	color: var(--publishly-muted);
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+.publishly-mapping-card strong {
+	display: block;
+	color: var(--publishly-primary);
+	font-size: 22px;
+	line-height: 1.2;
+}
+
+.publishly-mapping-badge {
+	display: inline-flex;
+	border-radius: 999px;
+	background: var(--publishly-primary);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 800;
+	line-height: 1;
+	margin-bottom: 10px;
+	padding: 5px 8px;
+}
+
+.publishly-mapping-product .publishly-mini-card__image {
+	height: 150px;
+}
+
+.publishly-mapping-profile {
+	text-align: center;
+}
+
+.publishly-mapping-profile .publishly-mini-card__image {
+	width: 128px;
+	height: 128px;
+	margin: 18px auto 0;
+	border-radius: 999px;
+}
+
+.publishly-mapping-profile .publishly-mini-card__image img {
+	border-radius: 999px;
+}
+
+.publishly-mapping-profile .publishly-mapping-badge {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.publishly-mapping-pricing {
+	text-align: center;
+}
+
+.publishly-mapping-pricing strong {
+	font-size: 34px;
+	margin: 4px 0 8px;
+}
+
+.publishly-mapping-schedule {
+	display: grid;
+	grid-template-columns: minmax(92px, 0.32fr) minmax(0, 1fr);
+	gap: 14px;
+	border: 1px solid #e2deef;
+	border-left: 4px solid var(--publishly-primary);
+	border-radius: 10px;
+	background: #fff;
+	padding: 14px;
+}
+
+.publishly-mapping-schedule__time {
+	display: grid;
+	align-content: start;
+	gap: 7px;
+	border-radius: 8px;
+	background: var(--publishly-surface-low);
+	padding: 12px;
+}
+
+.publishly-mapping-schedule__time span {
+	color: var(--publishly-muted);
+	font-size: 11px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.publishly-mapping-schedule__time strong {
+	color: var(--publishly-primary);
+	font-size: 18px;
+	line-height: 1.2;
+	overflow-wrap: break-word;
+}
+
+.publishly-mapping-schedule__body {
+	min-width: 0;
+}
+
+.publishly-mapping-schedule h4 {
+	margin: 0;
+	font-size: 18px;
+	line-height: 1.25;
+}
+
+.publishly-mapping-schedule p {
+	margin: 0;
+	color: var(--publishly-muted);
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+.publishly-mapping-table-wrap {
+	max-width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	border: 1px solid #e2deef;
+	border-radius: 10px;
+	padding-bottom: 2px;
+}
+
+.publishly-mapping-table {
+	width: 100%;
+	min-width: var(--publishly-table-min-width, 520px);
+	border-collapse: collapse;
+}
+
+.publishly-mapping-table th,
+.publishly-mapping-table td {
+	border-bottom: 1px solid #eeeaf7;
+	min-width: 150px;
+	padding: 9px 10px;
+	text-align: left;
+	vertical-align: top;
+}
+
+.publishly-mapping-table-wrap.is-width-wide .publishly-mapping-table th,
+.publishly-mapping-table-wrap.is-width-wide .publishly-mapping-table td,
+.publishly-mapping-table-wrap.is-width-full .publishly-mapping-table th,
+.publishly-mapping-table-wrap.is-width-full .publishly-mapping-table td {
+	min-width: 0;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.publishly-mapping-table th {
+	background: var(--publishly-surface-low);
+	color: #343242;
+	font-size: 11px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.publishly-mapping-table td {
+	color: var(--publishly-text);
+	font-size: 13px;
+	overflow-wrap: break-word;
 }
 
 .publishly-filter-builder {
@@ -417,6 +974,10 @@
 	gap: 10px;
 }
 
+.publishly-swatch-row.is-compact {
+	gap: 8px;
+}
+
 .publishly-swatch {
 	width: 34px;
 	height: 34px;
@@ -424,6 +985,11 @@
 	border-radius: 999px;
 	background: var(--swatch);
 	cursor: pointer;
+}
+
+.publishly-swatch-row.is-compact .publishly-swatch {
+	width: 30px;
+	height: 30px;
 }
 
 .publishly-swatch.is-selected {
@@ -453,12 +1019,66 @@
 	box-shadow: 0 1px 4px rgba(27, 27, 36, 0.08);
 }
 
+.publishly-control-row {
+	display: grid;
+	gap: 8px;
+	padding: 12px 0;
+	border-top: 1px solid #eeeaf7;
+}
+
+.publishly-control-row:first-of-type {
+	border-top: 0;
+	padding-top: 4px;
+}
+
+.publishly-segmented.is-tight {
+	width: 100%;
+}
+
+.publishly-segmented.is-tight button {
+	font-size: 12px;
+	padding: 9px 8px;
+}
+
 .publishly-toggle-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 18px;
 	padding: 12px 0;
+}
+
+.publishly-panel--compact .publishly-toggle-row {
+	padding: 9px 0;
+}
+
+.publishly-setup-layout {
+	display: grid;
+	grid-template-columns: minmax(380px, 0.36fr) minmax(0, 1fr);
+	gap: 22px;
+	align-items: start;
+}
+
+.publishly-setup-controls {
+	position: sticky;
+	top: 116px;
+	min-width: 0;
+}
+
+.publishly-setup-actions {
+	margin-top: 18px;
+}
+
+.publishly-setup-actions .publishly-button {
+	flex: 1 1 auto;
+}
+
+.publishly-setup-preview {
+	min-width: 0;
+}
+
+.publishly-setup-preview .publishly-preview__body {
+	padding: 32px;
 }
 
 .publishly-preview {
@@ -506,6 +1126,10 @@
 	min-width: 0;
 }
 
+.publishly-mini-preview {
+	min-width: 0;
+}
+
 .publishly-mini-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -515,6 +1139,18 @@
 
 .publishly-mini-preview.is-compact .publishly-mini-grid {
 	gap: 10px;
+}
+
+.publishly-mini-empty {
+	grid-column: 1 / -1;
+	margin: 0;
+}
+
+.publishly-mini-list,
+.publishly-mini-schedule-list {
+	display: grid;
+	gap: 12px;
+	margin-top: 18px;
 }
 
 .publishly-mini-card {
@@ -548,6 +1184,149 @@
 
 .publishly-mini-card__body {
 	padding: 14px;
+}
+
+.publishly-mini-listing,
+.publishly-mini-schedule-item,
+.publishly-mini-profile-card,
+.publishly-mini-price-card {
+	border: 1px solid #e2deef;
+	border-radius: 10px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.publishly-mini-listing {
+	display: grid;
+	grid-template-columns: minmax(128px, 0.32fr) minmax(0, 1fr);
+	min-height: 142px;
+}
+
+.publishly-mini-listing .publishly-mini-card__image {
+	height: 100%;
+	min-height: 142px;
+}
+
+.publishly-mini-listing__body,
+.publishly-mini-schedule-item__body {
+	min-width: 0;
+	padding: 16px;
+}
+
+.publishly-mini-badge {
+	display: inline-flex;
+	width: fit-content;
+	border-radius: 999px;
+	background: var(--publishly-primary-soft);
+	color: var(--publishly-primary);
+	font-size: 11px;
+	font-weight: 800;
+	line-height: 1;
+	margin-bottom: 10px;
+	padding: 5px 8px;
+	text-transform: uppercase;
+}
+
+.publishly-mini-listing h4,
+.publishly-mini-profile-card h4,
+.publishly-mini-schedule-item h4,
+.publishly-mini-price-card h4 {
+	margin: 0 0 6px;
+	font-size: 18px;
+	line-height: 1.25;
+}
+
+.publishly-mini-listing p,
+.publishly-mini-profile-card p,
+.publishly-mini-schedule-item p,
+.publishly-mini-price-card p {
+	margin: 0;
+	color: var(--publishly-muted);
+	font-size: 13px;
+	line-height: 1.45;
+}
+
+.publishly-mini-listing strong,
+.publishly-mini-price-card strong {
+	display: block;
+	margin-top: 10px;
+	color: var(--publishly-primary);
+	font-size: 22px;
+	line-height: 1.15;
+}
+
+.publishly-mini-profile-grid,
+.publishly-mini-pricing-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	margin-top: 18px;
+}
+
+.publishly-mini-profile-card {
+	padding-top: 18px;
+	text-align: center;
+}
+
+.publishly-mini-profile-card .publishly-mini-card__image {
+	width: 112px;
+	height: 112px;
+	margin: 0 auto;
+	border-radius: 999px;
+}
+
+.publishly-mini-profile-card .publishly-mini-card__image img {
+	border-radius: 999px;
+}
+
+.publishly-mini-profile-card .publishly-mini-badge {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.publishly-mini-schedule-item {
+	display: grid;
+	grid-template-columns: minmax(112px, 0.26fr) minmax(0, 1fr);
+	border-left: 4px solid var(--accent);
+}
+
+.publishly-mini-schedule-item__time {
+	display: grid;
+	align-content: start;
+	gap: 8px;
+	background: var(--publishly-surface-low);
+	padding: 16px;
+}
+
+.publishly-mini-schedule-item__time span {
+	color: var(--publishly-muted);
+	font-size: 11px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.publishly-mini-schedule-item__time strong {
+	color: var(--accent);
+	font-size: 18px;
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+}
+
+.publishly-mini-price-card {
+	display: flex;
+	flex-direction: column;
+	padding: 18px;
+	text-align: center;
+}
+
+.publishly-mini-price-card .publishly-mini-badge {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.publishly-mini-price-card strong {
+	margin: 10px 0 12px;
+	font-size: 32px;
 }
 
 .publishly-mini-preview.is-compact .publishly-mini-card__body {
@@ -701,8 +1480,22 @@
 	border: 1px solid var(--publishly-border);
 	border-radius: 12px;
 	background: #fff;
+	cursor: pointer;
 	padding: 22px;
 	box-shadow: 0 10px 24px rgba(53, 37, 205, 0.05);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.publishly-display-card:hover,
+.publishly-display-card:focus-within {
+	border-color: var(--publishly-primary);
+	box-shadow: 0 16px 36px rgba(53, 37, 205, 0.1);
+	transform: translateY(-2px);
+}
+
+.publishly-display-card:focus-visible {
+	outline: 2px solid var(--publishly-primary);
+	outline-offset: 3px;
 }
 
 .publishly-display-card__meta {
@@ -801,6 +1594,21 @@
 
 .publishly-editor-side .publishly-mini-grid {
 	grid-template-columns: 1fr;
+}
+
+.publishly-editor-side .publishly-mini-profile-grid,
+.publishly-editor-side .publishly-mini-pricing-grid {
+	grid-template-columns: 1fr;
+}
+
+.publishly-editor-side .publishly-mini-listing,
+.publishly-editor-side .publishly-mini-schedule-item {
+	grid-template-columns: 1fr;
+}
+
+.publishly-editor-side .publishly-mini-listing .publishly-mini-card__image {
+	height: 150px;
+	min-height: 0;
 }
 
 .publishly-editor-section {
@@ -948,19 +1756,25 @@
 	.publishly-grid,
 	.publishly-grid.is-two,
 	.publishly-display-cards,
-	.publishly-editor-layout {
+	.publishly-editor-layout,
+	.publishly-setup-layout,
+	.publishly-content-mapper {
 		grid-template-columns: 1fr;
 	}
 
 	.publishly-columns,
 	.publishly-mini-grid,
+	.publishly-mini-profile-grid,
+	.publishly-mini-pricing-grid,
 	.publishly-source-grid,
 	.publishly-match-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.publishly-editor-tabs,
-	.publishly-editor-side {
+	.publishly-editor-side,
+	.publishly-setup-controls,
+	.publishly-content-example {
 		position: static;
 	}
 
@@ -997,17 +1811,26 @@
 
 	.publishly-columns,
 	.publishly-form-grid,
-	.publishly-mini-grid {
+	.publishly-mini-grid,
+	.publishly-mini-profile-grid,
+	.publishly-mini-pricing-grid,
+	.publishly-content-mapper {
 		grid-template-columns: 1fr;
 	}
 
-	.publishly-role-row,
 	.publishly-filter-builder,
 	.publishly-success,
 	.publishly-editor-header,
+	.publishly-mini-listing,
+	.publishly-mini-schedule-item,
 	.publishly-source-grid,
 	.publishly-match-grid {
 		grid-template-columns: 1fr;
+	}
+
+	.publishly-mini-listing .publishly-mini-card__image {
+		height: 180px;
+		min-height: 0;
 	}
 
 	.publishly-editor-header {
@@ -1016,5 +1839,9 @@
 
 	.publishly-editor-actions {
 		justify-content: flex-start;
+	}
+
+	.publishly-mapping-schedule {
+		grid-template-columns: 1fr;
 	}
 }

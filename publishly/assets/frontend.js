@@ -2,7 +2,7 @@
 	'use strict';
 
 	function initDisplay(display) {
-		var cards = Array.prototype.slice.call(display.querySelectorAll('.publishly-card'));
+		var cards = Array.prototype.slice.call(display.querySelectorAll('[data-publishly-item]'));
 		var search = display.querySelector('[data-publishly-search]');
 		var filters = Array.prototype.slice.call(display.querySelectorAll('[data-publishly-filter]'));
 		var pagination = display.querySelector('.publishly-display__pagination');
@@ -12,9 +12,13 @@
 		var usePagination = display.dataset.pagination === 'true';
 		var currentPage = 1;
 
+		function normalizeText(value) {
+			return String(value || '').normalize('NFKC').toLocaleLowerCase();
+		}
+
 		function matches(card) {
-			var query = search ? search.value.trim().toLowerCase() : '';
-			if (query && String(card.dataset.search || '').indexOf(query) === -1) {
+			var query = search ? normalizeText(search.value.trim()) : '';
+			if (query && normalizeText(card.dataset.search).indexOf(query) === -1) {
 				return false;
 			}
 
@@ -117,6 +121,10 @@
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {
-		document.querySelectorAll('.publishly-display').forEach(initDisplay);
+		var displays = document.querySelectorAll('.publishly-display');
+		if (document.querySelector('.publishly-display.is-width-full')) {
+			document.documentElement.classList.add('publishly-has-full-width-display');
+		}
+		displays.forEach(initDisplay);
 	});
 })();

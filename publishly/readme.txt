@@ -4,7 +4,7 @@ Tags: spreadsheet, csv, gutenberg, listings, directory
 Requires at least: 6.3
 Tested up to: 6.6
 Requires PHP: 8.1
-Stable tag: 0.1.8
+Stable tag: 0.1.36
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,122 @@ No. The block stores the selected Display ID. The Display configuration lives in
 The architecture includes an XLSX parser service, but the current MVP imports CSV files first.
 
 == Changelog ==
+
+= 0.1.36 =
+
+* Reworded the detection review step so users continue with detected columns instead of approving subjective copy.
+
+= 0.1.35 =
+
+* Removed the redundant Published badge from Published Display cards.
+
+= 0.1.34 =
+
+* Made Published Display cards open the editor on click and removed Update Data from card actions.
+
+= 0.1.33 =
+
+* Restored Display type switching in the editor and aligned the editor field controls.
+
+= 0.1.32 =
+
+* Moved Display type switching to the create setup flow and cleaned up the editor fields layout.
+
+= 0.1.31 =
+
+* Removed the editor Style tab and added Display type switching with live preview updates.
+
+= 0.1.30 =
+
+* Reworked the starting screen into a Display type decision step with type-specific previews.
+
+= 0.1.29 =
+
+* Made setup previews render the selected Display type instead of using one generic card grid.
+
+= 0.1.28 =
+
+* Added numeric less-than and greater-than operators for default filters.
+
+= 0.1.27 =
+
+* Made setup sections collapsible so the controls stay compact beside the live preview.
+
+= 0.1.26 =
+
+* Improved field mapping rows so descriptions sit above full-width column selectors.
+
+= 0.1.25 =
+
+* Fixed Default Filter controls so field and operator selections persist before a value is entered.
+
+= 0.1.24 =
+
+* Fixed source REST validation fatals and renamed the misleading Insert action to Copy shortcode.
+
+= 0.1.23 =
+
+* Added type-specific thumbnails for Published Display cards.
+
+= 0.1.22 =
+
+* Replaced the duplicate Upload Spreadsheet hero action with a Published Displays shortcut.
+
+= 0.1.21 =
+
+* Fixed table previews and published tables so wide column sets scroll horizontally instead of hiding fields.
+
+= 0.1.20 =
+
+* Fixed admin previews so default filters and sorting affect the visible sample immediately.
+
+= 0.1.19 =
+
+* Removed the old separate Customize and Preview wizard screens from the create flow.
+
+= 0.1.18 =
+
+* Combined Display setup, options, and full preview into one setup-and-preview step.
+
+= 0.1.17 =
+
+* Fixed admin previews so Simple Data Table displays render as tables instead of cards.
+
+= 0.1.16 =
+
+* Removed an outdated explanatory helper card from Display Content setup.
+
+= 0.1.15 =
+
+* Removed cosmetic Look controls from the main publishing flow and kept professional defaults.
+
+= 0.1.14 =
+
+* Simplified appearance controls into compact Look and Page controls panels.
+
+= 0.1.13 =
+
+* Fixed WordPress admin select arrows repeating inside Publishly dropdown controls.
+
+= 0.1.12 =
+
+* Combined appearance customization with the final website preview.
+* Made visual controls compact so the preview takes most of the screen.
+
+= 0.1.11 =
+
+* Made Display Content mapping outcome-specific with listing, product, profile, schedule, pricing, and table examples.
+* Renamed details controls by Display type so extra fields are separated from the main Display structure.
+
+= 0.1.10 =
+
+* Reworked field mapping as Display Content with real-time examples from the uploaded spreadsheet.
+* Added live examples so column choices are no longer a black box.
+
+= 0.1.9 =
+
+* Improved the Gutenberg block preview with real Display rows, images, source metadata, and clearer edit actions.
+* Added frontend display-type polish, including table rendering for Simple Data Table displays.
 
 = 0.1.8 =
 

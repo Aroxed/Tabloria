@@ -72,8 +72,9 @@ class Plugin {
 			'publishly-block',
 			'publishlyBlock',
 			array(
-				'restUrl' => esc_url_raw( rest_url( 'publishly/v1' ) ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
+				'restUrl'  => esc_url_raw( rest_url( 'publishly/v1' ) ),
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'adminUrl' => esc_url_raw( admin_url( 'admin.php?page=' ) ),
 			)
 		);
 	}

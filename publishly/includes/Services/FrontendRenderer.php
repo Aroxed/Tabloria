@@ -37,15 +37,21 @@ class FrontendRenderer {
 		$density = 'compact' === ( $config['style']['density'] ?? '' ) ? 'is-compact' : 'is-comfortable';
 		$shape = 'square' === ( $config['style']['imageShape'] ?? '' ) ? 'is-square' : 'is-rounded';
 		$per_page = max( 1, absint( $config['pagination']['perPage'] ?? 12 ) );
+		$display_type = sanitize_key( $display['display_type'] ?? ( $config['displayType'] ?? 'searchable_listings' ) );
+		$type_class = 'publishly-display--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
+		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
+		$display_width = in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal';
+		$width_class = 'simple_data_table' === $display_type ? 'is-width-' . $display_width : '';
 
 		ob_start();
 		?>
 		<section
 			id="<?php echo esc_attr( $uid ); ?>"
-			class="publishly-display <?php echo esc_attr( $density . ' ' . $shape ); ?>"
+			class="publishly-display <?php echo esc_attr( trim( $density . ' ' . $shape . ' ' . $type_class . ' ' . $width_class ) ); ?>"
 			style="--publishly-accent: <?php echo esc_attr( $accent ); ?>"
 			data-per-page="<?php echo esc_attr( $per_page ); ?>"
 			data-pagination="<?php echo ! empty( $config['pagination']['enabled'] ) ? 'true' : 'false'; ?>"
+			data-display-type="<?php echo esc_attr( $display_type ); ?>"
 		>
 			<?php if ( ! isset( $attributes['showTitle'] ) || $attributes['showTitle'] ) : ?>
 				<header class="publishly-display__header">
@@ -55,11 +61,7 @@ class FrontendRenderer {
 
 			<?php $this->render_controls( $rows, $config, $source ); ?>
 
-			<div class="publishly-display__grid" aria-live="polite">
-				<?php foreach ( $rows as $row ) : ?>
-					<?php $this->render_card( $row, $config, $source ); ?>
-				<?php endforeach; ?>
-			</div>
+			<?php $this->render_rows( $rows, $config, $source, $display_type ); ?>
 
 			<div class="publishly-display__empty" hidden>
 				<?php esc_html_e( 'No rows match the current search or filters.', 'publishly' ); ?>
@@ -136,7 +138,55 @@ class FrontendRenderer {
 		<?php
 	}
 
-	private function render_card( array $row, array $config, array $source ): void {
+	private function render_rows( array $rows, array $config, array $source, string $display_type ): void {
+		if ( 'simple_data_table' === $display_type ) {
+			$this->render_data_table( $rows, $config, $source );
+			return;
+		}
+
+		?>
+		<div class="publishly-display__grid" aria-live="polite">
+			<?php foreach ( $rows as $row ) : ?>
+				<?php $this->render_card( $row, $config, $source, $display_type ); ?>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	}
+
+	private function render_data_table( array $rows, array $config, array $source ): void {
+		$fields = $this->table_fields( $config, $source );
+		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
+		$column_width = match ( $display_width ) {
+			'full' => 96,
+			'wide' => 120,
+			default => 160,
+		};
+		$table_min_width = max( 640, count( $fields ) * $column_width );
+		?>
+		<div class="publishly-table-scroll" aria-live="polite" style="--publishly-table-min-width: <?php echo esc_attr( $table_min_width . 'px' ); ?>">
+			<table class="publishly-data-table">
+				<thead>
+					<tr>
+						<?php foreach ( $fields as $field ) : ?>
+							<th><?php echo esc_html( $this->column_label( $source, $field ) ); ?></th>
+						<?php endforeach; ?>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $rows as $row ) : ?>
+						<tr<?php echo $this->item_data_attributes( $row, $config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+							<?php foreach ( $fields as $field ) : ?>
+								<td><?php echo esc_html( $this->field_value( $row, $field ) ); ?></td>
+							<?php endforeach; ?>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+		<?php
+	}
+
+	private function render_card( array $row, array $config, array $source, string $display_type ): void {
 		$roles = $config['fieldRoles'] ?? array();
 		$title = $this->field_value( $row, $roles['title'] ?? '' );
 		$title = '' !== $title ? $title : $this->best_title_value( $row );
@@ -145,14 +195,9 @@ class FrontendRenderer {
 		$image = $this->field_value( $row, $roles['image'] ?? '' );
 		$price = $this->field_value( $row, $roles['price'] ?? '' );
 		$badge = $this->field_value( $row, $roles['badge'] ?? '' );
-
-		$search_text = strtolower( implode( ' ', array_map( 'wp_strip_all_tags', $row ) ) );
-		$filter_attrs = '';
-		foreach ( (array) ( $config['visitorFilters'] ?? array() ) as $field ) {
-			$filter_attrs .= ' data-filter-' . esc_attr( $field ) . '="' . esc_attr( $this->field_value( $row, $field ) ) . '"';
-		}
+		$card_class = 'publishly-card publishly-card--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
 		?>
-		<article class="publishly-card" data-search="<?php echo esc_attr( $search_text ); ?>"<?php echo $filter_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<article class="<?php echo esc_attr( $card_class ); ?>"<?php echo $this->item_data_attributes( $row, $config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php if ( $image ) : ?>
 				<div class="publishly-card__image">
 					<img src="<?php echo esc_url( $image ); ?>" alt="" loading="lazy" />
@@ -193,28 +238,71 @@ class FrontendRenderer {
 		<?php
 	}
 
+	private function item_data_attributes( array $row, array $config ): string {
+		$search_text = $this->normalize_search_text(
+			implode(
+				' ',
+				array_map(
+					static function ( $value ): string {
+						return wp_strip_all_tags( is_scalar( $value ) ? (string) $value : '' );
+					},
+					$row
+				)
+			)
+		);
+		$attributes = ' data-publishly-item data-search="' . esc_attr( $search_text ) . '"';
+
+		foreach ( (array) ( $config['visitorFilters'] ?? array() ) as $field ) {
+			$field = sanitize_key( $field );
+			if ( $field ) {
+				$attributes .= ' data-filter-' . esc_attr( $field ) . '="' . esc_attr( $this->field_value( $row, $field ) ) . '"';
+			}
+		}
+
+		return $attributes;
+	}
+
+	private function normalize_search_text( string $value ): string {
+		$value = preg_replace( '/\s+/u', ' ', wp_strip_all_tags( $value ) );
+		$value = is_string( $value ) ? trim( $value ) : '';
+
+		if ( function_exists( 'mb_strtolower' ) ) {
+			return mb_strtolower( $value, 'UTF-8' );
+		}
+
+		return strtolower( $value );
+	}
+
+	private function table_fields( array $config, array $source ): array {
+		$fields = array_values(
+			array_filter(
+				array_map( 'sanitize_key', (array) ( $config['visibleFields'] ?? array() ) ),
+				fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field )
+			)
+		);
+
+		if ( $fields ) {
+			return $fields;
+		}
+
+		return array_values(
+			array_filter(
+				array_map(
+					static fn( array $column ): string => sanitize_key( $column['key'] ?? '' ),
+					(array) ( $source['columns'] ?? array() )
+				),
+				fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field )
+			)
+		);
+	}
+
 	private function prepare_rows( array $rows, array $config ): array {
 		$rows = array_values(
 			array_filter(
 				$rows,
 				function ( array $row ) use ( $config ): bool {
 					foreach ( (array) ( $config['defaultFilters'] ?? array() ) as $filter ) {
-						$field = sanitize_key( $filter['field'] ?? '' );
-						$value = (string) ( $filter['value'] ?? '' );
-						if ( '' === $field || '' === $value ) {
-							continue;
-						}
-
-						$row_value = (string) ( $row[ $field ] ?? '' );
-						$operator  = sanitize_key( $filter['operator'] ?? 'equals' );
-
-						if ( 'contains' === $operator && ! str_contains( strtolower( $row_value ), strtolower( $value ) ) ) {
-							return false;
-						}
-						if ( 'not_equals' === $operator && strtolower( $row_value ) === strtolower( $value ) ) {
-							return false;
-						}
-						if ( ! in_array( $operator, array( 'contains', 'not_equals' ), true ) && strtolower( $row_value ) !== strtolower( $value ) ) {
+						if ( ! $this->row_matches_default_filter( $row, (array) $filter ) ) {
 							return false;
 						}
 					}
@@ -245,6 +333,49 @@ class FrontendRenderer {
 		}
 
 		return $rows;
+	}
+
+	private function row_matches_default_filter( array $row, array $filter ): bool {
+		$field = sanitize_key( $filter['field'] ?? '' );
+		$value = (string) ( $filter['value'] ?? '' );
+		if ( '' === $field || '' === $value ) {
+			return true;
+		}
+
+		$row_value   = (string) ( $row[ $field ] ?? '' );
+		$operator    = sanitize_key( $filter['operator'] ?? 'equals' );
+		$row_lower   = strtolower( $row_value );
+		$value_lower = strtolower( $value );
+
+		if ( 'contains' === $operator ) {
+			return str_contains( $row_lower, $value_lower );
+		}
+
+		if ( 'not_equals' === $operator ) {
+			return $row_lower !== $value_lower;
+		}
+
+		if ( in_array( $operator, array( 'less_than', 'greater_than' ), true ) ) {
+			$row_number   = $this->numeric_filter_value( $row_value );
+			$filter_value = $this->numeric_filter_value( $value );
+
+			if ( null === $row_number || null === $filter_value ) {
+				return false;
+			}
+
+			return 'less_than' === $operator ? $row_number < $filter_value : $row_number > $filter_value;
+		}
+
+		return $row_lower === $value_lower;
+	}
+
+	private function numeric_filter_value( string $value ): ?float {
+		$raw = preg_replace( '/[^0-9.-]/', '', $value );
+		if ( ! is_string( $raw ) || '' === $raw || '-' === $raw || '.' === $raw || '-.' === $raw || ! is_numeric( $raw ) ) {
+			return null;
+		}
+
+		return (float) $raw;
 	}
 
 	private function field_value( array $row, string $field ): string {
