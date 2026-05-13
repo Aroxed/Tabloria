@@ -86,6 +86,7 @@ class Plugin {
 				'api_version'     => 2,
 				'editor_script'   => 'publishly-block',
 				'style'           => 'publishly-frontend',
+				'view_script'     => 'publishly-frontend',
 				'render_callback' => array( $this, 'render_display_block' ),
 				'attributes'      => array(
 					'displayId'     => array(
@@ -99,6 +100,35 @@ class Plugin {
 					'overrideTitle' => array(
 						'type'    => 'string',
 						'default' => '',
+					),
+				),
+			)
+		);
+
+		register_block_type(
+			'publishly/display-grid',
+			array(
+				'api_version'     => 2,
+				'editor_script'   => 'publishly-block',
+				'style'           => 'publishly-frontend',
+				'view_script'     => 'publishly-frontend',
+				'render_callback' => array( $this, 'render_display_grid_block' ),
+				'attributes'      => array(
+					'displayIds' => array(
+						'type'    => 'array',
+						'default' => array(),
+					),
+					'columns'    => array(
+						'type'    => 'number',
+						'default' => 2,
+					),
+					'gap'        => array(
+						'type'    => 'string',
+						'default' => 'normal',
+					),
+					'showTitles' => array(
+						'type'    => 'boolean',
+						'default' => true,
 					),
 				),
 			)
@@ -182,6 +212,7 @@ class Plugin {
 		$content = $post->post_content ?? '';
 		if (
 			has_block( 'publishly/display', $post )
+			|| has_block( 'publishly/display-grid', $post )
 			|| has_shortcode( $content, 'publishly' )
 			|| has_shortcode( $content, 'publishly_display' )
 		) {
@@ -208,6 +239,10 @@ class Plugin {
 		}
 
 		return ( new FrontendRenderer( $this->database ) )->render( $display_id, $attributes );
+	}
+
+	public function render_display_grid_block( array $attributes ): string {
+		return ( new FrontendRenderer( $this->database ) )->render_grid( $attributes );
 	}
 
 	public function render_shortcode( array $atts ): string {

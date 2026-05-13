@@ -26,6 +26,127 @@ The main emotional goal:
 “Your spreadsheet became a reusable searchable WordPress Display.”
 
 ============================================================
+0. MVP RELEASE STATUS — 0.1 PRIVATE BETA
+============================================================
+
+As of version 0.1.43, Publishly is considered ready for a first MVP/private beta release and a WordPress.org submission candidate.
+
+The first publication target can be a WordPress.org review submission, but the product should still be framed as an MVP/private beta quality release until real tester feedback is collected.
+
+MVP promise:
+Upload CSV → create a reusable Published Display → insert it in Gutenberg → view a searchable frontend Display.
+
+Current MVP scope:
+- CSV upload and parsing.
+- Smart column detection.
+- Guided Display creation.
+- Published Display stored as the core object.
+- Display types:
+  - Searchable Listings
+  - Product Catalog
+  - Team Directory
+  - Event Schedule
+  - Pricing Table
+  - Simple Data Table
+- Field roles.
+- Visible fields.
+- Default filter.
+- Visitor filters.
+- Sorting.
+- Search.
+- Pagination.
+- Live preview in the admin flow/editor.
+- Published Displays list and editor.
+- Update Data flow.
+- Gutenberg block: `publishly/display`.
+- Gutenberg block: `publishly/display-grid` for arranging multiple Published Displays.
+- Shortcode fallback: `[publishly id="123"]`.
+- CSV-only user-facing upload support.
+- Clear XLSX notice instead of partial Excel support.
+
+Intentional MVP behavior:
+- The user chooses the Display type at the start of creation, before upload.
+- After upload/detection, the flow continues to setup/preview instead of asking for the Display type again.
+- The Display type can still be changed in setup/editor.
+- Multiple Displays should be arranged with Publishly Display Grid, Columns, or Group blocks.
+- Gutenberg Table is not a layout container for Publishly Displays.
+- If a Display is placed inside a table or narrow/semantic container, Publishly contains the rendering and shows an admin-only warning where appropriate.
+
+MVP release-hardening fixtures:
+- `samples/suspicious-duplicate-headers.csv`
+- `samples/suspicious-js-payloads.csv`
+- `samples/suspicious-mixed-types.csv`
+- `samples/suspicious-sparse-columns.csv`
+
+These files are QA fixtures for duplicate headers, sparse rows, quoted commas, mixed types, missing values, JavaScript/XSS payloads, formula-looking text, non-URL image values, and long text wrapping.
+
+WordPress.org submission notes:
+- Main plugin headers include Requires at least, Tested up to, Requires PHP, License, and License URI.
+- `readme.txt` Stable tag must match `PUBLISHLY_VERSION`.
+- The WordPress.org `Contributors` value must be a real WordPress.org username before submission.
+- QA sample CSVs stay in the repository but are excluded from the WordPress.org submission zip.
+- CSV values pass centralized validation before storage and type-aware validation before rendering.
+- Submit only a clean `publishly/` plugin directory as a zip, without repository-only QA fixtures.
+
+============================================================
+0.1 POST-MVP ROADMAP
+============================================================
+
+Do not add the following items before the first MVP/private beta publication unless they fix a release-blocking bug.
+
+0.2 — Beta Stabilization
+- Polish empty/error states found during tester usage.
+- Improve first-run guidance and success-state actions.
+- Add clearer admin guidance for Display Grid vs Gutenberg Table.
+- Add package/release checklist and screenshots.
+- Tighten no-JS frontend fallback where practical.
+- Improve frontend accessibility copy and keyboard behavior.
+- Add more automated smoke checks for sample CSV parsing and generated configs.
+
+0.3 — Spreadsheet Update Confidence
+- Improve Update Data review when columns are missing, renamed, or newly added.
+- Add simple remap UI for missing fields used by saved Displays.
+- Improve column matching by similar labels.
+- Show safer warnings before updating data that may affect published Displays.
+
+0.4 — Field Management
+- Rename detected columns in the Publishly UI.
+- Hide/remove columns from a Display setup without editing source data.
+- Drag-and-drop field order for visible fields.
+- Better visible-field ordering controls in the editor.
+- Data Preview improvements for inspection only.
+
+0.5 — Import Formats
+- Add real XLSX import support with a bundled production-safe parser.
+- Keep CSV as the reliable baseline.
+- Add stronger file validation and better import error copy.
+
+0.6 — Source Integrations
+- Google Sheets connection.
+- Refresh/re-sync flows.
+- Safer conflict handling for changed sheet columns.
+
+0.7 — Visual Polish
+- More Display Grid layout controls if user testing proves they are needed.
+- More refined type-specific frontend designs.
+- Theme compatibility improvements.
+- Screenshot-ready demo pages.
+
+Later / Not MVP
+- Relations between spreadsheets.
+- Multi-file joins.
+- AI inference.
+- Automations.
+- Dashboards.
+- Kanban.
+- Full spreadsheet editing.
+- Row-level permissions.
+- Complex import mapping.
+- Advanced query builder.
+- Elementor/page-builder widgets.
+- Upgrade banners or monetization UI.
+
+============================================================
 1. FINAL PRODUCT MODEL
 ============================================================
 

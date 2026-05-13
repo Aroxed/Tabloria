@@ -1,0 +1,5 @@
+Title,Published Date,Contact Email,Phone,Website,Amount,Availability,Notes
+"Launch Brief",2026-05-13,editor@example.com,+1 (555) 010-1000,https://example.com/brief,$1200,Open,"Normal row"
+"Old Import",13/05/2026,not-an-email,555.010.2000,example.com,1 200 UAH,Closed,"Website misses scheme"
+"Empty Contact",2026.05.14,,+380 44 000 0000,https://example.org,"",Pending,"Empty amount"
+"HTML Attempt",2026-05-15,<b>bad@example.com</b>,12345,https://example.net,free,Open,"HTML-looking email should be sanitized"

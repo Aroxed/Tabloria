@@ -1,0 +1,5 @@
+Name,Name,Status,Status,Price,Image,Description
+"North, Desk","ND-001",Available,Featured,"$1,299.00",,"Quoted comma in name and price"
+"South Shelf","SS-002",Available,,€899,,"Missing second status"
+"Broken Image","BI-003",Sold,Archived,$0,not-a-url,"Image column has a non-url value"
+"Formula-ish","FI-004",Pending,Featured,=SUM(1,2),,"Looks like a spreadsheet formula"

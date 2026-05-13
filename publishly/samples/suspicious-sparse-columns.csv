@@ -1,0 +1,6 @@
+Product Name,Category,Price,Status,Image,Description,Unused Column
+Minimal Lamp,Lighting,$45,In Stock,,,
+No Status Item,Accessories,$12,,,Description only,
+No Price Item,Furniture,,Backorder,,Missing price,
+Everything Empty,,,,,,
+Long Text Product,Office,$199,In Stock,,"This row has a very long description that should wrap cleanly in cards and table cells without forcing layout overflow or making the Display feel broken.",extra

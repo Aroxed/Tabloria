@@ -1,6 +1,10 @@
 .publishly-display {
 	--publishly-accent: #3525cd;
 	--publishly-full-width-gutter: 2rem;
+	--publishly-breakout-offset: 0px;
+	--publishly-viewport-half: 50vw;
+	--publishly-viewport-width: 100vw;
+	box-sizing: border-box;
 	color: #1b1b24;
 	font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 	margin: 2rem 0;
@@ -19,17 +23,45 @@ html.publishly-has-full-width-display body {
 }
 
 .publishly-display.is-width-wide {
-	margin-left: calc(50% - min(600px, calc(50vw - 1rem)));
-	margin-right: calc(50% - min(600px, calc(50vw - 1rem)));
+	position: relative;
+	left: var(--publishly-breakout-offset);
+	margin-left: calc(50% - min(600px, calc(var(--publishly-viewport-half) - 1rem)));
+	margin-right: calc(50% - min(600px, calc(var(--publishly-viewport-half) - 1rem)));
 	max-width: none;
-	width: min(1200px, calc(100vw - 2rem));
+	width: min(1200px, calc(var(--publishly-viewport-width) - 2rem));
 }
 
 .publishly-display.is-width-full {
-	margin-left: calc(50% - 50vw + var(--publishly-full-width-gutter));
-	margin-right: calc(50% - 50vw + var(--publishly-full-width-gutter));
+	position: relative;
+	left: var(--publishly-breakout-offset);
+	margin-left: calc(50% - var(--publishly-viewport-half) + var(--publishly-full-width-gutter));
+	margin-right: calc(50% - var(--publishly-viewport-half) + var(--publishly-full-width-gutter));
 	max-width: none;
-	width: calc(100vw - (var(--publishly-full-width-gutter) * 2));
+	width: calc(var(--publishly-viewport-width) - (var(--publishly-full-width-gutter) * 2));
+}
+
+.publishly-display.is-contained,
+.publishly-display.is-contained.is-width-wide,
+.publishly-display.is-contained.is-width-full {
+	left: auto;
+	margin-left: 0;
+	margin-right: 0;
+	max-width: 100%;
+	width: 100%;
+}
+
+.wp-block-table .publishly-display,
+td .publishly-display,
+th .publishly-display,
+.wp-block-navigation .publishly-display,
+.wp-block-list .publishly-display,
+.wp-block-quote .publishly-display,
+blockquote .publishly-display {
+	left: auto;
+	margin-left: 0;
+	margin-right: 0;
+	max-width: 100%;
+	width: 100%;
 }
 
 .publishly-display *,
@@ -103,10 +135,21 @@ html.publishly-has-full-width-display body {
 	min-width: min(100%, 150px);
 }
 
+.publishly-display.is-narrow-container .publishly-display__controls,
+.publishly-display.is-narrow-container .publishly-display__filters {
+	display: grid;
+	grid-template-columns: 1fr;
+	justify-content: stretch;
+}
+
 .publishly-display__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
 	gap: 1.25rem;
+}
+
+.publishly-display.is-narrow-container .publishly-display__grid {
+	grid-template-columns: 1fr;
 }
 
 .publishly-card {
@@ -418,6 +461,11 @@ html.publishly-has-full-width-display body {
 	font-size: 0.9rem;
 }
 
+.publishly-display.is-narrow-container .publishly-display__footer,
+.publishly-display.is-narrow-container .publishly-display__pagination {
+	justify-content: flex-start;
+}
+
 .publishly-display.is-width-full .publishly-display__footer {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -435,6 +483,42 @@ html.publishly-has-full-width-display body {
 	background: #fff;
 	color: #5f5d70;
 	padding: 1rem;
+}
+
+.publishly-embed-warning {
+	border: 1px solid #f5c542;
+	border-radius: 8px;
+	background: #fff7d6;
+	color: #5b4400;
+	font-size: 0.85rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+	padding: 0.7rem 0.85rem;
+}
+
+.publishly-display-grid {
+	--publishly-grid-gap: 1.5rem;
+	display: grid;
+	grid-template-columns: repeat(var(--publishly-grid-columns, 2), minmax(0, 1fr));
+	gap: var(--publishly-grid-gap);
+	align-items: start;
+	margin: 2rem 0;
+}
+
+.publishly-display-grid.is-gap-compact {
+	--publishly-grid-gap: 1rem;
+}
+
+.publishly-display-grid.is-gap-spacious {
+	--publishly-grid-gap: 2rem;
+}
+
+.publishly-display-grid__item {
+	min-width: 0;
+}
+
+.publishly-display-grid__item > .publishly-display {
+	margin: 0;
 }
 
 .publishly-editor-preview {
@@ -625,6 +709,42 @@ html.publishly-has-full-width-display body {
 	margin: 1rem 0 0;
 }
 
+.publishly-editor-grid-preview__items {
+	--publishly-grid-gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(var(--publishly-grid-columns, 2), minmax(0, 1fr));
+	gap: var(--publishly-grid-gap);
+	padding: 1rem;
+}
+
+.publishly-editor-grid-preview__items.is-gap-compact {
+	--publishly-grid-gap: 0.75rem;
+}
+
+.publishly-editor-grid-preview__items.is-gap-spacious {
+	--publishly-grid-gap: 1.5rem;
+}
+
+.publishly-editor-grid-preview__item {
+	display: grid;
+	gap: 0.35rem;
+	min-width: 0;
+	border: 1px solid #e2deef;
+	border-radius: 8px;
+	background: #fff;
+	padding: 0.9rem;
+}
+
+.publishly-editor-grid-preview__item strong,
+.publishly-editor-grid-preview__item span {
+	overflow-wrap: anywhere;
+}
+
+.publishly-editor-grid-preview__item span {
+	color: #5f5d70;
+	font-size: 0.85rem;
+}
+
 @media (max-width: 640px) {
 	.publishly-display {
 		--publishly-full-width-gutter: 1rem;
@@ -656,5 +776,17 @@ html.publishly-has-full-width-display body {
 	.publishly-editor-preview__grid,
 	.publishly-editor-preview__grid--team_directory {
 		grid-template-columns: 1fr;
+	}
+
+	.publishly-display-grid,
+	.publishly-editor-grid-preview__items {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+	.publishly-display-grid,
+	.publishly-editor-grid-preview__items {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }

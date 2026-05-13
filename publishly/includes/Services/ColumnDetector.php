@@ -39,17 +39,6 @@ class ColumnDetector {
 	}
 
 	private function detect_type( array $values, string $label ): string {
-		$values = array_values(
-			array_filter(
-				array_map( 'trim', $values ),
-				static fn( string $value ): bool => '' !== $value
-			)
-		);
-
-		if ( empty( $values ) ) {
-			return 'text';
-		}
-
 		$label_key = $this->normalize_key( $label );
 
 		if ( $this->label_has_token( $label_key, array( 'image', 'photo', 'picture', 'thumbnail' ) ) ) {
@@ -77,6 +66,17 @@ class ColumnDetector {
 			return 'status';
 		}
 		if ( $this->is_identifier_or_name_label( $label_key ) ) {
+			return 'text';
+		}
+
+		$values = array_values(
+			array_filter(
+				array_map( 'trim', $values ),
+				static fn( string $value ): bool => '' !== $value
+			)
+		);
+
+		if ( empty( $values ) ) {
 			return 'text';
 		}
 

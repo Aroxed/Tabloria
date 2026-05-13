@@ -10,9 +10,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class FrontendRenderer {
 	private Database $database;
+	private SpreadsheetSanitizer $sanitizer;
 
-	public function __construct( ?Database $database = null ) {
-		$this->database = $database ?: new Database();
+	public function __construct( ?Database $database = null, ?SpreadsheetSanitizer $sanitizer = null ) {
+		$this->database  = $database ?: new Database();
+		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
 	public function render( int $display_id, array $attributes = array() ): string {
@@ -39,19 +41,25 @@ class FrontendRenderer {
 		$per_page = max( 1, absint( $config['pagination']['perPage'] ?? 12 ) );
 		$display_type = sanitize_key( $display['display_type'] ?? ( $config['displayType'] ?? 'searchable_listings' ) );
 		$type_class = 'publishly-display--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
+		$is_contained = ! empty( $attributes['contained'] );
 		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
 		$display_width = in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal';
+		if ( $is_contained ) {
+			$display_width = 'normal';
+		}
 		$width_class = 'simple_data_table' === $display_type ? 'is-width-' . $display_width : '';
+		$contained_class = $is_contained ? 'is-contained' : '';
 
 		ob_start();
 		?>
 		<section
 			id="<?php echo esc_attr( $uid ); ?>"
-			class="publishly-display <?php echo esc_attr( trim( $density . ' ' . $shape . ' ' . $type_class . ' ' . $width_class ) ); ?>"
+			class="publishly-display <?php echo esc_attr( trim( $density . ' ' . $shape . ' ' . $type_class . ' ' . $width_class . ' ' . $contained_class ) ); ?>"
 			style="--publishly-accent: <?php echo esc_attr( $accent ); ?>"
 			data-per-page="<?php echo esc_attr( $per_page ); ?>"
 			data-pagination="<?php echo ! empty( $config['pagination']['enabled'] ) ? 'true' : 'false'; ?>"
 			data-display-type="<?php echo esc_attr( $display_type ); ?>"
+			data-contained="<?php echo esc_attr( $is_contained ? 'true' : 'false' ); ?>"
 		>
 			<?php if ( ! isset( $attributes['showTitle'] ) || $attributes['showTitle'] ) : ?>
 				<header class="publishly-display__header">
@@ -71,6 +79,55 @@ class FrontendRenderer {
 				<p class="publishly-display__status" aria-live="polite"></p>
 				<nav class="publishly-display__pagination" aria-label="<?php esc_attr_e( 'Display pagination', 'publishly' ); ?>"></nav>
 			</footer>
+		</section>
+		<?php
+
+		return (string) ob_get_clean();
+	}
+
+	public function render_grid( array $attributes = array() ): string {
+		$display_ids = array_values(
+			array_unique(
+				array_filter(
+					array_map( 'absint', (array) ( $attributes['displayIds'] ?? array() ) )
+				)
+			)
+		);
+
+		if ( empty( $display_ids ) ) {
+			return '<div class="publishly-notice">' . esc_html__( 'Choose Published Displays for this Publishly Grid.', 'publishly' ) . '</div>';
+		}
+
+		wp_enqueue_style( 'publishly-frontend' );
+		wp_enqueue_script( 'publishly-frontend' );
+
+		$columns = min( 4, max( 1, absint( $attributes['columns'] ?? 2 ) ) );
+		$gap = sanitize_key( $attributes['gap'] ?? 'normal' );
+		$gap = in_array( $gap, array( 'compact', 'normal', 'spacious' ), true ) ? $gap : 'normal';
+		$show_titles = ! isset( $attributes['showTitles'] ) || (bool) $attributes['showTitles'];
+
+		ob_start();
+		?>
+		<section
+			class="publishly-display-grid is-gap-<?php echo esc_attr( $gap ); ?>"
+			style="--publishly-grid-columns: <?php echo esc_attr( (string) $columns ); ?>"
+			data-publishly-display-grid
+		>
+			<?php foreach ( $display_ids as $display_id ) : ?>
+				<div class="publishly-display-grid__item">
+					<?php
+					$display_html = $this->render(
+						$display_id,
+						array(
+							'showTitle' => $show_titles,
+							'contained' => true,
+						)
+					);
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Nested display output is rendered through this class and escaped at each field boundary.
+					echo $display_html;
+					?>
+				</div>
+			<?php endforeach; ?>
 		</section>
 		<?php
 
@@ -107,8 +164,8 @@ class FrontendRenderer {
 		<div class="publishly-display__controls">
 			<?php if ( $search_enabled ) : ?>
 				<label class="publishly-display__search">
-					<span class="screen-reader-text"><?php esc_html_e( 'Search Display', 'publishly' ); ?></span>
-					<input type="search" data-publishly-search placeholder="<?php esc_attr_e( 'Search this Display...', 'publishly' ); ?>" />
+					<span class="screen-reader-text"><?php esc_html_e( 'Search all fields in this Display', 'publishly' ); ?></span>
+					<input type="search" data-publishly-search placeholder="<?php esc_attr_e( 'Search all fields...', 'publishly' ); ?>" />
 				</label>
 			<?php endif; ?>
 
@@ -117,17 +174,35 @@ class FrontendRenderer {
 					<?php foreach ( (array) $config['visitorFilters'] as $field ) : ?>
 						<?php
 						$label  = $this->column_label( $source, $field );
-						$values = $this->distinct_values( $rows, $field );
+						$values = $this->distinct_values( $rows, $field, $source );
 						if ( empty( $values ) ) {
 							continue;
 						}
+						$filter_label = sprintf(
+							/* translators: %s: column label. */
+							__( 'Filter by %s', 'publishly' ),
+							$label
+						);
+						$all_label = sprintf(
+							/* translators: %s: column label. */
+							__( 'All %s', 'publishly' ),
+							$label
+						);
 						?>
 						<label>
-							<span class="screen-reader-text"><?php echo esc_html( $label ); ?></span>
-							<select data-publishly-filter="<?php echo esc_attr( $field ); ?>">
-								<option value=""><?php echo esc_html( $label ); ?></option>
+							<span class="screen-reader-text"><?php echo esc_html( $filter_label ); ?></span>
+							<select data-publishly-filter="<?php echo esc_attr( $field ); ?>" aria-label="<?php echo esc_attr( $filter_label ); ?>">
+								<option value=""><?php echo esc_html( $all_label ); ?></option>
 								<?php foreach ( $values as $value ) : ?>
-									<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $value ); ?></option>
+									<?php
+									$value_label = sprintf(
+										/* translators: 1: column label, 2: filter value. */
+										__( '%1$s: %2$s', 'publishly' ),
+										$label,
+										$value
+									);
+									?>
+									<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $value_label ); ?></option>
 								<?php endforeach; ?>
 							</select>
 						</label>
@@ -174,9 +249,9 @@ class FrontendRenderer {
 				</thead>
 				<tbody>
 					<?php foreach ( $rows as $row ) : ?>
-						<tr<?php echo $this->item_data_attributes( $row, $config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+						<tr<?php echo $this->item_data_attributes( $row, $config, $source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 							<?php foreach ( $fields as $field ) : ?>
-								<td><?php echo esc_html( $this->field_value( $row, $field ) ); ?></td>
+								<td><?php echo esc_html( $this->typed_field_value( $row, $field, $source ) ); ?></td>
 							<?php endforeach; ?>
 						</tr>
 					<?php endforeach; ?>
@@ -188,19 +263,20 @@ class FrontendRenderer {
 
 	private function render_card( array $row, array $config, array $source, string $display_type ): void {
 		$roles = $config['fieldRoles'] ?? array();
-		$title = $this->field_value( $row, $roles['title'] ?? '' );
-		$title = '' !== $title ? $title : $this->best_title_value( $row );
-		$subtitle = $this->field_value( $row, $roles['subtitle'] ?? '' );
-		$subtitle = '' !== $subtitle ? $subtitle : $this->best_subtitle_value( $row, $title );
-		$image = $this->field_value( $row, $roles['image'] ?? '' );
-		$price = $this->field_value( $row, $roles['price'] ?? '' );
-		$badge = $this->field_value( $row, $roles['badge'] ?? '' );
+		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
+		$title = '' !== $title ? $title : $this->best_title_value( $row, $source );
+		$subtitle = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
+		$subtitle = '' !== $subtitle ? $subtitle : $this->best_subtitle_value( $row, $title, $source );
+		$image = $this->typed_field_value( $row, $roles['image'] ?? '', $source );
+		$image_url = $this->sanitizer->sanitize_image_url( $image );
+		$price = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
+		$badge = $this->typed_field_value( $row, $roles['badge'] ?? '', $source );
 		$card_class = 'publishly-card publishly-card--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
 		?>
-		<article class="<?php echo esc_attr( $card_class ); ?>"<?php echo $this->item_data_attributes( $row, $config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-			<?php if ( $image ) : ?>
+		<article class="<?php echo esc_attr( $card_class ); ?>"<?php echo $this->item_data_attributes( $row, $config, $source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<?php if ( $image_url ) : ?>
 				<div class="publishly-card__image">
-					<img src="<?php echo esc_url( $image ); ?>" alt="" loading="lazy" />
+					<img src="<?php echo esc_url( $image_url ); ?>" alt="" loading="lazy" />
 					<?php if ( $badge ) : ?>
 						<span class="publishly-card__badge"><?php echo esc_html( $badge ); ?></span>
 					<?php endif; ?>
@@ -222,7 +298,7 @@ class FrontendRenderer {
 				<dl class="publishly-card__fields">
 					<?php foreach ( (array) ( $config['visibleFields'] ?? array() ) as $field ) : ?>
 						<?php
-						$value = $this->field_value( $row, $field );
+						$value = $this->typed_field_value( $row, $field, $source );
 						if ( '' === $value || in_array( $field, $roles, true ) || $this->is_technical_field( $field ) ) {
 							continue;
 						}
@@ -238,15 +314,15 @@ class FrontendRenderer {
 		<?php
 	}
 
-	private function item_data_attributes( array $row, array $config ): string {
+	private function item_data_attributes( array $row, array $config, array $source ): string {
 		$search_text = $this->normalize_search_text(
 			implode(
 				' ',
 				array_map(
-					static function ( $value ): string {
-						return wp_strip_all_tags( is_scalar( $value ) ? (string) $value : '' );
+					function ( $field ) use ( $row, $source ): string {
+						return $this->typed_field_value( $row, (string) $field, $source );
 					},
-					$row
+					array_keys( $row )
 				)
 			)
 		);
@@ -255,7 +331,7 @@ class FrontendRenderer {
 		foreach ( (array) ( $config['visitorFilters'] ?? array() ) as $field ) {
 			$field = sanitize_key( $field );
 			if ( $field ) {
-				$attributes .= ' data-filter-' . esc_attr( $field ) . '="' . esc_attr( $this->field_value( $row, $field ) ) . '"';
+				$attributes .= ' data-filter-' . esc_attr( $field ) . '="' . esc_attr( $this->typed_field_value( $row, $field, $source ) ) . '"';
 			}
 		}
 
@@ -382,6 +458,25 @@ class FrontendRenderer {
 		return sanitize_text_field( (string) ( $row[ $field ] ?? '' ) );
 	}
 
+	private function typed_field_value( array $row, string $field, array $source ): string {
+		$field = sanitize_key( $field );
+		if ( '' === $field ) {
+			return '';
+		}
+
+		return $this->sanitizer->sanitize_value( $row[ $field ] ?? '', $this->column_type( $source, $field ) );
+	}
+
+	private function column_type( array $source, string $field ): string {
+		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
+			if ( $field === ( $column['key'] ?? '' ) ) {
+				return sanitize_key( $column['type'] ?? 'text' );
+			}
+		}
+
+		return 'text';
+	}
+
 	private function column_label( array $source, string $field ): string {
 		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
 			if ( $field === ( $column['key'] ?? '' ) ) {
@@ -399,10 +494,10 @@ class FrontendRenderer {
 		return sanitize_text_field( ucwords( strtolower( $label ?: __( 'Field', 'publishly' ) ) ) );
 	}
 
-	private function best_title_value( array $row ): string {
+	private function best_title_value( array $row, array $source ): string {
 		foreach ( $row as $field => $value ) {
 			$field = sanitize_key( $field );
-			$value = $this->field_value( $row, $field );
+			$value = $this->typed_field_value( $row, $field, $source );
 			if ( '' === $value || $this->is_technical_field( $field ) ) {
 				continue;
 			}
@@ -413,7 +508,7 @@ class FrontendRenderer {
 
 		foreach ( $row as $field => $value ) {
 			$field = sanitize_key( $field );
-			$value = $this->field_value( $row, $field );
+			$value = $this->typed_field_value( $row, $field, $source );
 			if ( '' !== $value && ! $this->is_technical_field( $field ) ) {
 				return $value;
 			}
@@ -422,10 +517,10 @@ class FrontendRenderer {
 		return '';
 	}
 
-	private function best_subtitle_value( array $row, string $title ): string {
+	private function best_subtitle_value( array $row, string $title, array $source ): string {
 		foreach ( $row as $field => $value ) {
 			$field = sanitize_key( $field );
-			$value = $this->field_value( $row, $field );
+			$value = $this->typed_field_value( $row, $field, $source );
 			if ( '' === $value || $value === $title || $this->is_technical_field( $field ) ) {
 				continue;
 			}
@@ -441,10 +536,10 @@ class FrontendRenderer {
 		return in_array( sanitize_key( $field ), array( 'entity', 'object_type', 'row_type', 'record_type' ), true );
 	}
 
-	private function distinct_values( array $rows, string $field ): array {
+	private function distinct_values( array $rows, string $field, array $source ): array {
 		$values = array();
 		foreach ( $rows as $row ) {
-			$value = $this->field_value( $row, $field );
+			$value = $this->typed_field_value( $row, $field, $source );
 			if ( '' !== $value ) {
 				$values[ $value ] = true;
 			}

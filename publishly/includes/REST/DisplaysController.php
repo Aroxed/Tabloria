@@ -7,6 +7,7 @@ use Publishly\Services\CsvParser;
 use Publishly\Services\DataUpdater;
 use Publishly\Services\DisplayGenerator;
 use Publishly\Services\FrontendRenderer;
+use Publishly\Services\SpreadsheetSanitizer;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -18,10 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class DisplaysController {
 	private Database $database;
 	private DisplayGenerator $generator;
+	private SpreadsheetSanitizer $sanitizer;
 
-	public function __construct( ?Database $database = null, ?DisplayGenerator $generator = null ) {
+	public function __construct( ?Database $database = null, ?DisplayGenerator $generator = null, ?SpreadsheetSanitizer $sanitizer = null ) {
 		$this->database  = $database ?: new Database();
 		$this->generator = $generator ?: new DisplayGenerator();
+		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
 	public function register_routes(): void {
@@ -115,6 +118,7 @@ class DisplaysController {
 		}
 
 		$display_type = sanitize_key( $request->get_param( 'displayType' ) ?: 'searchable_listings' );
+		$display_type = $this->generator->sanitize_display_type( $display_type );
 		$config       = $request->get_param( 'config' );
 		if ( ! is_array( $config ) ) {
 			$config = $this->generator->generate( $source, $display_type, array( 'title' => $request->get_param( 'name' ) ) );
@@ -157,7 +161,7 @@ class DisplaysController {
 			$display_type = $data['config']['displayType'];
 		}
 		if ( null !== $display_type ) {
-			$data['display_type'] = sanitize_key( $display_type );
+			$data['display_type'] = $this->generator->sanitize_display_type( $display_type );
 		}
 		if ( null !== $request->get_param( 'name' ) ) {
 			$data['name'] = sanitize_text_field( $request->get_param( 'name' ) );
@@ -203,10 +207,9 @@ class DisplaysController {
 		}
 
 		$file     = $files['file'];
-		$filename = sanitize_file_name( $file['name'] ?? '' );
-		$ext      = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
-		if ( 'csv' !== $ext ) {
-			return new WP_Error( 'publishly_update_csv_only', __( 'Data updates currently support CSV files.', 'publishly' ), array( 'status' => 400 ) );
+		$meta = $this->sanitizer->validate_uploaded_csv( $file );
+		if ( is_wp_error( $meta ) ) {
+			return $meta;
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -227,7 +230,7 @@ class DisplaysController {
 		}
 
 		$summary = ( new DataUpdater() )->compare_columns( $source['columns'], $parsed['columns'] );
-		$this->database->update_source_data( absint( $source['id'] ), $parsed['columns'], $parsed['rows'], $filename, 'csv' );
+		$this->database->update_source_data( absint( $source['id'] ), $parsed['columns'], $parsed['rows'], $meta['filename'], 'csv' );
 
 		return new WP_REST_Response(
 			array(

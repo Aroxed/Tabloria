@@ -15,6 +15,7 @@
 	var Button = components.Button;
 	var Spinner = components.Spinner;
 	var Notice = components.Notice;
+	var CheckboxControl = components.CheckboxControl;
 
 	if (apiFetch.createNonceMiddleware && window.publishlyBlock && window.publishlyBlock.nonce) {
 		apiFetch.use(apiFetch.createNonceMiddleware(window.publishlyBlock.nonce));
@@ -149,8 +150,209 @@
 		);
 	}
 
+	function GridEdit(props) {
+		var attributes = props.attributes;
+		var setAttributes = props.setAttributes;
+		var blockProps = useBlockProps({ className: 'publishly-block-editor publishly-block-editor--grid' });
+		var displayIds = normalizeIds(attributes.displayIds || []);
+		var columns = parseInt(attributes.columns || 2, 10) || 2;
+		var gap = attributes.gap || 'normal';
+		var showTitles = attributes.showTitles !== false;
+		var displaysState = useState([]);
+		var displays = displaysState[0];
+		var setDisplays = displaysState[1];
+		var loadingState = useState(true);
+		var loading = loadingState[0];
+		var setLoading = loadingState[1];
+		var errorState = useState('');
+		var error = errorState[0];
+		var setError = errorState[1];
+		var selected = selectedDisplays(displays, displayIds);
+
+		useEffect(function () {
+			setLoading(true);
+			api('/displays')
+				.then(function (items) {
+					setDisplays(items || []);
+					setError('');
+					setLoading(false);
+				})
+				.catch(function (err) {
+					setError(err.message || __('Could not load Publishly Displays.', 'publishly'));
+					setLoading(false);
+				});
+		}, []);
+
+		function toggleDisplay(displayId, checked) {
+			var id = parseInt(displayId, 10) || 0;
+			var next = displayIds.filter(function (item) {
+				return item !== id;
+			});
+
+			if (checked && id) {
+				next.push(id);
+			}
+
+			setAttributes({ displayIds: next });
+		}
+
+		return el(
+			'div',
+			blockProps,
+			el(
+				InspectorControls,
+				null,
+				el(
+					PanelBody,
+					{ title: __('Grid Layout', 'publishly'), initialOpen: true },
+					el(SelectControl, {
+						label: __('Columns', 'publishly'),
+						value: columns,
+						options: [
+							{ label: __('1 column', 'publishly'), value: 1 },
+							{ label: __('2 columns', 'publishly'), value: 2 },
+							{ label: __('3 columns', 'publishly'), value: 3 },
+							{ label: __('4 columns', 'publishly'), value: 4 }
+						],
+						onChange: function (value) {
+							setAttributes({ columns: parseInt(value, 10) || 2 });
+						}
+					}),
+					el(SelectControl, {
+						label: __('Gap', 'publishly'),
+						value: gap,
+						options: [
+							{ label: __('Compact', 'publishly'), value: 'compact' },
+							{ label: __('Normal', 'publishly'), value: 'normal' },
+							{ label: __('Spacious', 'publishly'), value: 'spacious' }
+						],
+						onChange: function (value) {
+							setAttributes({ gap: value || 'normal' });
+						}
+					}),
+					el(ToggleControl, {
+						label: __('Show Display titles', 'publishly'),
+						checked: showTitles,
+						onChange: function (value) {
+							setAttributes({ showTitles: value });
+						}
+					})
+				),
+				el(
+					PanelBody,
+					{ title: __('Published Displays', 'publishly'), initialOpen: true },
+					loading ? el(Spinner) : null,
+					!loading && error ? el(Notice, { status: 'error', isDismissible: false }, error) : null,
+					!loading && !displays.length ? el('p', null, __('Create a Published Display first.', 'publishly')) : null,
+					!loading && displays.length ? displays.map(function (display) {
+						var id = parseInt(display.id, 10) || 0;
+						return el(CheckboxControl, {
+							key: id,
+							label: display.name,
+							checked: displayIds.indexOf(id) >= 0,
+							onChange: function (checked) {
+								toggleDisplay(id, checked);
+							}
+						});
+					}) : null
+				)
+			),
+			loading ? el(Placeholder, { label: __('Publishly Display Grid', 'publishly') }, el(Spinner)) : null,
+			!loading && error ? el(Notice, { status: 'error', isDismissible: false }, error) : null,
+			!loading && !displays.length ? el(
+				Placeholder,
+				{
+					icon: 'screenoptions',
+					label: __('Publishly Display Grid', 'publishly'),
+					instructions: __('Create Published Displays in Publishly, then arrange them here.', 'publishly')
+				},
+				el(Button, { variant: 'primary', href: 'admin.php?page=publishly' }, __('Create Display', 'publishly'))
+			) : null,
+			!loading && displays.length ? renderGridEditorPreview(selected, columns, gap, showTitles, toggleDisplay) : null
+		);
+	}
+
+	function normalizeIds(ids) {
+		return (Array.isArray(ids) ? ids : []).map(function (id) {
+			return parseInt(id, 10) || 0;
+		}).filter(Boolean);
+	}
+
+	function selectedDisplays(displays, displayIds) {
+		return displayIds.map(function (id) {
+			return displays.find(function (display) {
+				return parseInt(display.id, 10) === id;
+			});
+		}).filter(Boolean);
+	}
+
+	function renderGridEditorPreview(selected, columns, gap, showTitles, toggleDisplay) {
+		if (!selected.length) {
+			return el(
+				Placeholder,
+				{
+					icon: 'screenoptions',
+					label: __('Publishly Display Grid', 'publishly'),
+					instructions: __('Select two or more Published Displays from the block sidebar.', 'publishly')
+				}
+			);
+		}
+
+		return el(
+			'div',
+			{ className: 'publishly-editor-preview publishly-editor-grid-preview' },
+			el(
+				'div',
+				{ className: 'publishly-editor-preview__toolbar' },
+				el('strong', null, __('Publishly Display Grid', 'publishly')),
+				el('span', null, selected.length + ' ' + __('Displays', 'publishly'))
+			),
+			el(
+				'div',
+				{
+					className: 'publishly-editor-grid-preview__items is-gap-' + gap,
+					style: { '--publishly-grid-columns': columns }
+				},
+				selected.map(function (display) {
+					var displayType = display.display_type || (display.config && display.config.displayType) || 'searchable_listings';
+					return el(
+						'article',
+						{ className: 'publishly-editor-grid-preview__item', key: display.id },
+						el('strong', null, showTitles ? display.name : __('Untitled Display', 'publishly')),
+						el('span', null, labelForType(displayType)),
+						el(Button, {
+							variant: 'tertiary',
+							onClick: function () {
+								toggleDisplay(display.id, false);
+							}
+						}, __('Remove', 'publishly'))
+					);
+				})
+			)
+		);
+	}
+
 	function editDisplaysUrl() {
 		return String(window.publishlyBlock && window.publishlyBlock.adminUrl ? window.publishlyBlock.adminUrl : 'admin.php?page=') + 'publishly-displays';
+	}
+
+	function safeImageUrl(value) {
+		if (!value) {
+			return '';
+		}
+
+		try {
+			var url = new URL(String(value), window.location.origin);
+			if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+				return '';
+			}
+			if (!/\.(jpg|jpeg|png|webp|gif)$/i.test(url.pathname)) {
+				return '';
+			}
+			return url.href;
+		} catch (error) {
+			return '';
+		}
 	}
 
 	function renderPreview(preview, showTitle, overrideTitle) {
@@ -208,11 +410,12 @@
 	}
 
 	function renderPreviewImage(image) {
-		if (!image) {
+		var imageUrl = safeImageUrl(image);
+		if (!imageUrl) {
 			return el('div', { className: 'publishly-editor-preview__image' });
 		}
 
-		return el('div', { className: 'publishly-editor-preview__image' }, el('img', { src: image, alt: '' }));
+		return el('div', { className: 'publishly-editor-preview__image' }, el('img', { src: imageUrl, alt: '' }));
 	}
 
 	function renderPreviewFields(row, roles, visibleFields) {
@@ -321,6 +524,24 @@
 			overrideTitle: { type: 'string', default: '' }
 		},
 		edit: Edit,
+		save: function () {
+			return null;
+		}
+	});
+
+	blocks.registerBlockType('publishly/display-grid', {
+		apiVersion: 2,
+		title: __('Publishly Display Grid', 'publishly'),
+		description: __('Arrange multiple Published Displays in a responsive grid.', 'publishly'),
+		icon: 'screenoptions',
+		category: 'widgets',
+		attributes: {
+			displayIds: { type: 'array', default: [] },
+			columns: { type: 'number', default: 2 },
+			gap: { type: 'string', default: 'normal' },
+			showTitles: { type: 'boolean', default: true }
+		},
+		edit: GridEdit,
 		save: function () {
 			return null;
 		}

@@ -17,11 +17,12 @@ class DisplayGenerator {
 	);
 
 	public function generate( array $source, string $display_type = 'searchable_listings', array $overrides = array() ): array {
+		$display_type = $this->sanitize_display_type( $display_type );
 		$columns = $source['columns'] ?? array();
 		$roles   = $this->guess_roles( $columns, $display_type );
 
 		$config = array(
-			'displayType'    => sanitize_key( $display_type ),
+			'displayType'    => $display_type,
 			'title'          => sanitize_text_field( $overrides['title'] ?? $this->default_title( $source, $display_type ) ),
 			'sourceId'       => absint( $source['id'] ?? 0 ),
 			'fieldRoles'     => $roles,
@@ -48,68 +49,97 @@ class DisplayGenerator {
 
 	public function sanitize_config( array $config, array $source ): array {
 		$columns      = $source['columns'] ?? array();
-		$allowed_keys = wp_list_pluck( $columns, 'key' );
+		$allowed_keys = array_values( array_filter( array_map( 'sanitize_key', wp_list_pluck( $columns, 'key' ) ) ) );
 
-		$config['displayType'] = sanitize_key( $config['displayType'] ?? 'searchable_listings' );
+		$config['displayType'] = $this->sanitize_display_type( $config['displayType'] ?? 'searchable_listings' );
 		$config['title']       = sanitize_text_field( $config['title'] ?? __( 'Published Display', 'publishly' ) );
 		$config['sourceId']    = absint( $source['id'] ?? ( $config['sourceId'] ?? 0 ) );
 
 		$field_roles = array();
+		$allowed_roles = array( 'title', 'subtitle', 'image', 'price', 'badge' );
 		foreach ( (array) ( $config['fieldRoles'] ?? array() ) as $role => $field ) {
-			$field_roles[ sanitize_key( $role ) ] = in_array( $field, $allowed_keys, true ) ? sanitize_key( $field ) : '';
+			$role = sanitize_key( $role );
+			if ( ! in_array( $role, $allowed_roles, true ) ) {
+				continue;
+			}
+			$field = sanitize_key( $field );
+			$field_roles[ $role ] = in_array( $field, $allowed_keys, true ) ? $field : '';
 		}
 		$config['fieldRoles'] = $field_roles;
 
-		$config['visibleFields'] = array_values(
-			array_filter(
-				array_map( 'sanitize_key', (array) ( $config['visibleFields'] ?? array() ) ),
-				static fn( string $field ): bool => in_array( $field, $allowed_keys, true )
-			)
+		$config['visibleFields'] = array_slice(
+			array_values(
+				array_unique(
+					array_filter(
+						array_map( 'sanitize_key', (array) ( $config['visibleFields'] ?? array() ) ),
+						static fn( string $field ): bool => in_array( $field, $allowed_keys, true )
+					)
+				)
+			),
+			0,
+			40
 		);
 
-		$config['visitorFilters'] = array_values(
-			array_filter(
-				array_map( 'sanitize_key', (array) ( $config['visitorFilters'] ?? array() ) ),
-				static fn( string $field ): bool => in_array( $field, $allowed_keys, true )
-			)
+		$config['visitorFilters'] = array_slice(
+			array_values(
+				array_unique(
+					array_filter(
+						array_map( 'sanitize_key', (array) ( $config['visitorFilters'] ?? array() ) ),
+						static fn( string $field ): bool => in_array( $field, $allowed_keys, true )
+					)
+				)
+			),
+			0,
+			10
 		);
 
-		$config['defaultFilters'] = array_values(
-			array_map(
-				static function ( array $filter ) use ( $allowed_keys ): array {
-					$field             = sanitize_key( $filter['field'] ?? '' );
-					$operator          = sanitize_key( $filter['operator'] ?? 'equals' );
-					$allowed_operators = array( 'equals', 'not_equals', 'contains', 'less_than', 'greater_than' );
-					return array(
-						'field'    => in_array( $field, $allowed_keys, true ) ? $field : '',
-						'operator' => in_array( $operator, $allowed_operators, true ) ? $operator : 'equals',
-						'value'    => sanitize_text_field( $filter['value'] ?? '' ),
-					);
-				},
-				(array) ( $config['defaultFilters'] ?? array() )
-			)
-		);
+		$default_filters = array();
+		foreach ( array_slice( (array) ( $config['defaultFilters'] ?? array() ), 0, 10 ) as $filter ) {
+			if ( ! is_array( $filter ) ) {
+				continue;
+			}
+			$field             = sanitize_key( $filter['field'] ?? '' );
+			$operator          = sanitize_key( $filter['operator'] ?? 'equals' );
+			$allowed_operators = array( 'equals', 'not_equals', 'contains', 'less_than', 'greater_than' );
+			$default_filters[] = array(
+				'field'    => in_array( $field, $allowed_keys, true ) ? $field : '',
+				'operator' => in_array( $operator, $allowed_operators, true ) ? $operator : 'equals',
+				'value'    => sanitize_text_field( $filter['value'] ?? '' ),
+			);
+		}
+		$config['defaultFilters'] = $default_filters;
 
+		$sort = is_array( $config['sort'] ?? null ) ? $config['sort'] : array();
 		$config['sort'] = array(
-			'field'     => in_array( $config['sort']['field'] ?? '', $allowed_keys, true ) ? sanitize_key( $config['sort']['field'] ) : '',
-			'direction' => 'desc' === ( $config['sort']['direction'] ?? 'asc' ) ? 'desc' : 'asc',
+			'field'     => in_array( $sort['field'] ?? '', $allowed_keys, true ) ? sanitize_key( $sort['field'] ) : '',
+			'direction' => 'desc' === ( $sort['direction'] ?? 'asc' ) ? 'desc' : 'asc',
 		);
 
-		$config['search'] = array( 'enabled' => ! empty( $config['search']['enabled'] ) );
-		$config['filters'] = array( 'enabled' => ! empty( $config['filters']['enabled'] ) );
+		$search = is_array( $config['search'] ?? null ) ? $config['search'] : array();
+		$filters = is_array( $config['filters'] ?? null ) ? $config['filters'] : array();
+		$pagination = is_array( $config['pagination'] ?? null ) ? $config['pagination'] : array();
+		$style = is_array( $config['style'] ?? null ) ? $config['style'] : array();
+
+		$config['search'] = array( 'enabled' => ! empty( $search['enabled'] ) );
+		$config['filters'] = array( 'enabled' => ! empty( $filters['enabled'] ) );
 		$config['pagination'] = array(
-			'enabled' => ! empty( $config['pagination']['enabled'] ),
-			'perPage' => max( 1, min( 100, absint( $config['pagination']['perPage'] ?? 12 ) ) ),
+			'enabled' => ! empty( $pagination['enabled'] ),
+			'perPage' => max( 1, min( 100, absint( $pagination['perPage'] ?? 12 ) ) ),
 		);
-		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
+		$display_width = sanitize_key( $style['displayWidth'] ?? 'normal' );
 		$config['style'] = array(
-			'accentColor'  => sanitize_hex_color( $config['style']['accentColor'] ?? '#3525cd' ) ?: '#3525cd',
-			'density'      => 'compact' === ( $config['style']['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
-			'imageShape'   => 'square' === ( $config['style']['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
+			'accentColor'  => sanitize_hex_color( $style['accentColor'] ?? '#3525cd' ) ?: '#3525cd',
+			'density'      => 'compact' === ( $style['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
+			'imageShape'   => 'square' === ( $style['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
 			'displayWidth' => in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal',
 		);
 
 		return $config;
+	}
+
+	public function sanitize_display_type( mixed $display_type ): string {
+		$display_type = sanitize_key( $display_type );
+		return isset( self::TYPES[ $display_type ] ) ? $display_type : 'searchable_listings';
 	}
 
 	private function guess_roles( array $columns, string $display_type ): array {

@@ -1,0 +1,41 @@
+services:
+  ziptest_db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress_ziptest
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - publishly_ziptest_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ziptest_wordpress:
+    image: wordpress:php8.2-apache
+    restart: unless-stopped
+    depends_on:
+      ziptest_db:
+        condition: service_healthy
+    ports:
+      - "8082:80"
+    environment:
+      WORDPRESS_DB_HOST: ziptest_db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress_ziptest
+      WORDPRESS_DEBUG: "1"
+      PUBLISHLY_ZIPTEST_SITE_URL: http://127.0.0.1:8082
+    volumes:
+      - publishly_ziptest_wp_data:/var/www/html
+      - ./publishly-0.1.43-wporg-submit.zip:/tmp/publishly.zip:ro
+      - ./tools/publishly-zip-test.php:/tmp/publishly-zip-test.php:ro
+
+volumes:
+  publishly_ziptest_db_data:
+  publishly_ziptest_wp_data:

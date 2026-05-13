@@ -2,11 +2,19 @@
 
 namespace Publishly;
 
+use Publishly\Services\SpreadsheetSanitizer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class Database {
+	private SpreadsheetSanitizer $sanitizer;
+
+	public function __construct( ?SpreadsheetSanitizer $sanitizer = null ) {
+		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
+	}
+
 	public static function sources_table(): string {
 		global $wpdb;
 		return $wpdb->prefix . 'publishly_sources';
@@ -77,7 +85,10 @@ CREATE TABLE {$displays} (
 	public function create_source( array $source, array $rows ): int {
 		global $wpdb;
 
+		$columns = $this->sanitizer->sanitize_columns( (array) ( $source['columns'] ?? array() ) );
+		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
 		$now = current_time( 'mysql' );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Publishly stores imported spreadsheets in plugin-owned custom tables.
 		$wpdb->insert(
 			self::sources_table(),
 			array(
@@ -85,7 +96,7 @@ CREATE TABLE {$displays} (
 				'original_filename' => sanitize_file_name( $source['original_filename'] ?? '' ),
 				'file_type'         => sanitize_key( $source['file_type'] ?? 'csv' ),
 				'row_count'         => count( $rows ),
-				'columns_json'      => wp_json_encode( $source['columns'] ?? array() ),
+				'columns_json'      => wp_json_encode( $columns ),
 				'created_by'        => get_current_user_id(),
 				'created_at'        => $now,
 				'updated_at'        => $now,
@@ -102,6 +113,10 @@ CREATE TABLE {$displays} (
 	public function update_source_data( int $source_id, array $columns, array $rows, string $filename, string $file_type ): bool {
 		global $wpdb;
 
+		$columns = $this->sanitizer->sanitize_columns( $columns );
+		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Publishly stores imported spreadsheets in plugin-owned custom tables.
 		$updated = $wpdb->update(
 			self::sources_table(),
 			array(
@@ -127,16 +142,22 @@ CREATE TABLE {$displays} (
 	public function replace_rows( int $source_id, array $rows ): void {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Replacing rows in a plugin-owned custom table.
 		$wpdb->delete( self::rows_table(), array( 'source_id' => $source_id ), array( '%d' ) );
 
 		$now = current_time( 'mysql' );
 		foreach ( $rows as $index => $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Publishly stores imported spreadsheet rows in a plugin-owned custom table.
 			$wpdb->insert(
 				self::rows_table(),
 				array(
 					'source_id'  => $source_id,
 					'row_index'  => absint( $index ),
-					'row_json'   => wp_json_encode( $row ),
+					'row_json'   => wp_json_encode( $this->sanitizer->sanitize_untyped_row( $row ) ),
 					'created_at' => $now,
 				),
 				array( '%d', '%d', '%s', '%s' )
@@ -147,8 +168,9 @@ CREATE TABLE {$displays} (
 	public function get_source( int $source_id ): ?array {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
 		$row = $wpdb->get_row(
-			$wpdb->prepare( 'SELECT * FROM ' . self::sources_table() . ' WHERE id = %d', $source_id ),
+			$wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', self::sources_table(), $source_id ),
 			ARRAY_A
 		);
 
@@ -158,7 +180,8 @@ CREATE TABLE {$displays} (
 	public function list_sources(): array {
 		global $wpdb;
 
-		$rows = $wpdb->get_results( 'SELECT * FROM ' . self::sources_table() . ' ORDER BY updated_at DESC', ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
+		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY updated_at DESC', self::sources_table() ), ARRAY_A );
 		return array_map( array( $this, 'prepare_source' ), $rows ?: array() );
 	}
 
@@ -166,25 +189,28 @@ CREATE TABLE {$displays} (
 		global $wpdb;
 
 		if ( $limit > 0 ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
 			$records = $wpdb->get_results(
 				$wpdb->prepare(
-					'SELECT row_json FROM ' . self::rows_table() . ' WHERE source_id = %d ORDER BY row_index ASC LIMIT %d',
+					'SELECT row_json FROM %i WHERE source_id = %d ORDER BY row_index ASC LIMIT %d',
+					self::rows_table(),
 					$source_id,
 					$limit
 				),
 				ARRAY_A
 			);
 		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
 			$records = $wpdb->get_results(
-				$wpdb->prepare( 'SELECT row_json FROM ' . self::rows_table() . ' WHERE source_id = %d ORDER BY row_index ASC', $source_id ),
+				$wpdb->prepare( 'SELECT row_json FROM %i WHERE source_id = %d ORDER BY row_index ASC', self::rows_table(), $source_id ),
 				ARRAY_A
 			);
 		}
 
 		return array_map(
-			static function ( array $record ): array {
+			function ( array $record ): array {
 				$row = json_decode( $record['row_json'], true );
-				return is_array( $row ) ? $row : array();
+				return is_array( $row ) ? $this->sanitizer->sanitize_untyped_row( $row ) : array();
 			},
 			$records ?: array()
 		);
@@ -194,14 +220,15 @@ CREATE TABLE {$displays} (
 		global $wpdb;
 
 		$now = current_time( 'mysql' );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Publishly stores display definitions in a plugin-owned custom table.
 		$wpdb->insert(
 			self::displays_table(),
 			array(
 				'source_id'     => absint( $display['source_id'] ?? 0 ),
 				'name'          => sanitize_text_field( $display['name'] ?? __( 'Untitled Display', 'publishly' ) ),
-				'display_type'  => sanitize_key( $display['display_type'] ?? 'searchable_listings' ),
+				'display_type'  => $this->sanitize_display_type( $display['display_type'] ?? 'searchable_listings' ),
 				'config_json'   => wp_json_encode( $display['config'] ?? array() ),
-				'status'        => sanitize_key( $display['status'] ?? 'published' ),
+				'status'        => $this->sanitize_status( $display['status'] ?? 'published' ),
 				'created_by'    => get_current_user_id(),
 				'created_at'    => $now,
 				'updated_at'    => $now,
@@ -223,7 +250,7 @@ CREATE TABLE {$displays} (
 			$format[]     = '%s';
 		}
 		if ( isset( $display['display_type'] ) ) {
-			$data['display_type'] = sanitize_key( $display['display_type'] );
+			$data['display_type'] = $this->sanitize_display_type( $display['display_type'] );
 			$format[]             = '%s';
 		}
 		if ( isset( $display['config'] ) ) {
@@ -231,10 +258,11 @@ CREATE TABLE {$displays} (
 			$format[]            = '%s';
 		}
 		if ( isset( $display['status'] ) ) {
-			$data['status'] = sanitize_key( $display['status'] );
+			$data['status'] = $this->sanitize_status( $display['status'] );
 			$format[]       = '%s';
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Publishly updates display definitions in a plugin-owned custom table.
 		$result = $wpdb->update( self::displays_table(), $data, array( 'id' => $display_id ), $format, array( '%d' ) );
 		return false !== $result;
 	}
@@ -242,14 +270,16 @@ CREATE TABLE {$displays} (
 	public function delete_display( int $display_id ): bool {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Publishly deletes display definitions from a plugin-owned custom table.
 		return false !== $wpdb->delete( self::displays_table(), array( 'id' => $display_id ), array( '%d' ) );
 	}
 
 	public function get_display( int $display_id ): ?array {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
 		$row = $wpdb->get_row(
-			$wpdb->prepare( 'SELECT * FROM ' . self::displays_table() . ' WHERE id = %d', $display_id ),
+			$wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', self::displays_table(), $display_id ),
 			ARRAY_A
 		);
 
@@ -259,7 +289,8 @@ CREATE TABLE {$displays} (
 	public function list_displays(): array {
 		global $wpdb;
 
-		$rows = $wpdb->get_results( 'SELECT * FROM ' . self::displays_table() . ' ORDER BY updated_at DESC', ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
+		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY updated_at DESC', self::displays_table() ), ARRAY_A );
 		return array_map( array( $this, 'prepare_display' ), $rows ?: array() );
 	}
 
@@ -268,7 +299,7 @@ CREATE TABLE {$displays} (
 		$row['row_count']   = absint( $row['row_count'] );
 		$row['created_by']  = absint( $row['created_by'] );
 		$row['columns']     = json_decode( $row['columns_json'] ?? '[]', true );
-		$row['columns']     = is_array( $row['columns'] ) ? $row['columns'] : array();
+		$row['columns']     = is_array( $row['columns'] ) ? $this->sanitizer->sanitize_columns( $row['columns'] ) : array();
 		unset( $row['columns_json'] );
 
 		return $row;
@@ -278,6 +309,8 @@ CREATE TABLE {$displays} (
 		$row['id']         = absint( $row['id'] );
 		$row['source_id']  = absint( $row['source_id'] );
 		$row['created_by'] = absint( $row['created_by'] );
+		$row['display_type'] = $this->sanitize_display_type( $row['display_type'] ?? 'searchable_listings' );
+		$row['status'] = $this->sanitize_status( $row['status'] ?? 'draft' );
 		$row['config']     = json_decode( $row['config_json'] ?? '{}', true );
 		$row['config']     = is_array( $row['config'] ) ? $row['config'] : array();
 		unset( $row['config_json'] );
@@ -288,5 +321,17 @@ CREATE TABLE {$displays} (
 		}
 
 		return $row;
+	}
+
+	private function sanitize_display_type( mixed $display_type ): string {
+		$display_type  = sanitize_key( $display_type );
+		$allowed_types = array( 'searchable_listings', 'product_catalog', 'team_directory', 'event_schedule', 'pricing_table', 'simple_data_table' );
+
+		return in_array( $display_type, $allowed_types, true ) ? $display_type : 'searchable_listings';
+	}
+
+	private function sanitize_status( mixed $status ): string {
+		$status = sanitize_key( $status );
+		return in_array( $status, array( 'draft', 'published' ), true ) ? $status : 'published';
 	}
 }

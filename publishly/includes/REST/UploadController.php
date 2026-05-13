@@ -4,7 +4,7 @@ namespace Publishly\REST;
 
 use Publishly\Database;
 use Publishly\Services\CsvParser;
-use Publishly\Services\XlsxParser;
+use Publishly\Services\SpreadsheetSanitizer;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -15,9 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class UploadController {
 	private Database $database;
+	private SpreadsheetSanitizer $sanitizer;
 
-	public function __construct( ?Database $database = null ) {
-		$this->database = $database ?: new Database();
+	public function __construct( ?Database $database = null, ?SpreadsheetSanitizer $sanitizer = null ) {
+		$this->database  = $database ?: new Database();
+		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
 	public function register_routes(): void {
@@ -43,14 +45,9 @@ class UploadController {
 		}
 
 		$file = $files['file'];
-		if ( ! empty( $file['error'] ) ) {
-			return new WP_Error( 'publishly_upload_error', __( 'The spreadsheet upload failed.', 'publishly' ), array( 'status' => 400 ) );
-		}
-
-		$filename = sanitize_file_name( $file['name'] ?? '' );
-		$ext      = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
-		if ( ! in_array( $ext, array( 'csv', 'xlsx' ), true ) ) {
-			return new WP_Error( 'publishly_invalid_file_type', __( 'Publishly supports CSV files in this MVP. XLSX support is prepared for a later update.', 'publishly' ), array( 'status' => 400 ) );
+		$meta = $this->sanitizer->validate_uploaded_csv( $file );
+		if ( is_wp_error( $meta ) ) {
+			return $meta;
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -61,8 +58,7 @@ class UploadController {
 				'test_form' => false,
 				'test_type' => false,
 				'mimes'     => array(
-					'csv'  => 'text/csv',
-					'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+					'csv' => 'text/csv',
 				),
 			)
 		);
@@ -71,8 +67,7 @@ class UploadController {
 			return new WP_Error( 'publishly_upload_failed', sanitize_text_field( $upload['error'] ), array( 'status' => 400 ) );
 		}
 
-		$parser = 'csv' === $ext ? new CsvParser() : new XlsxParser();
-		$parsed = $parser->parse( $upload['file'] );
+		$parsed = ( new CsvParser() )->parse( $upload['file'] );
 
 		if ( is_wp_error( $parsed ) ) {
 			return $parsed;
@@ -80,9 +75,9 @@ class UploadController {
 
 		$source_id = $this->database->create_source(
 			array(
-				'name'              => sanitize_text_field( $request->get_param( 'name' ) ?: $filename ),
-				'original_filename' => $filename,
-				'file_type'         => $ext,
+				'name'              => sanitize_text_field( $request->get_param( 'name' ) ?: $meta['filename'] ),
+				'original_filename' => $meta['filename'],
+				'file_type'         => 'csv',
 				'columns'           => $parsed['columns'],
 			),
 			$parsed['rows']

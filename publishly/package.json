@@ -1,6 +1,6 @@
 {
   "name": "publishly",
-  "version": "0.1.36",
+  "version": "0.1.43",
   "private": true,
   "description": "A friendly spreadsheet publishing assistant for WordPress.",
   "scripts": {

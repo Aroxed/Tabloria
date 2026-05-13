@@ -77,6 +77,25 @@
 			.replace(/'/g, '&#039;');
 	}
 
+	function safeImageUrl(value) {
+		if (!value) {
+			return '';
+		}
+
+		try {
+			var url = new URL(String(value), window.location.origin);
+			if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+				return '';
+			}
+			if (!/\.(jpg|jpeg|png|webp|gif)$/i.test(url.pathname)) {
+				return '';
+			}
+			return url.href;
+		} catch (error) {
+			return '';
+		}
+	}
+
 	function endpoint(path) {
 		return String(env.restUrl || '').replace(/\/$/, '') + path;
 	}
@@ -392,7 +411,7 @@
 			setScreen('upload');
 		});
 		root.querySelector('[data-continue]').addEventListener('click', function () {
-			setScreen('outcome');
+			setScreen('setup');
 		});
 	}
 
@@ -472,7 +491,10 @@
 			'<div class="publishly-setup-layout">',
 			'<aside class="publishly-setup-controls">',
 			'<section class="publishly-panel publishly-panel--compact">',
+			'<div class="publishly-form-grid publishly-form-grid--compact">',
 			'<div class="publishly-field"><label for="display-name">Display name</label><input id="display-name" class="publishly-input" value="' + escapeHtml(state.config.title || '') + '" /></div>',
+			'<div class="publishly-field"><label for="setup-display-type">Display type</label>' + renderDisplayTypeSelect('setup-display-type', currentDisplayType()) + '</div>',
+			'</div>',
 			'</section>',
 			renderSetupAccordion('content', 'Display Content', 'Map columns to the visible parts of this Display.', renderContentMapper(roles, state.config, 'role-', 'visible-field', false), true),
 			renderSetupAccordion('filters', 'Filtering & Sorting', 'Choose visitor filters, default filter, and sort order.', [
@@ -999,6 +1021,12 @@
 		if (!root.querySelector('[data-back]') || !root.querySelector('[data-continue]')) {
 			return;
 		}
+		var typeSelect = root.querySelector('#setup-display-type');
+		if (typeSelect) {
+			typeSelect.addEventListener('change', function () {
+				switchSetupDisplayType(typeSelect.value);
+			});
+		}
 		root.querySelectorAll('[data-setup-accordion]').forEach(function (section) {
 			section.addEventListener('toggle', function () {
 				state.setupAccordions = state.setupAccordions || {};
@@ -1018,6 +1046,9 @@
 			});
 		});
 		root.querySelectorAll('#display-name, .publishly-setup-controls input, .publishly-setup-controls select').forEach(function (control) {
+			if (control.matches('#setup-display-type')) {
+				return;
+			}
 			control.addEventListener('change', function () {
 				collectSetup();
 				collectCustomize();
@@ -1025,7 +1056,7 @@
 			});
 		});
 		root.querySelector('[data-back]').addEventListener('click', function () {
-			setScreen('outcome');
+			setScreen('detection');
 		});
 		root.querySelector('[data-continue]').addEventListener('click', function () {
 			collectSetup();
@@ -1059,6 +1090,19 @@
 			direction: valueOf('#sort-direction') || 'asc'
 		};
 		state.config = config;
+	}
+
+	function switchSetupDisplayType(displayType) {
+		if (!displayTypes.some(function (type) { return type.key === displayType; }) || displayType === currentDisplayType()) {
+			return;
+		}
+
+		collectSetup();
+		collectCustomize();
+		state.displayType = displayType;
+		state.config = rebuildConfigForDisplayType(displayType, cloneConfig(state.config));
+		state.notice = 'Display type changed. Review fields before saving.';
+		render();
 	}
 
 	function valueOf(selector) {
@@ -2140,11 +2184,11 @@
 	function renderMiniControls() {
 		var parts = [];
 		if (state.config.search && state.config.search.enabled) {
-			parts.push('<input class="publishly-input" placeholder="Search this Display..." />');
+			parts.push('<input class="publishly-input" placeholder="Search all fields..." />');
 		}
 		if (state.config.filters && state.config.filters.enabled && state.config.visitorFilters && state.config.visitorFilters.length) {
 			parts.push('<div class="publishly-mini-filters">' + state.config.visitorFilters.slice(0, 3).map(function (field) {
-				return '<select class="publishly-select"><option>' + escapeHtml(labelForField(field)) + '</option></select>';
+				return '<select class="publishly-select"><option>All ' + escapeHtml(labelForField(field)) + '</option></select>';
 			}).join('') + '</div>');
 		}
 
@@ -2152,11 +2196,12 @@
 	}
 
 	function renderMiniImage(image) {
-		if (!image) {
+		var imageUrl = safeImageUrl(image);
+		if (!imageUrl) {
 			return '<div class="publishly-mini-card__image"></div>';
 		}
 
-		return '<div class="publishly-mini-card__image"><img src="' + escapeHtml(image) + '" alt="" loading="lazy"></div>';
+		return '<div class="publishly-mini-card__image"><img src="' + escapeHtml(imageUrl) + '" alt="" loading="lazy"></div>';
 	}
 
 	function renderMiniFields(row, roles) {

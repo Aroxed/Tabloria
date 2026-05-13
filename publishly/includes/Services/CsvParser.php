@@ -10,33 +10,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CsvParser {
 	private ColumnDetector $detector;
+	private SpreadsheetSanitizer $sanitizer;
 
-	public function __construct( ?ColumnDetector $detector = null ) {
-		$this->detector = $detector ?: new ColumnDetector();
+	public function __construct( ?ColumnDetector $detector = null, ?SpreadsheetSanitizer $sanitizer = null ) {
+		$this->detector  = $detector ?: new ColumnDetector();
+		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
 	public function parse( string $path ): array|WP_Error {
-		if ( ! is_readable( $path ) ) {
-			return new WP_Error( 'publishly_csv_unreadable', __( 'The uploaded CSV file could not be read.', 'publishly' ) );
+		$file_error = $this->sanitizer->validate_csv_file_path( $path );
+		if ( is_wp_error( $file_error ) ) {
+			return $file_error;
 		}
 
-		$handle = fopen( $path, 'rb' );
+		$handle = fopen( $path, 'rb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- CSV parsing requires a stream handle for fgetcsv().
 		if ( false === $handle ) {
 			return new WP_Error( 'publishly_csv_open_failed', __( 'The uploaded CSV file could not be opened.', 'publishly' ) );
 		}
 
 		$headers = fgetcsv( $handle );
 		if ( ! is_array( $headers ) || empty( $headers ) ) {
-			fclose( $handle );
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing the fgetcsv() stream opened above.
 			return new WP_Error( 'publishly_csv_empty', __( 'The CSV file needs a header row.', 'publishly' ) );
 		}
 
-		$headers = array_map(
-			static function ( string $header ): string {
-				return sanitize_text_field( preg_replace( '/^\xEF\xBB\xBF/', '', trim( $header ) ) );
-			},
-			$headers
-		);
+		$headers = $this->sanitizer->sanitize_headers( $headers );
+		if ( is_wp_error( $headers ) ) {
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing the fgetcsv() stream opened above.
+			return $headers;
+		}
 
 		$keys      = $this->unique_keys( $headers );
 		$rows      = array();
@@ -47,21 +49,28 @@ class CsvParser {
 				continue;
 			}
 
+			if ( $row_index >= SpreadsheetSanitizer::MAX_ROWS ) {
+				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing the fgetcsv() stream opened above.
+				return new WP_Error( 'publishly_csv_too_many_rows', __( 'The CSV file has too many rows for this MVP release.', 'publishly' ), array( 'status' => 400 ) );
+			}
+
 			$row = array();
 			foreach ( $keys as $index => $key ) {
-				$row[ $key ] = sanitize_text_field( (string) ( $data[ $index ] ?? '' ) );
+				$row[ $key ] = $this->sanitizer->sanitize_value( $data[ $index ] ?? '', 'text' );
 			}
 
 			$rows[ $row_index ] = $row;
 			$row_index++;
 		}
 
-		fclose( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing the fgetcsv() stream opened above.
 
 		$columns = $this->detector->detect_columns( $headers, $rows );
 		foreach ( $columns as $index => $column ) {
 			$columns[ $index ]['key'] = $keys[ $index ];
 		}
+		$columns = $this->sanitizer->sanitize_columns( $columns );
+		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
 
 		return array(
 			'columns' => $columns,

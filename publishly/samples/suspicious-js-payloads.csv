@@ -1,0 +1,3 @@
+Title,Website,Image,Status,Notes
+"<script>alert('title')</script>","javascript:alert('url')","javascript:alert('image')","<img src=x onerror=alert('status')>","2 < 3 && 5 > 4"
+"Normal Row","https://example.com/safe-page","https://example.com/photo.jpg","Available","=HYPERLINK(""javascript:alert(1)"",""Click"")"

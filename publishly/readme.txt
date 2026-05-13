@@ -2,9 +2,9 @@
 Contributors: publishly
 Tags: spreadsheet, csv, gutenberg, listings, directory
 Requires at least: 6.3
-Tested up to: 6.6
+Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.1.36
+Stable tag: 0.1.43
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,6 +16,8 @@ Publishly is a friendly spreadsheet publishing assistant for WordPress.
 
 Upload a CSV spreadsheet, create a reusable Published Display, and insert that Display in Gutenberg with the Publishly Display block.
 
+Use the Publishly Display Grid block when you want to arrange multiple Published Displays on the same page.
+
 This MVP focuses on the core loop:
 
 * CSV upload
@@ -25,6 +27,7 @@ This MVP focuses on the core loop:
 * simple search, filters, sorting, and pagination
 * reusable Published Displays
 * Gutenberg block rendering by Display ID
+* Publishly Display Grid block for multiple Displays
 * shortcode fallback: [publishly id="123"]
 
 == Installation ==
@@ -33,6 +36,7 @@ This MVP focuses on the core loop:
 2. Activate Publishly from the WordPress Plugins screen.
 3. Open Publishly -> Create Display.
 4. Upload a CSV file and follow the guided flow.
+5. Insert a Publishly Display block, or use Publishly Display Grid for multiple Displays.
 
 == Frequently Asked Questions ==
 
@@ -44,11 +48,46 @@ No. The spreadsheet remains the source of truth. Publishly controls how the data
 
 No. The block stores the selected Display ID. The Display configuration lives in Publishly.
 
+= Can I put several Displays in a Gutenberg table? =
+
+Use Publishly Display Grid instead. Gutenberg tables are for tabular content, not layout, and can squeeze interactive Displays into table cells.
+
 = Does this MVP support XLSX? =
 
 The architecture includes an XLSX parser service, but the current MVP imports CSV files first.
 
 == Changelog ==
+
+= 0.1.43 =
+
+* Added centralized CSV value validation for uploaded spreadsheet data.
+* Hardened URL, image, email, formula-looking, oversized, and binary-looking CSV values.
+* Added unit tests for suspicious CSV data, config validation, and frontend rendering boundaries.
+
+= 0.1.42 =
+
+* Added a Publishly Display Grid block for arranging multiple Published Displays safely.
+* Contained Publishly Displays inside Gutenberg tables and narrow containers, with an admin-only table warning.
+
+= 0.1.41 =
+
+* Prefixed visitor filter values with their field label, for example Status: In Stock.
+
+= 0.1.40 =
+
+* Clarified frontend controls so search says it searches all fields and visitor filter defaults read like value filters.
+
+= 0.1.39 =
+
+* Skipped the duplicate Display type selection screen after spreadsheet detection and moved type changes into setup.
+
+= 0.1.38 =
+
+* Ensured full-width table displays load their frontend alignment script with the Gutenberg block and align against the visible viewport.
+
+= 0.1.37 =
+
+* Centered wide and full-width frontend table displays against the viewport instead of inherited theme container offsets.
 
 = 0.1.36 =
 
