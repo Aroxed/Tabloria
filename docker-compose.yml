@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: wordpress
       MYSQL_ROOT_PASSWORD: rootpassword
     volumes:
-      - publishly_db_data:/var/lib/mysql
+      - tabloria_db_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
       interval: 10s
@@ -31,9 +31,9 @@ services:
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DEBUG: "1"
     volumes:
-      - publishly_wp_data:/var/www/html
-      - ./publishly:/var/www/html/wp-content/plugins/publishly
+      - tabloria_wp_data:/var/www/html
+      - ./tabloria-searchable-displays:/var/www/html/wp-content/plugins/tabloria-searchable-displays
 
 volumes:
-  publishly_db_data:
-  publishly_wp_data:
+  tabloria_db_data:
+  tabloria_wp_data:

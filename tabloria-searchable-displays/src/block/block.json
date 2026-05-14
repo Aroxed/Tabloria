@@ -1,0 +1,23 @@
+{
+  "apiVersion": 2,
+  "name": "tabloria/display",
+  "title": "Tabloria Display",
+  "category": "widgets",
+  "icon": "screenoptions",
+  "description": "Insert a searchable display created from your spreadsheet.",
+  "textdomain": "tabloria-searchable-displays",
+  "attributes": {
+    "displayId": {
+      "type": "number",
+      "default": 0
+    },
+    "showTitle": {
+      "type": "boolean",
+      "default": true
+    },
+    "overrideTitle": {
+      "type": "string",
+      "default": ""
+    }
+  }
+}

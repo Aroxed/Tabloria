@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: wordpress
       MYSQL_ROOT_PASSWORD: rootpassword
     volumes:
-      - publishly_ziptest_db_data:/var/lib/mysql
+      - tabloria_ziptest_db_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
       interval: 10s
@@ -30,12 +30,12 @@ services:
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress_ziptest
       WORDPRESS_DEBUG: "1"
-      PUBLISHLY_ZIPTEST_SITE_URL: http://127.0.0.1:8082
+      TABLORIA_ZIPTEST_SITE_URL: http://127.0.0.1:8082
     volumes:
-      - publishly_ziptest_wp_data:/var/www/html
-      - ./publishly-0.1.43-wporg-submit.zip:/tmp/publishly.zip:ro
-      - ./tools/publishly-zip-test.php:/tmp/publishly-zip-test.php:ro
+      - tabloria_ziptest_wp_data:/var/www/html
+      - ./tabloria-searchable-displays-0.1.44-wporg-submit.zip:/tmp/tabloria-searchable-displays.zip:ro
+      - ./tools/tabloria-zip-test.php:/tmp/tabloria-zip-test.php:ro
 
 volumes:
-  publishly_ziptest_db_data:
-  publishly_ziptest_wp_data:
+  tabloria_ziptest_db_data:
+  tabloria_ziptest_wp_data:
