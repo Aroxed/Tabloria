@@ -8,6 +8,9 @@ build/
 *.zip
 *.tar.gz
 
+# WordPress.org SVN release checkout
+wporg-svn/
+
 # Environment and local config
 .env
 .env.*

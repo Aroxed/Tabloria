@@ -8,27 +8,51 @@ Stable tag: 0.1.44
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Tabloria Searchable Displays turns spreadsheet rows into reusable searchable WordPress Displays.
+Tabloria turns CSV files into searchable WordPress displays: listings, catalogs, directories, schedules, pricing tables, and data tables.
 
 == Description ==
 
-Tabloria Searchable Displays is a friendly spreadsheet publishing assistant for WordPress.
+Tabloria turns CSV files into reusable WordPress displays: searchable listings, product catalogs, directories, schedules, pricing tables, and simple data tables.
 
-Upload a CSV spreadsheet, create a reusable Published Display, and insert that Display in Gutenberg with the Tabloria Display block.
+Instead of publishing spreadsheet rows as a plain table, Tabloria helps you turn CSV data into structured website content. Upload a CSV, choose a display type, map columns to visual fields, preview the result, and insert the saved display into Gutenberg.
 
-Use the Tabloria Display Grid block when you want to arrange multiple Published Displays on the same page.
+Live demo: https://tabloria.site/demo.html
 
-This MVP focuses on the core loop:
+= Best for =
 
-* CSV upload
-* smart column detection
-* field roles
-* visible fields
-* simple search, filters, sorting, and pagination
-* reusable Published Displays
-* Gutenberg block rendering by Display ID
-* Tabloria Display Grid block for multiple Displays
-* shortcode fallback: [tabloria id="123"]
+* Product catalogs from CSV files
+* Searchable listings for services, resources, properties, or locations
+* Team or organization directories
+* Event schedules from date-based spreadsheet rows
+* Pricing tables from spreadsheet data
+* Simple searchable data tables
+* WordPress pages where a plain table is not enough
+
+= Display types =
+
+Tabloria currently includes six display types:
+
+* Searchable Listings
+* Product Catalog
+* Team Directory
+* Event Schedule
+* Pricing Table
+* Simple Data Table
+
+= Core workflow =
+
+* Upload a CSV file
+* Review detected columns
+* Choose field roles and visible fields
+* Configure search, filters, sorting, and pagination
+* Save a reusable Published Display
+* Insert the Display in Gutenberg by Display ID
+* Use the Tabloria Display Grid block for multiple Displays
+* Use the shortcode fallback: `[tabloria id="123"]`
+
+= Gutenberg and shortcode support =
+
+Saved displays can be inserted with the Tabloria Display block. Use the Tabloria Display Grid block when you want to arrange multiple Published Displays on the same page. Each display also has a shortcode fallback for classic workflows, widgets, or page builders.
 
 == Installation ==
 
@@ -39,6 +63,18 @@ This MVP focuses on the core loop:
 5. Insert a Tabloria Display block, or use Tabloria Display Grid for multiple Displays.
 
 == Frequently Asked Questions ==
+
+= Is Tabloria a table plugin? =
+
+Tabloria can publish simple data tables, but its main purpose is creating reusable WordPress displays from spreadsheet data.
+
+= What display types are available? =
+
+Tabloria currently supports Searchable Listings, Product Catalog, Team Directory, Event Schedule, Pricing Table, and Simple Data Table.
+ 
+= What file format does it support? =
+
+The current MVP imports CSV files first. The architecture includes an XLSX parser service, but XLSX import is not the main release path yet.
 
 = Does Tabloria edit spreadsheet rows? =
 
@@ -52,9 +88,19 @@ No. The block stores the selected Display ID. The Display configuration lives in
 
 Use Tabloria Display Grid instead. Gutenberg tables are for tabular content, not layout, and can squeeze interactive Displays into table cells.
 
-= Does this MVP support XLSX? =
+= Can I use shortcodes? =
 
-The architecture includes an XLSX parser service, but the current MVP imports CSV files first.
+Yes. Every saved display has a shortcode fallback, for example `[tabloria id="123"]`.
+
+== Screenshots ==
+
+1. Choose the display type that fits your CSV data.
+2. Upload a CSV file directly inside WordPress.
+3. Review detected columns and field types before mapping.
+4. Map CSV columns to visual fields and preview the display.
+5. Save the display as reusable WordPress content.
+6. Insert a saved Tabloria display in the Gutenberg editor.
+7. Publish a page with the selected Tabloria display.
 
 == Changelog ==
 
@@ -248,4 +294,4 @@ The architecture includes an XLSX parser service, but the current MVP imports CS
 
 = 0.1.0 =
 
-* Initial MVP implementation.
+* Initial MVP implementation
