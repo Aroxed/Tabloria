@@ -1,6 +1,6 @@
 === Tabloria Searchable Displays ===
 Contributors: tabloria
-Tags: spreadsheet, csv, gutenberg, listings, directory
+Tags: csv, spreadsheet, searchable table, directory, gutenberg
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.1
@@ -8,23 +8,24 @@ Stable tag: 0.1.44
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Tabloria turns CSV files into searchable WordPress displays: listings, catalogs, directories, schedules, pricing tables, and data tables.
+Turn CSV files into searchable, filterable WordPress displays: directories, listings, catalogs, schedules, pricing tables, and data tables.
 
 == Description ==
 
-Tabloria turns CSV files into reusable WordPress displays: searchable listings, product catalogs, directories, schedules, pricing tables, and simple data tables.
+Tabloria helps you turn CSV and spreadsheet-style data into searchable WordPress displays without custom code.
 
-Instead of publishing spreadsheet rows as a plain table, Tabloria helps you turn CSV data into structured website content. Upload a CSV, choose a display type, map columns to visual fields, preview the result, and insert the saved display into Gutenberg.
+Use it to create directories, resource lists, product catalogs, comparison lists, event schedules, pricing tables, and simple searchable data tables. Instead of publishing spreadsheet rows as one plain table, Tabloria lets you choose a display type, map CSV columns to visual fields, preview the result, and publish the saved display with Gutenberg or a shortcode.
 
 Live demo: https://tabloria.site/demo.html
 
 = Best for =
 
-* Product catalogs from CSV files
-* Searchable listings for services, resources, properties, or locations
-* Team or organization directories
-* Event schedules from date-based spreadsheet rows
-* Pricing tables from spreadsheet data
+* CSV to searchable WordPress displays
+* Searchable directories for people, teams, services, resources, locations, or organizations
+* Product catalogs from spreadsheet data
+* Resource libraries and public data lists
+* Event schedules from date-based CSV rows
+* Pricing tables from structured spreadsheet rows
 * Simple searchable data tables
 * WordPress pages where a plain table is not enough
 
@@ -42,51 +43,63 @@ Tabloria currently includes six display types:
 = Core workflow =
 
 * Upload a CSV file
-* Review detected columns
-* Choose field roles and visible fields
+* Review the detected columns
+* Choose a display type
+* Map CSV columns to titles, descriptions, images, prices, dates, links, or other visual fields
 * Configure search, filters, sorting, and pagination
-* Save a reusable Published Display
-* Insert the Display in Gutenberg by Display ID
-* Use the Tabloria Display Grid block for multiple Displays
+* Preview the display before publishing
+* Save a reusable display
+* Insert the display with the Tabloria Display block
+* Arrange several displays with the Tabloria Display Grid block
 * Use the shortcode fallback: `[tabloria id="123"]`
 
 = Gutenberg and shortcode support =
 
-Saved displays can be inserted with the Tabloria Display block. Use the Tabloria Display Grid block when you want to arrange multiple Published Displays on the same page. Each display also has a shortcode fallback for classic workflows, widgets, or page builders.
+Saved displays can be inserted with the Tabloria Display block. Use the Tabloria Display Grid block when you want to arrange multiple saved displays on the same page. Each display also has a shortcode fallback for classic workflows, widgets, and page builders.
+
+= Why Tabloria? =
+
+Traditional table plugins are useful when you want to publish rows and columns. Tabloria is focused on turning CSV data into visitor-friendly displays that can be searched, filtered, and reused across your WordPress site.
+
+That makes it useful when your data is more like a directory, catalog, listing, schedule, or resource library than a simple spreadsheet table.
 
 == Installation ==
 
 1. Upload the `tabloria-searchable-displays` folder to `/wp-content/plugins/`.
 2. Activate Tabloria Searchable Displays from the WordPress Plugins screen.
 3. Open Tabloria -> Create Display.
-4. Upload a CSV file and follow the guided flow.
-5. Insert a Tabloria Display block, or use Tabloria Display Grid for multiple Displays.
+4. Upload a CSV file and follow the guided setup flow.
+5. Insert a Tabloria Display block, use Tabloria Display Grid for multiple displays, or copy the shortcode.
 
 == Frequently Asked Questions ==
 
 = Is Tabloria a table plugin? =
 
-Tabloria can publish simple data tables, but its main purpose is creating reusable WordPress displays from spreadsheet data.
+Tabloria can publish simple searchable data tables, but its main purpose is creating reusable WordPress displays from CSV and spreadsheet-style data. It is especially useful for directories, catalogs, listings, schedules, pricing tables, and resource libraries.
+
+= Is Tabloria a TablePress alternative? =
+
+It depends on your use case. If you mainly need a traditional table with rows and columns, a classic table plugin may be enough. If you want to turn CSV data into searchable directories, catalogs, listings, schedules, or reusable displays, Tabloria is designed for that workflow.
 
 = What display types are available? =
 
 Tabloria currently supports Searchable Listings, Product Catalog, Team Directory, Event Schedule, Pricing Table, and Simple Data Table.
- 
-= What file format does it support? =
 
-The current MVP imports CSV files first. The architecture includes an XLSX parser service, but XLSX import is not the main release path yet.
+= What file format does Tabloria support? =
+
+The current MVP imports CSV files. XLSX import is not part of the main public workflow yet.
 
 = Does Tabloria edit spreadsheet rows? =
 
-No. The spreadsheet remains the source of truth. Tabloria controls how the data appears as a reusable Display.
+No. The CSV file is used as the source data for the display. Tabloria controls how that data appears on your WordPress site.
 
-= Does the Gutenberg block store the full Display configuration? =
+= Does the Gutenberg block store the full display configuration? =
 
-No. The block stores the selected Display ID. The Display configuration lives in Tabloria.
+No. The block stores the selected Display ID. The display configuration lives inside Tabloria, so you can update the saved display without rebuilding the page content.
 
-= Can I put several Displays in a Gutenberg table? =
+= Can I put several displays in a Gutenberg table? =
 
-Use Tabloria Display Grid instead. Gutenberg tables are for tabular content, not layout, and can squeeze interactive Displays into table cells.
+Use Tabloria Display Grid instead. Gutenberg tables are for tabular content, not layout, and can squeeze interactive displays into table cells.
 
 = Can I use shortcodes? =
 
@@ -94,13 +107,14 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 
 == Screenshots ==
 
-1. Choose the display type that fits your CSV data.
+1. Choose the display type that fits your CSV data: listing, catalog, directory, schedule, pricing table, or data table.
 2. Upload a CSV file directly inside WordPress.
-3. Review detected columns and field types before mapping.
-4. Map CSV columns to visual fields and preview the display.
-5. Save the display as reusable WordPress content.
-6. Insert a saved Tabloria display in the Gutenberg editor.
-7. Publish a page with the selected Tabloria display.
+3. Review detected columns before mapping them to display fields.
+4. Map CSV columns to titles, descriptions, images, prices, dates, links, and other visual fields.
+5. Preview the searchable display before publishing it.
+6. Save the display as reusable WordPress content.
+7. Insert a saved Tabloria display in the Gutenberg editor.
+8. Publish a searchable WordPress display for visitors.
 
 == Changelog ==
 
