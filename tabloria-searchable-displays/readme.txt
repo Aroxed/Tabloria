@@ -4,7 +4,7 @@ Tags: csv, spreadsheet, searchable table, directory, gutenberg
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.1.44
+Stable tag: 0.1.45
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,6 +117,11 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 8. Publish a searchable WordPress display for visitors.
 
 == Changelog ==
+
+= 0.1.45 =
+
+* Render detected URL columns as clickable links in frontend cards, data tables, and admin previews.
+* Added clearer CSV upload size feedback and restored the row limit used by CSV parsing and sanitization.
 
 = 0.1.44 =
 

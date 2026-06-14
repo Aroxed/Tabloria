@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Tabloria Searchable Displays
  * Description: A friendly spreadsheet publishing assistant for creating reusable searchable WordPress Displays.
- * Version: 0.1.44
+ * Version: 0.1.45
  * Author: Tabloria
  * Text Domain: tabloria-searchable-displays
  * Requires at least: 6.3
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'TABLORIA_VERSION', '0.1.44' );
+define( 'TABLORIA_VERSION', '0.1.45' );
 define( 'TABLORIA_FILE', __FILE__ );
 define( 'TABLORIA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TABLORIA_URL', plugin_dir_url( __FILE__ ) );
