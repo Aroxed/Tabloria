@@ -1,5 +1,5 @@
 === Tabloria Searchable Displays ===
-Contributors: tabloria
+Contributors: publishly
 Tags: csv, spreadsheet, searchable table, directory, gutenberg
 Requires at least: 6.3
 Tested up to: 6.9
