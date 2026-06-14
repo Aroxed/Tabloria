@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SpreadsheetSanitizer {
 	public const MAX_FILE_SIZE    = 5242880;
 	public const MAX_COLUMNS      = 80;
-	public const MAX_ROWS         = 5000;
+	public const MAX_ROWS         = 60000;
 	public const MAX_HEADER_BYTES = 120;
 	public const MAX_CELL_BYTES   = 5000;
 
@@ -19,7 +19,11 @@ class SpreadsheetSanitizer {
 
 	public function validate_uploaded_csv( array $file ): array|WP_Error {
 		if ( ! empty( $file['error'] ) ) {
-			return new WP_Error( 'tabloria_upload_error', __( 'The spreadsheet upload failed.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
+			return new WP_Error(
+				'tabloria_upload_error',
+				$this->upload_error_message( absint( $file['error'] ) ),
+				array( 'status' => 400 )
+			);
 		}
 
 		if ( empty( $file['tmp_name'] ) || ! is_readable( $file['tmp_name'] ) ) {
@@ -262,6 +266,23 @@ class SpreadsheetSanitizer {
 		}
 
 		return $value;
+	}
+
+	private function upload_error_message( int $code ): string {
+		return match ( $code ) {
+			UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => sprintf(
+				/* translators: 1: Tabloria max upload size, 2: PHP upload_max_filesize setting. */
+				__( 'The CSV file is too large for the server. Tabloria accepts files up to %1$s, but PHP is currently limited to %2$s. Ask your host to raise upload_max_filesize and post_max_size.', 'tabloria-searchable-displays' ),
+				size_format( self::MAX_FILE_SIZE ),
+				ini_get( 'upload_max_filesize' )
+			),
+			UPLOAD_ERR_PARTIAL => __( 'The CSV file was only partially uploaded. Please try again.', 'tabloria-searchable-displays' ),
+			UPLOAD_ERR_NO_FILE => __( 'No CSV file was uploaded.', 'tabloria-searchable-displays' ),
+			UPLOAD_ERR_NO_TMP_DIR => __( 'The server is missing a temporary folder for uploads.', 'tabloria-searchable-displays' ),
+			UPLOAD_ERR_CANT_WRITE => __( 'The server failed to write the uploaded CSV file to disk.', 'tabloria-searchable-displays' ),
+			UPLOAD_ERR_EXTENSION => __( 'A PHP extension stopped the CSV upload.', 'tabloria-searchable-displays' ),
+			default => __( 'The spreadsheet upload failed.', 'tabloria-searchable-displays' ),
+		};
 	}
 
 	private function limit_bytes( string $value, int $max_bytes ): string {

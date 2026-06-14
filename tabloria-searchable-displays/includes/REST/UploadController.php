@@ -41,6 +41,11 @@ class UploadController {
 	public function upload( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$files = $request->get_file_params();
 		if ( empty( $files['file'] ) ) {
+			$post_too_large = $this->post_payload_too_large();
+			if ( is_wp_error( $post_too_large ) ) {
+				return $post_too_large;
+			}
+
 			return new WP_Error( 'tabloria_missing_file', __( 'Please choose a spreadsheet file to upload.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
 		}
 
@@ -92,5 +97,28 @@ class UploadController {
 			),
 			201
 		);
+	}
+
+	private function post_payload_too_large(): true|WP_Error {
+		$content_length = absint( $_SERVER['CONTENT_LENGTH'] ?? 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Used only as a numeric byte count for limit comparison.
+		if ( $content_length <= 0 ) {
+			return true;
+		}
+
+		$post_max_size = wp_convert_hr_to_bytes( (string) ini_get( 'post_max_size' ) );
+		if ( $post_max_size > 0 && $content_length > $post_max_size ) {
+			return new WP_Error(
+				'tabloria_post_too_large',
+				sprintf(
+					/* translators: 1: Tabloria max upload size, 2: PHP post_max_size setting. */
+					__( 'The CSV upload exceeded the server request size limit. Tabloria accepts files up to %1$s, but PHP post_max_size is currently %2$s.', 'tabloria-searchable-displays' ),
+					size_format( SpreadsheetSanitizer::MAX_FILE_SIZE ),
+					ini_get( 'post_max_size' )
+				),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
 	}
 }

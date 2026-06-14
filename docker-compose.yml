@@ -34,6 +34,7 @@ services:
     volumes:
       - tabloria_wp_data:/var/www/html
       - ./tabloria-searchable-displays:/var/www/html/wp-content/plugins/tabloria-searchable-displays
+      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
 
 volumes:
   tabloria_db_data:

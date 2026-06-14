@@ -1380,6 +1380,34 @@
 	line-height: 1.35;
 }
 
+.tabloria-mini-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.tabloria-mini-card__link,
+.tabloria-mini-table-link {
+	max-width: 100%;
+	color: var(--tabloria-primary);
+	font-size: 12px;
+	font-weight: 750;
+	line-height: 1.35;
+	overflow-wrap: anywhere;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+}
+
+.tabloria-mini-card__link:hover,
+.tabloria-mini-card__link:focus,
+.tabloria-mini-table-link:hover,
+.tabloria-mini-table-link:focus {
+	color: #2415b8;
+	text-decoration-thickness: 2px;
+}
+
 .tabloria-mini-pagination {
 	display: flex;
 	flex-wrap: wrap;

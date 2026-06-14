@@ -96,6 +96,25 @@
 		}
 	}
 
+	function safeUrl(value) {
+		if (!value) {
+			return '';
+		}
+		if (!/^https?:\/\//i.test(String(value).trim())) {
+			return '';
+		}
+
+		try {
+			var url = new URL(String(value));
+			if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+				return '';
+			}
+			return url.href;
+		} catch (error) {
+			return '';
+		}
+	}
+
 	function endpoint(path) {
 		return String(env.restUrl || '').replace(/\/$/, '') + path;
 	}
@@ -330,7 +349,7 @@
 			'<form class="tabloria-upload" id="tabloria-upload-form">',
 			'<div>',
 			'<h2>Choose a CSV file</h2>',
-			'<p class="tabloria-muted">Excel support is prepared in the architecture, but this MVP imports CSV first.</p>',
+			'<p class="tabloria-muted">Excel support is prepared in the architecture, but this MVP imports CSV first. Maximum file size: 5 MB.</p>',
 			'<input class="tabloria-input" type="file" name="file" accept=".csv,text/csv" required />',
 			'<div class="tabloria-actions" style="justify-content:center">',
 			'<button class="tabloria-button" type="button" data-back>Back</button>',
@@ -354,6 +373,16 @@
 		});
 		form.addEventListener('submit', function (event) {
 			event.preventDefault();
+			var input = form.querySelector('input[type="file"]');
+			var file = input && input.files ? input.files[0] : null;
+			if (!file) {
+				setError(new Error('Please choose a CSV file to upload.'));
+				return;
+			}
+			if (file.size > 5242880) {
+				setError(new Error('The CSV file is too large. Tabloria currently accepts files up to 5 MB.'));
+				return;
+			}
 			var data = new FormData(form);
 			state.loading = true;
 			render();
@@ -906,7 +935,7 @@
 			'</tr></thead><tbody>',
 			rows.map(function (row) {
 				return '<tr>' + columns.map(function (column) {
-					return '<td>' + escapeHtml(row[column.key] || '') + '</td>';
+					return '<td>' + renderMiniTableCell(row, column) + '</td>';
 				}).join('') + '</tr>';
 			}).join(''),
 			'</tbody></table></div>'
@@ -923,7 +952,7 @@
 			var column = sourceColumns.find(function (item) {
 				return item.key === field;
 			});
-			return { key: field, label: column ? column.label : labelForField(field) };
+			return { key: field, label: column ? column.label : labelForField(field), type: column ? column.type : columnTypeForField(field) };
 		});
 	}
 
@@ -1931,7 +1960,7 @@
 			'</tr></thead><tbody>',
 			rows.map(function (row) {
 				return '<tr>' + columns.map(function (column) {
-					return '<td>' + escapeHtml(row[column.key] || '') + '</td>';
+					return '<td>' + renderMiniTableCell(row, column) + '</td>';
 				}).join('') + '</tr>';
 			}).join(''),
 			'</tbody></table></div>'
@@ -2001,13 +2030,15 @@
 
 	function miniParts(row, roles) {
 		var title = valueForExample(row, roles.title) || bestRowTitle(row) || 'Display item';
+		var fieldParts = miniFieldParts(row, roles);
 		return {
 			title: title,
 			subtitle: valueForExample(row, roles.subtitle) || bestRowSubtitle(row, title) || '',
 			image: valueForExample(row, roles.image),
 			highlight: valueForExample(row, roles.price),
 			badge: valueForExample(row, roles.badge),
-			details: renderMiniFields(row, roles)
+			details: renderMiniFields(fieldParts.fields),
+			actions: renderMiniActions(fieldParts.actions)
 		};
 	}
 
@@ -2022,6 +2053,7 @@
 			part.subtitle ? '<p>' + escapeHtml(part.subtitle) + '</p>' : '',
 			part.highlight ? '<strong style="color:' + escapeHtml(accent) + '">' + escapeHtml(part.highlight) + '</strong>' : '',
 			part.details,
+			part.actions,
 			'</div>',
 			'</article>'
 		].join('');
@@ -2038,6 +2070,7 @@
 			part.subtitle ? '<p>' + escapeHtml(part.subtitle) + '</p>' : '',
 			part.highlight ? '<strong style="color:' + escapeHtml(accent) + '">' + escapeHtml(part.highlight) + '</strong>' : '',
 			part.details,
+			part.actions,
 			'</div>',
 			'</article>'
 		].join('');
@@ -2053,6 +2086,7 @@
 			'<h4>' + escapeHtml(part.title) + '</h4>',
 			part.subtitle ? '<p>' + escapeHtml(part.subtitle) + '</p>' : '',
 			part.details,
+			part.actions,
 			'</div>',
 			'</article>'
 		].join('');
@@ -2068,6 +2102,7 @@
 			'<h4>' + escapeHtml(part.title) + '</h4>',
 			part.subtitle ? '<p>' + escapeHtml(part.subtitle) + '</p>' : '',
 			part.details,
+			part.actions,
 			'</div>',
 			'</article>'
 		].join('');
@@ -2082,6 +2117,7 @@
 			part.highlight ? '<strong style="color:' + escapeHtml(accent) + '">' + escapeHtml(part.highlight) + '</strong>' : '',
 			part.subtitle ? '<p>' + escapeHtml(part.subtitle) + '</p>' : '',
 			part.details,
+			part.actions,
 			'</article>'
 		].join('');
 	}
@@ -2204,7 +2240,7 @@
 		return '<div class="tabloria-mini-card__image"><img src="' + escapeHtml(imageUrl) + '" alt="" loading="lazy"></div>';
 	}
 
-	function renderMiniFields(row, roles) {
+	function miniFieldParts(row, roles) {
 		var visibleFields = state.config.visibleFields || [];
 		var roleFields = Object.keys(roles || {}).map(function (key) {
 			return roles[key];
@@ -2212,14 +2248,69 @@
 		var fields = visibleFields.filter(function (field) {
 			return field && roleFields.indexOf(field) === -1 && !isTechnicalField(field) && row[field];
 		}).slice(0, 4);
+		var fieldRows = [];
+		var actions = [];
+
+		fields.forEach(function (field) {
+			var value = row[field];
+			if (columnTypeForField(field) === 'url') {
+				var url = safeUrl(value);
+				if (url) {
+					actions.push({
+						label: urlButtonLabel(field),
+						url: url
+					});
+				}
+				return;
+			}
+
+			fieldRows.push({
+				label: labelForField(field),
+				value: value
+			});
+		});
+
+		return {
+			fields: fieldRows,
+			actions: actions
+		};
+	}
+
+	function renderMiniFields(fields) {
+		fields = fields || [];
 
 		if (!fields.length) {
 			return '';
 		}
 
 		return '<dl class="tabloria-mini-card__fields">' + fields.map(function (field) {
-			return '<div><dt>' + escapeHtml(labelForField(field)) + '</dt><dd>' + escapeHtml(row[field]) + '</dd></div>';
+			return '<div><dt>' + escapeHtml(field.label) + '</dt><dd>' + escapeHtml(field.value) + '</dd></div>';
 		}).join('') + '</dl>';
+	}
+
+	function renderMiniActions(actions) {
+		actions = actions || [];
+		if (!actions.length) {
+			return '';
+		}
+
+		return '<div class="tabloria-mini-card__actions">' + actions.map(function (action) {
+			return '<a class="tabloria-mini-card__link" href="' + escapeHtml(action.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(action.label) + '</a>';
+		}).join('') + '</div>';
+	}
+
+	function renderMiniTableCell(row, column) {
+		var value = row[column.key] || '';
+		if (!value) {
+			return '';
+		}
+		if (String(column.type || '').toLowerCase() === 'url') {
+			var url = safeUrl(value);
+			if (url) {
+				return '<a class="tabloria-mini-table-link" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(urlButtonLabel(column.key)) + '</a>';
+			}
+		}
+		return escapeHtml(value);
 	}
 
 	function isTechnicalField(field) {
@@ -2286,6 +2377,27 @@
 			}
 		}
 		return humanizeLabel(field);
+	}
+
+	function columnTypeForField(field) {
+		if (state.source && state.source.columns) {
+			var column = state.source.columns.find(function (item) {
+				return item.key === field;
+			});
+			if (column) {
+				return String(column.type || 'text').toLowerCase();
+			}
+		}
+		return 'text';
+	}
+
+	function urlButtonLabel(field) {
+		var label = labelForField(field);
+		var normalized = label.toLowerCase().trim();
+		if (normalized === 'url' || normalized === 'link') {
+			return 'Open link';
+		}
+		return label;
 	}
 
 	function humanizeLabel(label) {

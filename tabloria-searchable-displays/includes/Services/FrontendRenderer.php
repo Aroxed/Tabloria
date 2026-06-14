@@ -251,7 +251,7 @@ class FrontendRenderer {
 					<?php foreach ( $rows as $row ) : ?>
 						<tr<?php echo $this->item_data_attributes( $row, $config, $source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 							<?php foreach ( $fields as $field ) : ?>
-								<td><?php echo esc_html( $this->typed_field_value( $row, $field, $source ) ); ?></td>
+								<td><?php echo $this->render_table_field_value( $row, $field, $source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
 							<?php endforeach; ?>
 						</tr>
 					<?php endforeach; ?>
@@ -272,6 +272,30 @@ class FrontendRenderer {
 		$price = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
 		$badge = $this->typed_field_value( $row, $roles['badge'] ?? '', $source );
 		$card_class = 'tabloria-card tabloria-card--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
+		$field_rows = array();
+		$url_actions = array();
+
+		foreach ( (array) ( $config['visibleFields'] ?? array() ) as $field ) {
+			$field = sanitize_key( $field );
+			$value = $this->typed_field_value( $row, $field, $source );
+			if ( '' === $field || '' === $value || in_array( $field, $roles, true ) || $this->is_technical_field( $field ) ) {
+				continue;
+			}
+
+			if ( 'url' === $this->column_type( $source, $field ) ) {
+				$url_actions[] = array(
+					'url'        => $value,
+					'label'      => $this->url_button_label( $source, $field ),
+					'aria_label' => $this->url_aria_label( $source, $field, $title ),
+				);
+				continue;
+			}
+
+			$field_rows[] = array(
+				'label' => $this->column_label( $source, $field ),
+				'value' => $value,
+			);
+		}
 		?>
 		<article class="<?php echo esc_attr( $card_class ); ?>"<?php echo $this->item_data_attributes( $row, $config, $source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php if ( $image_url ) : ?>
@@ -295,20 +319,23 @@ class FrontendRenderer {
 				<?php if ( $price ) : ?>
 					<p class="tabloria-card__price"><?php echo esc_html( $price ); ?></p>
 				<?php endif; ?>
-				<dl class="tabloria-card__fields">
-					<?php foreach ( (array) ( $config['visibleFields'] ?? array() ) as $field ) : ?>
-						<?php
-						$value = $this->typed_field_value( $row, $field, $source );
-						if ( '' === $value || in_array( $field, $roles, true ) || $this->is_technical_field( $field ) ) {
-							continue;
-						}
-						?>
-						<div>
-							<dt><?php echo esc_html( $this->column_label( $source, $field ) ); ?></dt>
-							<dd><?php echo esc_html( $value ); ?></dd>
-						</div>
-					<?php endforeach; ?>
-				</dl>
+				<?php if ( ! empty( $field_rows ) ) : ?>
+					<dl class="tabloria-card__fields">
+						<?php foreach ( $field_rows as $field_row ) : ?>
+							<div>
+								<dt><?php echo esc_html( $field_row['label'] ); ?></dt>
+								<dd><?php echo esc_html( $field_row['value'] ); ?></dd>
+							</div>
+						<?php endforeach; ?>
+					</dl>
+				<?php endif; ?>
+				<?php if ( ! empty( $url_actions ) ) : ?>
+					<div class="tabloria-card__actions">
+						<?php foreach ( $url_actions as $action ) : ?>
+							<?php echo $this->render_url_link( $action['url'], $action['label'], 'tabloria-card__link', $action['aria_label'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
 			</div>
 		</article>
 		<?php
@@ -465,6 +492,72 @@ class FrontendRenderer {
 		}
 
 		return $this->sanitizer->sanitize_value( $row[ $field ] ?? '', $this->column_type( $source, $field ) );
+	}
+
+	private function render_table_field_value( array $row, string $field, array $source ): string {
+		$field = sanitize_key( $field );
+		$value = $this->typed_field_value( $row, $field, $source );
+		if ( '' === $value ) {
+			return '';
+		}
+
+		if ( 'url' === $this->column_type( $source, $field ) ) {
+			return $this->render_url_link(
+				$value,
+				$this->url_button_label( $source, $field ),
+				'tabloria-table-link',
+				$this->url_aria_label( $source, $field )
+			);
+		}
+
+		return esc_html( $value );
+	}
+
+	private function render_url_link( string $url, string $label, string $class_name, string $aria_label = '' ): string {
+		$url = $this->sanitizer->sanitize_url_value( $url );
+		if ( '' === $url ) {
+			return '';
+		}
+
+		$aria = '' !== $aria_label ? ' aria-label="' . esc_attr( $aria_label ) . '"' : '';
+
+		return sprintf(
+			'<a class="%1$s" href="%2$s" target="_blank" rel="noopener noreferrer"%3$s>%4$s</a>',
+			esc_attr( $class_name ),
+			esc_url( $url ),
+			$aria,
+			esc_html( $label )
+		);
+	}
+
+	private function url_button_label( array $source, string $field ): string {
+		$label = $this->column_label( $source, $field );
+		$normalized_label = strtolower( trim( $label ) );
+
+		if ( in_array( $normalized_label, array( 'url', 'link' ), true ) ) {
+			return __( 'Open link', 'tabloria-searchable-displays' );
+		}
+
+		return $label;
+	}
+
+	private function url_aria_label( array $source, string $field, string $title = '' ): string {
+		$label = $this->column_label( $source, $field );
+
+		if ( '' !== $title ) {
+			return sprintf(
+				/* translators: 1: link column label, 2: row title. */
+				__( 'Open %1$s for %2$s', 'tabloria-searchable-displays' ),
+				$label,
+				$title
+			);
+		}
+
+		return sprintf(
+			/* translators: %s: link column label. */
+			__( 'Open %s', 'tabloria-searchable-displays' ),
+			$label
+		);
 	}
 
 	private function column_type( array $source, string $field ): string {

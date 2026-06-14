@@ -1,0 +1,3 @@
+Name,Website,Status
+Resource A,https://example.com,Available
+Bad Link,javascript:alert(1),Available

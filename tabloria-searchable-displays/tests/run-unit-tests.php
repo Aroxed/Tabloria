@@ -329,6 +329,9 @@ $tests = array(
 		tabloria_test_assert_not_contains( 'onerror', $lower, 'Rendered fixture should not contain event handlers.' );
 		tabloria_test_assert_not_contains( 'data:text/html', $lower, 'Rendered fixture should not contain data HTML URLs.' );
 		tabloria_test_assert_no_match( '/(?:src|href)\s*=\s*([\"\'])\s*javascript:/i', $html, 'Rendered fixture should not contain executable javascript URLs.' );
+		tabloria_test_assert_contains( 'class="tabloria-card__link"', $html, 'Valid URL fields should render as card links.' );
+		tabloria_test_assert_contains( 'href="https://example.com/safe-page"', $html, 'Valid URL fields should render as clickable links.' );
+		tabloria_test_assert_contains( '>Website</a>', $html, 'Website URL links should use the column label.' );
 		tabloria_test_assert_contains( '2 &lt; 3 &amp;&amp; 5 &gt; 4', $html, 'Plain less-than/greater-than text should be escaped in HTML.' );
 		tabloria_test_assert_contains( '&#039;=HYPERLINK(&quot;javascript:alert(1)&quot;,&quot;Click&quot;)', $html, 'Formula-like JavaScript text should be neutralized and escaped.' );
 	},

@@ -279,6 +279,41 @@ blockquote .tabloria-display {
 	word-break: break-word;
 }
 
+.tabloria-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem;
+	margin-top: 0.85rem;
+}
+
+.tabloria-card__link,
+.tabloria-table-link {
+	max-width: 100%;
+	color: var(--tabloria-accent);
+	font-size: 0.9rem;
+	font-weight: 750;
+	line-height: 1.35;
+	overflow-wrap: anywhere;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.14em;
+}
+
+.tabloria-card__link:hover,
+.tabloria-card__link:focus,
+.tabloria-table-link:hover,
+.tabloria-table-link:focus {
+	color: color-mix(in srgb, var(--tabloria-accent) 78%, #000);
+	text-decoration-thickness: 2px;
+}
+
+.tabloria-card__link:focus-visible,
+.tabloria-table-link:focus-visible {
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--tabloria-accent) 24%, transparent);
+	outline: 2px solid var(--tabloria-accent);
+	outline-offset: 2px;
+}
+
 @container (max-width: 260px) {
 	.tabloria-card__fields div {
 		grid-template-columns: 1fr;
