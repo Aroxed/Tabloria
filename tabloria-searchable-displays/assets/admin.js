@@ -539,6 +539,7 @@
 			].join(''), false),
 			renderSetupAccordion('options', 'Display options', 'Show or hide visitor controls on the published page.', [
 				renderDisplayWidthOptions('display-width', state.config),
+				renderCardFieldDisplayOptions('card', state.config),
 				renderToggle('show-search', 'Show search', state.config.search.enabled),
 				renderToggle('show-filters', 'Show filters', state.config.filters.enabled),
 				renderToggle('show-pagination', 'Show pagination', state.config.pagination.enabled),
@@ -1042,6 +1043,10 @@
 		return state.config && state.config.displayType ? state.config.displayType : state.displayType || 'searchable_listings';
 	}
 
+	function usesCardLayout() {
+		return currentDisplayType() !== 'simple_data_table';
+	}
+
 	function selected(current, value) {
 		return String(current || '') === String(value || '') ? ' selected' : '';
 	}
@@ -1171,9 +1176,98 @@
 		].join('');
 	}
 
+	function renderCardFieldDisplayOptions(prefix, config) {
+		if (!usesCardLayout()) {
+			return '';
+		}
+
+		var options = cardLayoutOptions(config);
+		var urlDisplayId = prefix + '-url-display';
+		var urlLabelId = prefix + '-url-label';
+		var buttonStyleId = prefix + '-button-style';
+
+		return [
+			'<section class="tabloria-card-field-options">',
+			'<h3>Card Field Display</h3>',
+			'<div class="tabloria-form-grid tabloria-form-grid--compact">',
+			'<div class="tabloria-field"><label for="' + escapeHtml(urlDisplayId) + '">URL display</label><select id="' + escapeHtml(urlDisplayId) + '" class="tabloria-select"><option value="link"' + selected(options.urlDisplay, 'link') + '>Link</option><option value="button"' + selected(options.urlDisplay, 'button') + '>Button</option></select></div>',
+			'<div class="tabloria-field"><label for="' + escapeHtml(urlLabelId) + '">Link/button text</label><input id="' + escapeHtml(urlLabelId) + '" class="tabloria-input" placeholder="Use column header" value="' + escapeHtml(options.urlLabel || '') + '"></div>',
+			options.urlDisplay === 'button' ? '<div class="tabloria-field"><label for="' + escapeHtml(buttonStyleId) + '">Button style</label><select id="' + escapeHtml(buttonStyleId) + '" class="tabloria-select">' + cardButtonStyleOptions(options.buttonStyle).join('') + '</select></div>' : '',
+			'</div>',
+			'<p class="tabloria-muted">Applies to URL columns shown as extra fields in card displays.</p>',
+			'</section>'
+		].join('');
+	}
+
+	function cardButtonStyleOptions(current) {
+		return [
+			['theme', 'Theme default'],
+			['primary', 'Primary'],
+			['secondary', 'Secondary'],
+			['outline', 'Outline']
+		].map(function (option) {
+			return '<option value="' + escapeHtml(option[0]) + '"' + selected(current, option[0]) + '>' + escapeHtml(option[1]) + '</option>';
+		});
+	}
+
 	function displayWidthValue(config) {
 		var value = config && config.style ? config.style.displayWidth : '';
 		return ['wide', 'full'].indexOf(value) >= 0 ? value : 'normal';
+	}
+
+	function defaultLayoutOptions() {
+		return {
+			cards: {
+				urlDisplay: 'link',
+				urlLabel: '',
+				buttonStyle: 'theme'
+			}
+		};
+	}
+
+	function normalizeCardLayoutOptions(options) {
+		options = options || {};
+		var urlDisplay = ['link', 'button'].indexOf(options.urlDisplay) >= 0 ? options.urlDisplay : 'link';
+		var buttonStyle = ['theme', 'primary', 'secondary', 'outline'].indexOf(options.buttonStyle) >= 0 ? options.buttonStyle : 'theme';
+
+		return {
+			urlDisplay: urlDisplay,
+			urlLabel: String(options.urlLabel || ''),
+			buttonStyle: buttonStyle
+		};
+	}
+
+	function ensureLayoutOptions(config) {
+		config = config || {};
+		config.layoutOptions = config.layoutOptions || defaultLayoutOptions();
+		config.layoutOptions.cards = normalizeCardLayoutOptions(config.layoutOptions.cards);
+
+		return config.layoutOptions;
+	}
+
+	function cardLayoutOptions(config) {
+		return ensureLayoutOptions(config || state.config || {}).cards;
+	}
+
+	function collectCardFieldDisplayOptions(config, prefix) {
+		var urlDisplay = root.querySelector('#' + prefix + '-url-display');
+		var urlLabel = root.querySelector('#' + prefix + '-url-label');
+		var buttonStyle = root.querySelector('#' + prefix + '-button-style');
+
+		if (!urlDisplay && !urlLabel && !buttonStyle) {
+			return;
+		}
+
+		var options = cardLayoutOptions(config);
+		if (urlDisplay) {
+			options.urlDisplay = ['link', 'button'].indexOf(urlDisplay.value) >= 0 ? urlDisplay.value : 'link';
+		}
+		if (urlLabel) {
+			options.urlLabel = urlLabel.value.trim();
+		}
+		if (buttonStyle) {
+			options.buttonStyle = ['theme', 'primary', 'secondary', 'outline'].indexOf(buttonStyle.value) >= 0 ? buttonStyle.value : 'theme';
+		}
 	}
 
 	function collectCustomize() {
@@ -1200,6 +1294,7 @@
 		if (displayWidth) {
 			state.config.style.displayWidth = displayWidth.value;
 		}
+		collectCardFieldDisplayOptions(state.config, 'card');
 	}
 
 	function saveDisplay() {
@@ -1450,6 +1545,7 @@
 		config.filters = config.filters || { enabled: true };
 		config.pagination = config.pagination || { enabled: true, perPage: 12 };
 		config.style = config.style || { accentColor: '#3525cd', density: 'comfortable', imageShape: 'rounded' };
+		ensureLayoutOptions(config);
 		state.config = config;
 		return config;
 	}
@@ -1548,6 +1644,7 @@
 			'</div>',
 			'<div class="tabloria-editor-stack">',
 			renderContentMapper(roles, config, 'editor-role-', 'editor-visible-field', false),
+			renderCardFieldDisplayOptions('editor-card', config),
 			'</div>',
 			'</div>'
 		].join('');
@@ -1759,6 +1856,8 @@
 			config.visibleFields = checkedValues('editor-visible-field');
 		}
 
+		collectCardFieldDisplayOptions(config, 'editor-card');
+
 		if (root.querySelector('#editor-show-search')) {
 			config.style = config.style || {};
 			config.search.enabled = root.querySelector('#editor-show-search').checked;
@@ -1812,6 +1911,8 @@
 		next.filters = previous.filters || next.filters;
 		next.pagination = previous.pagination || next.pagination;
 		next.style = previous.style || next.style;
+		next.layoutOptions = previous.layoutOptions || next.layoutOptions;
+		ensureLayoutOptions(next);
 		next.displayType = displayType;
 		return next;
 	}
@@ -2256,9 +2357,12 @@
 			if (columnTypeForField(field) === 'url') {
 				var url = safeUrl(value);
 				if (url) {
+					var options = cardLayoutOptions(state.config);
 					actions.push({
-						label: urlButtonLabel(field),
-						url: url
+						label: cardUrlLabel(field),
+						url: url,
+						display: options.urlDisplay,
+						buttonStyle: options.buttonStyle
 					});
 				}
 				return;
@@ -2295,7 +2399,9 @@
 		}
 
 		return '<div class="tabloria-mini-card__actions">' + actions.map(function (action) {
-			return '<a class="tabloria-mini-card__link" href="' + escapeHtml(action.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(action.label) + '</a>';
+			var buttonStyle = ['theme', 'primary', 'secondary', 'outline'].indexOf(action.buttonStyle) >= 0 ? action.buttonStyle : 'theme';
+			var className = action.display === 'button' ? 'tabloria-mini-card__button tabloria-mini-card__button--' + buttonStyle : 'tabloria-mini-card__link';
+			return '<a class="' + className + '" href="' + escapeHtml(action.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(action.label) + '</a>';
 		}).join('') + '</div>';
 	}
 
@@ -2400,6 +2506,11 @@
 		return label;
 	}
 
+	function cardUrlLabel(field) {
+		var label = cardLayoutOptions(state.config).urlLabel;
+		return label ? label : urlButtonLabel(field);
+	}
+
 	function humanizeLabel(label) {
 		return String(label || 'Field').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\w\S*/g, function (word) {
 			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -2460,7 +2571,8 @@
 			search: { enabled: true },
 			filters: { enabled: true },
 			pagination: { enabled: true, perPage: 12 },
-			style: { accentColor: '#3525cd', density: 'comfortable', imageShape: 'rounded', displayWidth: 'normal' }
+			style: { accentColor: '#3525cd', density: 'comfortable', imageShape: 'rounded', displayWidth: 'normal' },
+			layoutOptions: defaultLayoutOptions()
 		};
 	}
 

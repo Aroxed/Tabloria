@@ -299,6 +299,46 @@ blockquote .tabloria-display {
 	text-underline-offset: 0.14em;
 }
 
+.tabloria-card__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100%;
+	min-height: 2.4rem;
+	padding: 0.58rem 0.95rem;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	font-size: 0.9rem;
+	font-weight: 750;
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+	text-align: center;
+	text-decoration: none;
+	transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+:where(.tabloria-card__button--theme) {
+	background: var(--tabloria-accent);
+	color: #fff;
+}
+
+.tabloria-card__button--primary {
+	background: var(--tabloria-accent);
+	color: #fff;
+}
+
+.tabloria-card__button--secondary {
+	background: color-mix(in srgb, var(--tabloria-accent) 10%, #fff);
+	border-color: color-mix(in srgb, var(--tabloria-accent) 20%, #fff);
+	color: var(--tabloria-accent);
+}
+
+.tabloria-card__button--outline {
+	background: transparent;
+	border-color: color-mix(in srgb, var(--tabloria-accent) 55%, #fff);
+	color: var(--tabloria-accent);
+}
+
 .tabloria-card__link:hover,
 .tabloria-card__link:focus,
 .tabloria-table-link:hover,
@@ -307,7 +347,33 @@ blockquote .tabloria-display {
 	text-decoration-thickness: 2px;
 }
 
+.tabloria-card__button:hover,
+.tabloria-card__button:focus {
+	text-decoration: none;
+	transform: translateY(-1px);
+}
+
+:where(.tabloria-card__button--theme:hover, .tabloria-card__button--theme:focus),
+.tabloria-card__button--primary:hover,
+.tabloria-card__button--primary:focus {
+	background: color-mix(in srgb, var(--tabloria-accent) 84%, #000);
+	color: #fff;
+}
+
+.tabloria-card__button--secondary:hover,
+.tabloria-card__button--secondary:focus {
+	background: color-mix(in srgb, var(--tabloria-accent) 16%, #fff);
+	color: var(--tabloria-accent);
+}
+
+.tabloria-card__button--outline:hover,
+.tabloria-card__button--outline:focus {
+	background: color-mix(in srgb, var(--tabloria-accent) 8%, transparent);
+	color: var(--tabloria-accent);
+}
+
 .tabloria-card__link:focus-visible,
+.tabloria-card__button:focus-visible,
 .tabloria-table-link:focus-visible {
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--tabloria-accent) 24%, transparent);
 	outline: 2px solid var(--tabloria-accent);

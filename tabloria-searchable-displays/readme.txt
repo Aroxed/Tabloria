@@ -4,7 +4,7 @@ Tags: csv, spreadsheet, searchable table, directory, gutenberg
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 8.1
-Stable tag: 0.1.45
+Stable tag: 0.1.46
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,6 +117,11 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 8. Publish a searchable WordPress display for visitors.
 
 == Changelog ==
+
+= 0.1.46 =
+
+* Added card URL display options for rendering URL fields as links or theme-friendly buttons.
+* Added optional custom link/button text and button style choices for URL fields in card displays.
 
 = 0.1.45 =
 

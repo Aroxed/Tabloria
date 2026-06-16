@@ -86,40 +86,47 @@ class Tabloria_Test_Database extends Database {
 class Tabloria_Fixture_Test_Database extends Database {
 	private array $columns;
 	private array $rows;
+	private array $config_overrides;
 
-	public function __construct( array $columns, array $rows ) {
-		$this->columns = $columns;
-		$this->rows    = $rows;
+	public function __construct( array $columns, array $rows, array $config_overrides = array() ) {
+		$this->columns          = $columns;
+		$this->rows             = $rows;
+		$this->config_overrides = $config_overrides;
 	}
 
 	public function get_display( int $display_id ): ?array {
+		$config = array(
+			'title'          => 'Suspicious JS Fixture',
+			'displayType'    => 'product_catalog',
+			'fieldRoles'     => array(
+				'title' => 'title',
+				'image' => 'image',
+				'badge' => 'status',
+			),
+			'visibleFields'  => array( 'title', 'website', 'image', 'status', 'notes' ),
+			'defaultFilters' => array(),
+			'visitorFilters' => array( 'status' ),
+			'search'         => array( 'enabled' => true ),
+			'filters'        => array( 'enabled' => true ),
+			'pagination'     => array( 'enabled' => false, 'perPage' => 12 ),
+			'style'          => array(
+				'accentColor'  => '#3525cd',
+				'density'      => 'comfortable',
+				'imageShape'   => 'rounded',
+				'displayWidth' => 'normal',
+			),
+		);
+		if ( ! empty( $this->config_overrides ) ) {
+			$config = array_replace_recursive( $config, $this->config_overrides );
+		}
+
 		return array(
 			'id'           => $display_id,
 			'source_id'    => 1,
 			'name'         => 'Suspicious JS Fixture',
 			'display_type' => 'product_catalog',
 			'status'       => 'published',
-			'config'       => array(
-				'title'          => 'Suspicious JS Fixture',
-				'displayType'    => 'product_catalog',
-				'fieldRoles'     => array(
-					'title' => 'title',
-					'image' => 'image',
-					'badge' => 'status',
-				),
-				'visibleFields'  => array( 'title', 'website', 'image', 'status', 'notes' ),
-				'defaultFilters' => array(),
-				'visitorFilters' => array( 'status' ),
-				'search'         => array( 'enabled' => true ),
-				'filters'        => array( 'enabled' => true ),
-				'pagination'     => array( 'enabled' => false, 'perPage' => 12 ),
-				'style'          => array(
-					'accentColor'  => '#3525cd',
-					'density'      => 'comfortable',
-					'imageShape'   => 'rounded',
-					'displayWidth' => 'normal',
-				),
-			),
+			'config'       => $config,
 		);
 	}
 
@@ -289,6 +296,13 @@ $tests = array(
 				'filters'        => array( 'enabled' => true ),
 				'pagination'     => array( 'enabled' => true, 'perPage' => 999 ),
 				'style'          => 'not-array',
+				'layoutOptions'  => array(
+					'cards' => array(
+						'urlDisplay'  => 'button',
+						'urlLabel'    => '<b>View the Lesson</b>',
+						'buttonStyle' => 'evil',
+					),
+				),
 			),
 			$source
 		);
@@ -300,6 +314,9 @@ $tests = array(
 		tabloria_test_assert_same( array( 'status' ), $config['visitorFilters'], 'Visitor filters should be allowlisted.' );
 		tabloria_test_assert_same( 'equals', $config['defaultFilters'][0]['operator'], 'Unknown filter operators should fall back.' );
 		tabloria_test_assert_same( 100, $config['pagination']['perPage'], 'Per-page value should be capped.' );
+		tabloria_test_assert_same( 'button', $config['layoutOptions']['cards']['urlDisplay'], 'Card URL display should allow buttons.' );
+		tabloria_test_assert_same( 'View the Lesson', $config['layoutOptions']['cards']['urlLabel'], 'Card URL label should be sanitized.' );
+		tabloria_test_assert_same( 'theme', $config['layoutOptions']['cards']['buttonStyle'], 'Unknown card button styles should fall back.' );
 	},
 
 	'frontend renderer omits unsafe image URLs and escapes CSV text' => static function (): void {
@@ -334,6 +351,42 @@ $tests = array(
 		tabloria_test_assert_contains( '>Website</a>', $html, 'Website URL links should use the column label.' );
 		tabloria_test_assert_contains( '2 &lt; 3 &amp;&amp; 5 &gt; 4', $html, 'Plain less-than/greater-than text should be escaped in HTML.' );
 		tabloria_test_assert_contains( '&#039;=HYPERLINK(&quot;javascript:alert(1)&quot;,&quot;Click&quot;)', $html, 'Formula-like JavaScript text should be neutralized and escaped.' );
+	},
+
+	'frontend renderer can render card URL fields as styled buttons' => static function (): void {
+		$columns = array(
+			array( 'key' => 'title', 'label' => 'Title', 'type' => 'text' ),
+			array( 'key' => 'website', 'label' => 'Lesson Link', 'type' => 'url' ),
+			array( 'key' => 'status', 'label' => 'Status', 'type' => 'status' ),
+			array( 'key' => 'notes', 'label' => 'Notes', 'type' => 'text' ),
+		);
+		$rows = array(
+			array(
+				'title'   => 'Lesson 1',
+				'website' => 'https://example.com/lesson-1',
+				'status'  => 'Published',
+				'notes'   => 'Intro lesson',
+			),
+		);
+		$html = ( new FrontendRenderer(
+			new Tabloria_Fixture_Test_Database(
+				$columns,
+				$rows,
+				array(
+					'layoutOptions' => array(
+						'cards' => array(
+							'urlDisplay'  => 'button',
+							'urlLabel'    => 'View the Lesson',
+							'buttonStyle' => 'primary',
+						),
+					),
+				)
+			)
+		) )->render( 78 );
+
+		tabloria_test_assert_contains( 'class="tabloria-card__button tabloria-card__button--primary"', $html, 'Card URL fields should render with button classes.' );
+		tabloria_test_assert_contains( 'href="https://example.com/lesson-1"', $html, 'Card URL buttons should keep the row-specific URL.' );
+		tabloria_test_assert_contains( '>View the Lesson</a>', $html, 'Card URL buttons should use the custom label.' );
 	},
 );
 

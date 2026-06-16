@@ -274,6 +274,7 @@ class FrontendRenderer {
 		$card_class = 'tabloria-card tabloria-card--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
 		$field_rows = array();
 		$url_actions = array();
+		$card_url_options = $this->card_url_options( $config );
 
 		foreach ( (array) ( $config['visibleFields'] ?? array() ) as $field ) {
 			$field = sanitize_key( $field );
@@ -285,7 +286,8 @@ class FrontendRenderer {
 			if ( 'url' === $this->column_type( $source, $field ) ) {
 				$url_actions[] = array(
 					'url'        => $value,
-					'label'      => $this->url_button_label( $source, $field ),
+					'label'      => $this->card_url_label( $source, $field, $card_url_options ),
+					'class_name' => $this->card_url_class( $card_url_options ),
 					'aria_label' => $this->url_aria_label( $source, $field, $title ),
 				);
 				continue;
@@ -332,7 +334,7 @@ class FrontendRenderer {
 				<?php if ( ! empty( $url_actions ) ) : ?>
 					<div class="tabloria-card__actions">
 						<?php foreach ( $url_actions as $action ) : ?>
-							<?php echo $this->render_url_link( $action['url'], $action['label'], 'tabloria-card__link', $action['aria_label'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo $this->render_url_link( $action['url'], $action['label'], $action['class_name'], $action['aria_label'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
@@ -528,6 +530,44 @@ class FrontendRenderer {
 			$aria,
 			esc_html( $label )
 		);
+	}
+
+	private function card_url_options( array $config ): array {
+		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
+		$card_options   = is_array( $layout_options['cards'] ?? null ) ? $layout_options['cards'] : array();
+		$url_display    = sanitize_key( $card_options['urlDisplay'] ?? 'link' );
+		$button_style   = sanitize_key( $card_options['buttonStyle'] ?? 'theme' );
+
+		return array(
+			'urlDisplay'  => in_array( $url_display, array( 'link', 'button' ), true ) ? $url_display : 'link',
+			'urlLabel'    => sanitize_text_field( $card_options['urlLabel'] ?? '' ),
+			'buttonStyle' => in_array( $button_style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $button_style : 'theme',
+		);
+	}
+
+	private function card_url_label( array $source, string $field, array $options ): string {
+		$custom_label = sanitize_text_field( $options['urlLabel'] ?? '' );
+
+		return '' !== $custom_label ? $custom_label : $this->url_button_label( $source, $field );
+	}
+
+	private function card_url_class( array $options ): string {
+		if ( 'button' !== ( $options['urlDisplay'] ?? 'link' ) ) {
+			return 'tabloria-card__link';
+		}
+
+		$style = sanitize_key( $options['buttonStyle'] ?? 'theme' );
+		$style = in_array( $style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $style : 'theme';
+		$classes = array(
+			'tabloria-card__button',
+			'tabloria-card__button--' . sanitize_html_class( $style ),
+		);
+
+		if ( 'theme' === $style ) {
+			$classes[] = 'wp-element-button';
+		}
+
+		return implode( ' ', $classes );
 	}
 
 	private function url_button_label( array $source, string $field ): string {

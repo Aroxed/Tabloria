@@ -42,6 +42,13 @@ class DisplayGenerator {
 				'imageShape'   => 'rounded',
 				'displayWidth' => 'normal',
 			),
+			'layoutOptions'  => array(
+				'cards' => array(
+					'urlDisplay'  => 'link',
+					'urlLabel'    => '',
+					'buttonStyle' => 'theme',
+				),
+			),
 		);
 
 		return $this->merge_config( $config, $overrides );
@@ -132,6 +139,18 @@ class DisplayGenerator {
 			'density'      => 'compact' === ( $style['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
 			'imageShape'   => 'square' === ( $style['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
 			'displayWidth' => in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal',
+		);
+
+		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
+		$card_options   = is_array( $layout_options['cards'] ?? null ) ? $layout_options['cards'] : array();
+		$url_display    = sanitize_key( $card_options['urlDisplay'] ?? 'link' );
+		$button_style   = sanitize_key( $card_options['buttonStyle'] ?? 'theme' );
+		$config['layoutOptions'] = array(
+			'cards' => array(
+				'urlDisplay'  => in_array( $url_display, array( 'link', 'button' ), true ) ? $url_display : 'link',
+				'urlLabel'    => sanitize_text_field( $card_options['urlLabel'] ?? '' ),
+				'buttonStyle' => in_array( $button_style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $button_style : 'theme',
+			),
 		);
 
 		return $config;

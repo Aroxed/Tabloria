@@ -1400,12 +1400,74 @@
 	text-underline-offset: 2px;
 }
 
+.tabloria-mini-card__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100%;
+	min-height: 32px;
+	padding: 7px 11px;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 750;
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+	text-align: center;
+	text-decoration: none;
+	transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.tabloria-mini-card__button--theme,
+.tabloria-mini-card__button--primary {
+	background: var(--tabloria-primary);
+	color: #fff;
+}
+
+.tabloria-mini-card__button--secondary {
+	background: var(--tabloria-primary-soft);
+	border-color: #cbc5ff;
+	color: var(--tabloria-primary);
+}
+
+.tabloria-mini-card__button--outline {
+	background: transparent;
+	border-color: #9b91f0;
+	color: var(--tabloria-primary);
+}
+
 .tabloria-mini-card__link:hover,
 .tabloria-mini-card__link:focus,
 .tabloria-mini-table-link:hover,
 .tabloria-mini-table-link:focus {
 	color: #2415b8;
 	text-decoration-thickness: 2px;
+}
+
+.tabloria-mini-card__button:hover,
+.tabloria-mini-card__button:focus {
+	text-decoration: none;
+	transform: translateY(-1px);
+}
+
+.tabloria-mini-card__button--theme:hover,
+.tabloria-mini-card__button--theme:focus,
+.tabloria-mini-card__button--primary:hover,
+.tabloria-mini-card__button--primary:focus {
+	background: #2415b8;
+	color: #fff;
+}
+
+.tabloria-mini-card__button--secondary:hover,
+.tabloria-mini-card__button--secondary:focus {
+	background: #d8d4ff;
+	color: var(--tabloria-primary);
+}
+
+.tabloria-mini-card__button--outline:hover,
+.tabloria-mini-card__button--outline:focus {
+	background: rgba(53, 37, 205, 0.08);
+	color: var(--tabloria-primary);
 }
 
 .tabloria-mini-pagination {
