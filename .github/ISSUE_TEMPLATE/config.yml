@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: WordPress.org support forum
+    url: https://wordpress.org/support/plugin/tabloria-searchable-displays/
+    about: Ask usage questions and get help with the published plugin.
+  - name: Security report
+    url: https://github.com/Aroxed/Tabloria/security/advisories/new
+    about: Report vulnerabilities privately. Do not use a public issue.

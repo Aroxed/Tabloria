@@ -1,0 +1,50 @@
+name: Bug report
+description: Report a reproducible problem in Tabloria Searchable Displays
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Do not include credentials, private CSV data, or security vulnerabilities here. Use the private process in SECURITY.md for security reports.
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Tabloria version
+      placeholder: 0.2.0
+    validations:
+      required: true
+  - type: input
+    id: wordpress-version
+    attributes:
+      label: WordPress version
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the actual and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Create a Display...
+        2. Configure...
+        3. See...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Additional context
+      description: Include the theme, relevant plugins, browser, and sanitized sample data when useful.

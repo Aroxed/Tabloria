@@ -4,6 +4,7 @@
   "private": true,
   "description": "A friendly spreadsheet publishing assistant for WordPress.",
   "scripts": {
+    "test": "npm run test:frontend",
     "test:frontend": "node --test tests/frontend-search.test.js",
     "lint:php": "find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l"
   },

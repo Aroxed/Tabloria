@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress
+          MYSQL_USER: wordpress
+          MYSQL_PASSWORD: wordpress
+          MYSQL_ROOT_PASSWORD: rootpassword
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -prootpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli
+          tools: wp-cli
+          coverage: none
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check JavaScript syntax and behavior
+        working-directory: tabloria-searchable-displays
+        run: |
+          node --check assets/admin.js
+          node --check assets/block.js
+          node --check assets/frontend.js
+          npm test
+
+      - name: Check PHP syntax
+        run: find tabloria-searchable-displays -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Install WordPress test site
+        run: |
+          wp core download --path=/tmp/wordpress
+          wp config create \
+            --path=/tmp/wordpress \
+            --dbname=wordpress \
+            --dbuser=wordpress \
+            --dbpass=wordpress \
+            --dbhost=127.0.0.1:3306 \
+            --skip-check
+          wp core install \
+            --path=/tmp/wordpress \
+            --url=http://localhost \
+            --title=Tabloria-CI \
+            --admin_user=admin \
+            --admin_password=admin \
+            --admin_email=ci@example.com
+          ln -s "$GITHUB_WORKSPACE/tabloria-searchable-displays" /tmp/wordpress/wp-content/plugins/tabloria-searchable-displays
+          wp plugin activate tabloria-searchable-displays --path=/tmp/wordpress
+
+      - name: Run WordPress integration tests
+        env:
+          TABLORIA_WP_LOAD: /tmp/wordpress/wp-load.php
+        run: |
+          php tabloria-searchable-displays/tests/run-unit-tests.php
+          php tabloria-searchable-displays/tests/wordpress-smoke.php

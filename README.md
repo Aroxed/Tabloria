@@ -1,5 +1,9 @@
 # Tabloria Searchable Displays
 
+[![CI](https://github.com/Aroxed/Tabloria/actions/workflows/ci.yml/badge.svg)](https://github.com/Aroxed/Tabloria/actions/workflows/ci.yml)
+[![WordPress plugin version](https://img.shields.io/wordpress/plugin/v/tabloria-searchable-displays.svg)](https://wordpress.org/plugins/tabloria-searchable-displays/)
+[![License: GPL v2 or later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](LICENSE)
+
 ![Tabloria Searchable Displays](wordpress-org-assets/assets/banner-1544x500.png)
 
 Tabloria is a WordPress plugin that turns CSV data into searchable catalogs, directories, listings, schedules, pricing tables, coupon displays, and responsive data tables—without custom code.
@@ -81,9 +85,12 @@ docker compose exec -T wordpress sh -lc \
 
 - `tabloria-searchable-displays/` — plugin source, runtime assets, tests, samples, and documentation.
 - `wordpress-org-assets/` — reproducible WordPress.org banners and screenshots.
-- `notes/` — product and release audit notes.
 - `docker-compose.yml` — local WordPress development environment.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Please report security issues through the process in [SECURITY.md](SECURITY.md), not through a public issue.
 
 ## License
 
-GPL-2.0-or-later. See the plugin header and `readme.txt` for release metadata.
+GPL-2.0-or-later. See [LICENSE](LICENSE), the plugin header, and `readme.txt` for release metadata.
