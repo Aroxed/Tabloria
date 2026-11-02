@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tabloria WordPress.org banner</title>
+	<style>
+		* { box-sizing: border-box; }
+		html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+		body {
+			display: grid;
+			grid-template-columns: 54% 46%;
+			align-items: center;
+			background:
+				radial-gradient(circle at 12% 12%, rgba(112, 93, 255, .18), transparent 34%),
+				linear-gradient(135deg, #f9f8ff 0%, #f2f5ff 52%, #e8efff 100%);
+			color: #171528;
+			font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		}
+		.copy { padding: 7% 4% 7% 10%; position: relative; z-index: 2; }
+		.brand { display: flex; align-items: center; gap: .55em; margin-bottom: 1.2em; color: #3525cd; font-size: clamp(20px, 2.1vw, 34px); font-weight: 760; }
+		.mark { display: grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: .48em; color: white; background: #3525cd; box-shadow: 0 12px 28px rgba(53, 37, 205, .24); }
+		h1 { margin: 0; max-width: 13ch; font-size: clamp(31px, 4vw, 60px); line-height: .98; letter-spacing: -.055em; }
+		p { margin: .75em 0 0; max-width: 34em; color: #5e5a75; font-size: clamp(15px, 1.55vw, 23px); line-height: 1.4; }
+		.visual { position: relative; height: 100%; }
+		.card {
+			position: absolute;
+			width: 34%;
+			aspect-ratio: .83;
+			padding: .75em;
+			border: 1px solid rgba(72, 60, 160, .12);
+			border-radius: 8%;
+			background: rgba(255, 255, 255, .92);
+			box-shadow: 0 30px 70px rgba(54, 48, 104, .18);
+		}
+		.card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6%; display: block; }
+		.card::after { content: ""; display: block; width: 72%; height: 6%; margin: 9% 0 0 2%; border-radius: 99px; background: #dbd8f2; box-shadow: 0 12px 0 #eeeeF8; }
+		.card-a { left: 3%; top: 15%; transform: rotate(-7deg); }
+		.card-b { left: 31%; top: 7%; transform: rotate(3deg); z-index: 2; }
+		.card-c { left: 59%; top: 22%; transform: rotate(8deg); }
+		.search { position: absolute; left: 9%; right: 8%; bottom: 7%; height: 10%; border-radius: 999px; background: white; box-shadow: 0 18px 50px rgba(54, 48, 104, .16); border: 1px solid #e4e1f7; }
+		.search::before { content: ""; position: absolute; left: 4%; top: 50%; width: 4%; aspect-ratio: 1; border: 3px solid #3525cd; border-radius: 50%; transform: translateY(-60%); }
+		.search::after { content: "Search your catalog"; position: absolute; left: 11%; top: 50%; transform: translateY(-50%); color: #77728c; font-size: clamp(12px, 1.3vw, 21px); }
+		@media (max-width: 900px) {
+			.copy { padding-left: 8%; }
+			h1 { font-size: 31px; }
+			p { display: none; }
+		}
+	</style>
+</head>
+<body>
+	<section class="copy">
+		<div class="brand"><span class="mark">T</span> Tabloria</div>
+		<h1>Turn CSV rows into searchable WordPress displays.</h1>
+		<p>Build product catalogs, directories and data tables—without custom code.</p>
+	</section>
+	<section class="visual" aria-hidden="true">
+		<div class="card card-a"><img src="demo-products/ceramic-mug.png" alt=""></div>
+		<div class="card card-b"><img src="demo-products/canvas-tote.png" alt=""></div>
+		<div class="card card-c"><img src="demo-products/desk-lamp.png" alt=""></div>
+		<div class="search"></div>
+	</section>
+</body>
+</html>

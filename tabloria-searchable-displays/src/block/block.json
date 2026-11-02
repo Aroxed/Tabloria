@@ -18,6 +18,14 @@
     "overrideTitle": {
       "type": "string",
       "default": ""
+    },
+    "filterField": {
+      "type": "string",
+      "default": ""
+    },
+    "filterValue": {
+      "type": "string",
+      "default": ""
     }
   }
 }

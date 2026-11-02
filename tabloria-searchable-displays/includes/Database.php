@@ -325,7 +325,7 @@ CREATE TABLE {$displays} (
 
 	private function sanitize_display_type( mixed $display_type ): string {
 		$display_type  = sanitize_key( $display_type );
-		$allowed_types = array( 'searchable_listings', 'product_catalog', 'team_directory', 'event_schedule', 'pricing_table', 'simple_data_table' );
+		$allowed_types = array( 'searchable_listings', 'product_catalog', 'team_directory', 'event_schedule', 'pricing_table', 'coupon_display', 'simple_data_table' );
 
 		return in_array( $display_type, $allowed_types, true ) ? $display_type : 'searchable_listings';
 	}

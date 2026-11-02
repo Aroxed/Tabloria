@@ -1,28 +1,29 @@
 === Tabloria Searchable Displays ===
 Contributors: publishly
-Tags: csv, spreadsheet, searchable table, directory, gutenberg
+Tags: csv, searchable table, product catalog, directory, data table
 Requires at least: 6.3
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.1.46
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Turn CSV files into searchable, filterable WordPress displays: directories, listings, catalogs, schedules, pricing tables, and data tables.
+Turn a CSV into searchable catalogs, directories, coupon displays, listings, and responsive data tables—without code.
 
 == Description ==
 
-Tabloria helps you turn CSV and spreadsheet-style data into searchable WordPress displays without custom code.
+Tabloria turns CSV rows into polished, searchable WordPress content without custom code.
 
-Use it to create directories, resource lists, product catalogs, comparison lists, event schedules, pricing tables, and simple searchable data tables. Instead of publishing spreadsheet rows as one plain table, Tabloria lets you choose a display type, map CSV columns to visual fields, preview the result, and publish the saved display with Gutenberg or a shortcode.
+Upload a CSV, choose which columns become titles, images, prices, badges, descriptions, coupon codes, or links, and publish the result as a product catalog, directory, coupon display, listing, schedule, pricing display, or responsive data table.
 
-Live demo: https://tabloria.site/demo.html
+Live demo: [Try the searchable product catalog](https://tabloria.site/demo.html)
 
 = Best for =
 
 * CSV to searchable WordPress displays
 * Searchable directories for people, teams, services, resources, locations, or organizations
 * Product catalogs from spreadsheet data
+* Coupon codes, affiliate offers, and link-only deals
 * Resource libraries and public data lists
 * Event schedules from date-based CSV rows
 * Pricing tables from structured spreadsheet rows
@@ -31,13 +32,14 @@ Live demo: https://tabloria.site/demo.html
 
 = Display types =
 
-Tabloria currently includes six display types:
+Tabloria currently includes seven display types:
 
 * Searchable Listings
 * Product Catalog
 * Team Directory
 * Event Schedule
 * Pricing Table
+* Coupon Code Display
 * Simple Data Table
 
 = Core workflow =
@@ -50,12 +52,27 @@ Tabloria currently includes six display types:
 * Preview the display before publishing
 * Save a reusable display
 * Insert the display with the Tabloria Display block
+* Optionally filter each block placement by a different column value
 * Arrange several displays with the Tabloria Display Grid block
 * Use the shortcode fallback: `[tabloria id="123"]`
 
 = Gutenberg and shortcode support =
 
-Saved displays can be inserted with the Tabloria Display block. Use the Tabloria Display Grid block when you want to arrange multiple saved displays on the same page. Each display also has a shortcode fallback for classic workflows, widgets, and page builders.
+Saved displays can be inserted with the Tabloria Display block. A page-specific exact-value filter lets one master Display power separate category pages without creating duplicate Displays. Choose the filter column and value in the block sidebar, or use `[tabloria id="123" filter_field="category" filter_value="Shoes"]` in classic workflows and page builders. Matching is case-insensitive.
+
+Use the Tabloria Display Grid block when you want to arrange multiple saved displays on the same page. Each display also has a shortcode fallback.
+
+= Coupon and affiliate displays =
+
+Coupon Code Display supports coupon and deal-only rows in the same CSV. When a row contains a coupon code, Show coupon reveals the code and opens the affiliate link in a new tab from the same click. Visitors can then copy the code. When the coupon code cell is empty, the row shows a direct deal button instead. Reveal, copy, and deal button text can be customized, including labels such as View deal or Visit website.
+
+= Visitor controls and responsive layout =
+
+In Search & Filters, you can customize the search placeholder and no-results message, choose visitor filters, and set a dropdown highlight color. When a visitor has selected a filter, a Reset all button clears the active filters and search query.
+
+Enable Show result count to display a summary below the results. Set Result count label to use the wording that fits your content, such as `Offers`, `Properties`, or `Courses`; for example, “Showing 1 to 12 of 48 Offers”.
+
+For card-based Displays, Maximum card width prevents a single matching result from stretching across the entire desktop or tablet layout. Choose 320px, 420px, 520px, or No limit. Simple Data Tables scroll horizontally inside their own container on narrow screens, so the page itself does not scroll sideways.
 
 = Why Tabloria? =
 
@@ -83,7 +100,15 @@ It depends on your use case. If you mainly need a traditional table with rows an
 
 = What display types are available? =
 
-Tabloria currently supports Searchable Listings, Product Catalog, Team Directory, Event Schedule, Pricing Table, and Simple Data Table.
+Tabloria currently supports Searchable Listings, Product Catalog, Team Directory, Event Schedule, Pricing Table, Coupon Code Display, and Simple Data Table.
+
+= Can one Display power multiple category pages? =
+
+Yes. Insert the same saved Display on each page and set a different page-specific filter in each block. The shortcode equivalent is `[tabloria id="123" filter_field="category" filter_value="Category A"]`.
+
+= Can coupon and deal-only rows share one CSV? =
+
+Yes. Map the coupon code and affiliate URL columns. Rows with a code get reveal and copy controls; rows with an empty code get the customizable deal-only button.
 
 = What file format does Tabloria support? =
 
@@ -107,16 +132,33 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 
 == Screenshots ==
 
-1. Choose the display type that fits your CSV data: listing, catalog, directory, schedule, pricing table, or data table.
-2. Upload a CSV file directly inside WordPress.
-3. Review detected columns before mapping them to display fields.
-4. Map CSV columns to titles, descriptions, images, prices, dates, links, and other visual fields.
-5. Preview the searchable display before publishing it.
-6. Save the display as reusable WordPress content.
-7. Insert a saved Tabloria display in the Gutenberg editor.
-8. Publish a searchable WordPress display for visitors.
+1. Publish a polished, searchable product catalog from CSV rows.
+2. Help visitors find the right result with instant search and filters.
+3. Map CSV columns and preview the finished Display inside WordPress.
+4. Insert a saved Display with the native Gutenberg block.
+5. Manage reusable Displays without rebuilding page content.
 
 == Changelog ==
+
+= 0.2.0 =
+
+* Added page-specific exact-value filters so one master Display can be reused across category pages.
+* Added Coupon Code Display with reveal-and-visit, click-to-copy, and customizable deal-only actions.
+* Added a customizable no-results message for search and visitor filters.
+
+= 0.1.49 =
+
+* Added Reset all for visitor filters, customizable result labels, card-width controls, and mobile table scrolling.
+* Fixed card-width rendering so an unlimited layout does not create an invalid CSS grid.
+
+= 0.1.48 =
+
+* Added configurable search placeholder text, result count visibility, filter-value column labels, and dropdown highlight color.
+
+= 0.1.47 =
+
+* Added the optional Hide rows until search setting, disabled by default.
+* Keep rows hidden on initial render and after clearing search, while reusing existing search, filters, and pagination.
 
 = 0.1.46 =
 

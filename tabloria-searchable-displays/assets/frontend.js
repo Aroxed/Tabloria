@@ -103,6 +103,7 @@
 	}
 
 	function initDisplay(display) {
+		initCouponActions(display);
 		var cards = Array.prototype.slice.call(display.querySelectorAll('[data-tabloria-item]'));
 		var search = display.querySelector('[data-tabloria-search]');
 		var filters = Array.prototype.slice.call(display.querySelectorAll('[data-tabloria-filter]'));
@@ -111,6 +112,9 @@
 		var empty = display.querySelector('.tabloria-display__empty');
 		var perPage = parseInt(display.dataset.perPage || '12', 10);
 		var usePagination = display.dataset.pagination === 'true';
+		var showResultCount = display.dataset.showResultCount !== 'false';
+		var hideRowsUntilSearch = display.dataset.hideRowsUntilSearch === 'true';
+		var resetFilters = display.querySelector('[data-tabloria-reset-filters]');
 		var currentPage = 1;
 
 		function normalizeText(value) {
@@ -119,6 +123,9 @@
 
 		function matches(card) {
 			var query = search ? normalizeText(search.value.trim()) : '';
+			if (hideRowsUntilSearch && search && !query) {
+				return false;
+			}
 			if (query && normalizeText(card.dataset.search).indexOf(query) === -1) {
 				return false;
 			}
@@ -152,6 +159,9 @@
 			}
 
 			renderStatus(start, end, matched.length);
+			if (resetFilters) {
+				resetFilters.hidden = !filters.some(function (filter) { return Boolean(filter.value); });
+			}
 			renderPagination(totalPages, matched.length);
 			syncBreakoutWidth(display);
 		}
@@ -160,13 +170,20 @@
 			if (!status) {
 				return;
 			}
+			if (!showResultCount) {
+				status.hidden = true;
+				status.textContent = '';
+				return;
+			}
+			status.hidden = false;
 
 			if (totalItems === 0) {
-				status.textContent = 'Showing 0 rows';
+				status.textContent = 'Showing 0 ' + (display.dataset.resultLabel || 'rows');
 				return;
 			}
 
-			status.textContent = 'Showing ' + (start + 1) + ' to ' + Math.min(end, totalItems) + ' of ' + totalItems + ' rows';
+			var label = display.dataset.resultLabel || 'rows';
+			status.textContent = 'Showing ' + (start + 1) + ' to ' + Math.min(end, totalItems) + ' of ' + totalItems + ' ' + label;
 		}
 
 		function renderPagination(totalPages, totalItems) {
@@ -219,7 +236,71 @@
 			});
 		});
 
+		if (resetFilters) {
+			resetFilters.addEventListener('click', function () {
+				filters.forEach(function (filter) { filter.value = ''; });
+				if (search) { search.value = ''; }
+				currentPage = 1;
+				render();
+			});
+		}
+
 		render();
+	}
+
+	function initCouponActions(display) {
+		display.querySelectorAll('[data-tabloria-show-coupon]').forEach(function (trigger) {
+			trigger.addEventListener('click', function () {
+				var card = trigger.closest('.tabloria-coupon');
+				var reveal = card ? card.querySelector('[data-tabloria-coupon-reveal]') : null;
+				if (reveal) {
+					reveal.hidden = false;
+					trigger.setAttribute('aria-expanded', 'true');
+				}
+			});
+		});
+
+		display.querySelectorAll('[data-tabloria-copy-coupon]').forEach(function (button) {
+			button.addEventListener('click', function () {
+				var code = button.dataset.couponCode || '';
+				copyCouponCode(code).then(function () {
+					var reveal = button.closest('[data-tabloria-coupon-reveal]');
+					var status = reveal ? reveal.querySelector('[data-tabloria-copy-status]') : null;
+					if (status) {
+						status.textContent = button.dataset.copiedLabel || 'Copied!';
+					}
+				}).catch(function () {
+					var reveal = button.closest('[data-tabloria-coupon-reveal]');
+					var status = reveal ? reveal.querySelector('[data-tabloria-copy-status]') : null;
+					if (status) {
+						status.textContent = 'Copy failed. Select the code and copy it manually.';
+					}
+				});
+			});
+		});
+	}
+
+	function copyCouponCode(code) {
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			return navigator.clipboard.writeText(code);
+		}
+
+		return new Promise(function (resolve, reject) {
+			var input = document.createElement('textarea');
+			input.value = code;
+			input.setAttribute('readonly', '');
+			input.style.position = 'fixed';
+			input.style.opacity = '0';
+			document.body.appendChild(input);
+			input.select();
+			var copied = document.execCommand && document.execCommand('copy');
+			document.body.removeChild(input);
+			if (copied) {
+				resolve();
+			} else {
+				reject(new Error('Copy failed'));
+			}
+		});
 	}
 
 	document.addEventListener('DOMContentLoaded', function () {

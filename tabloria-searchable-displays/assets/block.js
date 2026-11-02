@@ -32,6 +32,8 @@
 		var displayId = attributes.displayId || 0;
 		var showTitle = attributes.showTitle !== false;
 		var overrideTitle = attributes.overrideTitle || '';
+		var filterField = attributes.filterField || '';
+		var filterValue = attributes.filterValue || '';
 		var displaysState = useState([]);
 		var displays = displaysState[0];
 		var setDisplays = displaysState[1];
@@ -67,20 +69,38 @@
 				setPreview(null);
 				return;
 			}
-			setPreview(null);
-			api('/displays/' + displayId + '/render-data')
+			var cancelled = false;
+			var previewPath = '/displays/' + displayId + '/render-data';
+			if (filterField && filterValue) {
+				previewPath += '?filter_field=' + encodeURIComponent(filterField) + '&filter_value=' + encodeURIComponent(filterValue);
+			}
+			api(previewPath)
 				.then(function (data) {
+					if (cancelled) {
+						return;
+					}
 					setPreview(data);
 					setError('');
 				})
 				.catch(function (err) {
+					if (cancelled) {
+						return;
+					}
 					setError(err.message || __('Could not load this Display preview.', 'tabloria-searchable-displays'));
 				});
-		}, [displayId]);
+			return function () {
+				cancelled = true;
+			};
+		}, [displayId, filterField, filterValue]);
 
 		var options = [{ label: __('Choose a Published Display', 'tabloria-searchable-displays'), value: 0 }].concat(displays.map(function (display) {
 			return { label: display.name, value: parseInt(display.id, 10) };
 		}));
+		var filterOptions = [{ label: __('No page-specific filter', 'tabloria-searchable-displays'), value: '' }].concat(
+			preview && preview.source && preview.source.columns ? preview.source.columns.map(function (column) {
+				return { label: column.label || column.key, value: column.key };
+			}) : []
+		);
 
 		return el(
 			'div',
@@ -96,7 +116,7 @@
 						value: displayId,
 						options: options,
 						onChange: function (value) {
-							setAttributes({ displayId: parseInt(value, 10) || 0 });
+							setAttributes({ displayId: parseInt(value, 10) || 0, filterField: '', filterValue: '' });
 						}
 					}),
 					el(ToggleControl, {
@@ -112,7 +132,23 @@
 						onChange: function (value) {
 							setAttributes({ overrideTitle: value });
 						}
-					})
+					}),
+					el(SelectControl, {
+						label: __('Filter this placement by', 'tabloria-searchable-displays'),
+						help: __('Reuse this Display on another page with a different exact column value.', 'tabloria-searchable-displays'),
+						value: filterField,
+						options: filterOptions,
+						onChange: function (value) {
+							setAttributes({ filterField: value || '', filterValue: '' });
+						}
+					}),
+					filterField ? el(TextControl, {
+						label: __('Filter value', 'tabloria-searchable-displays'),
+						value: filterValue,
+						onChange: function (value) {
+							setAttributes({ filterValue: value });
+						}
+					}) : null
 				)
 			),
 			loading ? el(Placeholder, { label: __('Tabloria Display', 'tabloria-searchable-displays') }, el(Spinner)) : null,
@@ -137,7 +173,7 @@
 						value: displayId,
 						options: options,
 						onChange: function (value) {
-							setAttributes({ displayId: parseInt(value, 10) || 0 });
+							setAttributes({ displayId: parseInt(value, 10) || 0, filterField: '', filterValue: '' });
 						}
 					}),
 					displayId ? el(Button, {
@@ -145,7 +181,7 @@
 						href: editDisplaysUrl()
 					}, __('Edit this Display in Tabloria', 'tabloria-searchable-displays')) : null
 				),
-				renderPreview(preview, showTitle, overrideTitle)
+				renderPreview(preview, showTitle, overrideTitle, filterField, filterValue)
 			) : null
 		);
 	}
@@ -355,7 +391,7 @@
 		}
 	}
 
-	function renderPreview(preview, showTitle, overrideTitle) {
+	function renderPreview(preview, showTitle, overrideTitle, filterField, filterValue) {
 		if (!preview || !preview.display) {
 			return el('div', { className: 'tabloria-editor-preview__body tabloria-editor-preview__body--loading' }, el(Spinner));
 		}
@@ -368,6 +404,7 @@
 		var displayType = preview.display.display_type || config.displayType || 'searchable_listings';
 		var accent = config.style && config.style.accentColor ? config.style.accentColor : '#3525cd';
 		var visibleFields = config.visibleFields || [];
+		var placementFilter = filterField && filterValue ? filterField + ' = ' + filterValue : '';
 
 		return el(
 			'div',
@@ -376,16 +413,17 @@
 				'div',
 				{ className: 'tabloria-editor-preview__summary' },
 				el('span', null, labelForType(displayType)),
-				el('span', null, (source.row_count || rows.length || 0) + ' ' + __('rows', 'tabloria-searchable-displays')),
+				el('span', null, (preview.rowCount !== undefined ? preview.rowCount : (source.row_count || rows.length || 0)) + ' ' + __('rows', 'tabloria-searchable-displays')),
 				source.original_filename ? el('span', null, source.original_filename) : null
 			),
 			showTitle ? el('h3', null, title) : null,
-			displayType === 'simple_data_table' ? renderTablePreview(rows, visibleFields, preview.source) : renderCardPreview(rows, roles, visibleFields, displayType),
+			placementFilter ? el('p', { className: 'tabloria-editor-preview__note' }, __('Page filter:', 'tabloria-searchable-displays') + ' ' + placementFilter) : null,
+			displayType === 'simple_data_table' ? renderTablePreview(rows, visibleFields, preview.source) : renderCardPreview(rows, roles, visibleFields, displayType, config),
 			el('p', { className: 'tabloria-editor-preview__note' }, __('Live editor preview. The frontend renders from the saved Published Display.', 'tabloria-searchable-displays'))
 		);
 	}
 
-	function renderCardPreview(rows, roles, visibleFields, displayType) {
+	function renderCardPreview(rows, roles, visibleFields, displayType, config) {
 		return el(
 			'div',
 			{ className: 'tabloria-editor-preview__grid tabloria-editor-preview__grid--' + displayType },
@@ -403,10 +441,24 @@
 					el('strong', null, itemTitle),
 					subtitle ? el('span', null, subtitle) : null,
 					price ? el('em', null, price) : null,
-					renderPreviewFields(row, roles, visibleFields)
+				renderPreviewFields(row, roles, visibleFields),
+				displayType === 'coupon_display' ? renderCouponPreviewAction(row, roles, config) : null
 				);
 			})
 		);
+	}
+
+	function renderCouponPreviewAction(row, roles, config) {
+		var options = config && config.layoutOptions && config.layoutOptions.coupons ? config.layoutOptions.coupons : {};
+		var code = roles.coupon_code ? row[roles.coupon_code] : '';
+		var url = roles.affiliate_url ? row[roles.affiliate_url] : '';
+		if (code) {
+			return el('div', { className: 'tabloria-editor-preview__coupon' },
+				el('button', { type: 'button' }, options.showCouponLabel || __('Show coupon', 'tabloria-searchable-displays')),
+				el('code', null, code)
+			);
+		}
+		return url ? el('span', { className: 'tabloria-editor-preview__coupon' }, options.dealLabel || __('View deal', 'tabloria-searchable-displays')) : null;
 	}
 
 	function renderPreviewImage(image) {
@@ -507,6 +559,7 @@
 			team_directory: __('Team Directory', 'tabloria-searchable-displays'),
 			event_schedule: __('Event Schedule', 'tabloria-searchable-displays'),
 			pricing_table: __('Pricing Table', 'tabloria-searchable-displays'),
+			coupon_display: __('Coupon Code Display', 'tabloria-searchable-displays'),
 			simple_data_table: __('Simple Data Table', 'tabloria-searchable-displays')
 		};
 		return labels[type] || __('Published Display', 'tabloria-searchable-displays');
@@ -521,7 +574,9 @@
 		attributes: {
 			displayId: { type: 'number', default: 0 },
 			showTitle: { type: 'boolean', default: true },
-			overrideTitle: { type: 'string', default: '' }
+			overrideTitle: { type: 'string', default: '' },
+			filterField: { type: 'string', default: '' },
+			filterValue: { type: 'string', default: '' }
 		},
 		edit: Edit,
 		save: function () {

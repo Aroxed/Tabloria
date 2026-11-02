@@ -101,6 +101,14 @@ class Plugin {
 						'type'    => 'string',
 						'default' => '',
 					),
+					'filterField'   => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'filterValue'   => array(
+						'type'    => 'string',
+						'default' => '',
+					),
 				),
 			)
 		);
@@ -251,6 +259,8 @@ class Plugin {
 				'id'             => 0,
 				'show_title'     => 'true',
 				'override_title' => '',
+				'filter_field'   => '',
+				'filter_value'   => '',
 			),
 			$atts,
 			'tabloria'
@@ -261,6 +271,8 @@ class Plugin {
 			array(
 				'showTitle'     => 'false' !== $atts['show_title'],
 				'overrideTitle' => sanitize_text_field( $atts['override_title'] ),
+				'filterField'   => sanitize_key( $atts['filter_field'] ),
+				'filterValue'   => sanitize_text_field( $atts['filter_value'] ),
 			)
 		);
 	}

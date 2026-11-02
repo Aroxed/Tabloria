@@ -120,6 +120,13 @@ blockquote .tabloria-display {
 	outline: none;
 }
 
+/* Native select menus are browser-controlled; supported browsers use this for the active/hovered option. */
+.tabloria-display select option:checked,
+.tabloria-display select option:hover {
+	background: var(--tabloria-dropdown-hover, var(--tabloria-accent));
+	color: #fff;
+}
+
 .tabloria-display__filters {
 	display: flex;
 	flex: 2 1 360px;
@@ -127,6 +134,24 @@ blockquote .tabloria-display {
 	gap: 0.75rem;
 	justify-content: flex-end;
 	min-width: 0;
+}
+
+.tabloria-display__reset {
+	align-self: stretch;
+	border: 1px solid var(--tabloria-accent);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--tabloria-accent);
+	cursor: pointer;
+	font: inherit;
+	font-weight: 700;
+	padding: 0.55rem 0.75rem;
+}
+
+.tabloria-display__reset:hover,
+.tabloria-display__reset:focus-visible {
+	background: var(--tabloria-dropdown-hover, var(--tabloria-accent));
+	color: #fff;
 }
 
 .tabloria-display__filters label {
@@ -146,6 +171,18 @@ blockquote .tabloria-display {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
 	gap: 1.25rem;
+}
+
+.tabloria-display.is-card-width-320 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 320px));
+}
+
+.tabloria-display.is-card-width-420 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 420px));
+}
+
+.tabloria-display.is-card-width-520 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 520px));
 }
 
 .tabloria-display.is-narrow-container .tabloria-display__grid {
@@ -380,6 +417,76 @@ blockquote .tabloria-display {
 	outline-offset: 2px;
 }
 
+.tabloria-coupon__actions {
+	display: grid;
+	gap: 0.75rem;
+	margin-top: auto;
+	padding-top: 1rem;
+}
+
+.tabloria-coupon .tabloria-card__badge--plain {
+	margin: 0 0 0.75rem;
+}
+
+.tabloria-coupon__show,
+.tabloria-coupon__deal,
+.tabloria-coupon__reveal button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.5rem;
+	border: 1px solid var(--tabloria-accent);
+	border-radius: 7px;
+	background: var(--tabloria-accent);
+	color: #fff;
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.9rem;
+	font-weight: 750;
+	text-decoration: none;
+}
+
+.tabloria-coupon__show:hover,
+.tabloria-coupon__show:focus,
+.tabloria-coupon__deal:hover,
+.tabloria-coupon__deal:focus {
+	background: color-mix(in srgb, var(--tabloria-accent) 84%, #000);
+	color: #fff;
+	text-decoration: none;
+}
+
+.tabloria-coupon__reveal {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.55rem;
+	align-items: stretch;
+}
+
+.tabloria-coupon__reveal[hidden] {
+	display: none;
+}
+
+.tabloria-coupon__reveal code {
+	flex: 1 1 8rem;
+	min-width: 0;
+	border: 1px dashed color-mix(in srgb, var(--tabloria-accent) 45%, #c9c3df);
+	border-radius: 7px;
+	background: color-mix(in srgb, var(--tabloria-accent) 6%, #fff);
+	color: #262239;
+	font-size: 1rem;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	padding: 0.65rem 0.8rem;
+	overflow-wrap: anywhere;
+	text-align: center;
+}
+
+.tabloria-coupon__reveal button {
+	background: #fff;
+	color: var(--tabloria-accent);
+	padding: 0.55rem 0.8rem;
+}
+
 @container (max-width: 260px) {
 	.tabloria-card__fields div {
 		grid-template-columns: 1fr;
@@ -389,6 +496,18 @@ blockquote .tabloria-display {
 
 .tabloria-display--team-directory .tabloria-display__grid {
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.tabloria-display--team-directory.is-card-width-320 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 320px));
+}
+
+.tabloria-display--team-directory.is-card-width-420 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 420px));
+}
+
+.tabloria-display--team-directory.is-card-width-520 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 520px));
 }
 
 .tabloria-display--team-directory .tabloria-card__image {
@@ -417,6 +536,18 @@ blockquote .tabloria-display {
 .tabloria-display--pricing-table .tabloria-display__grid {
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
 	align-items: stretch;
+}
+
+.tabloria-display--pricing-table.is-card-width-320 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 320px));
+}
+
+.tabloria-display--pricing-table.is-card-width-420 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 420px));
+}
+
+.tabloria-display--pricing-table.is-card-width-520 .tabloria-display__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 520px));
 }
 
 .tabloria-display--pricing-table .tabloria-card__body {
@@ -466,6 +597,16 @@ blockquote .tabloria-display {
 	word-break: break-word;
 }
 
+@media (max-width: 640px) {
+	/* Keep columns readable and scroll this container rather than the page. */
+	.tabloria-display.is-width-wide .tabloria-data-table th,
+	.tabloria-display.is-width-wide .tabloria-data-table td,
+	.tabloria-display.is-width-full .tabloria-data-table th,
+	.tabloria-display.is-width-full .tabloria-data-table td {
+		min-width: 150px;
+	}
+}
+
 .tabloria-data-table th {
 	background: #f5f2ff;
 	color: #343242;
@@ -473,6 +614,16 @@ blockquote .tabloria-display {
 	font-weight: 800;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
+}
+
+.tabloria-data-table tbody tr:hover td,
+.tabloria-data-table tbody tr:focus-within td {
+	background: color-mix(in srgb, var(--tabloria-dropdown-hover, var(--tabloria-accent)) 12%, #fff);
+}
+
+.tabloria-display select option:hover,
+.tabloria-display select option:checked {
+	background-color: var(--tabloria-dropdown-hover, var(--tabloria-accent));
 }
 
 .tabloria-data-table td {
@@ -844,6 +995,23 @@ blockquote .tabloria-display {
 .tabloria-editor-grid-preview__item span {
 	color: #5f5d70;
 	font-size: 0.85rem;
+}
+
+.tabloria-editor-preview__coupon {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	align-items: center;
+	margin-top: 0.7rem;
+	color: var(--tabloria-accent);
+	font-weight: 750;
+}
+
+.tabloria-editor-preview__coupon button,
+.tabloria-editor-preview__coupon code {
+	border: 1px solid var(--tabloria-accent);
+	border-radius: 5px;
+	padding: 0.4rem 0.55rem;
 }
 
 @media (max-width: 640px) {

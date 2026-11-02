@@ -13,6 +13,7 @@ class DisplayGenerator {
 		'team_directory'      => 'Team Directory',
 		'event_schedule'      => 'Event Schedule',
 		'pricing_table'       => 'Pricing Table',
+		'coupon_display'      => 'Coupon Code Display',
 		'simple_data_table'   => 'Simple Data Table',
 	);
 
@@ -30,11 +31,18 @@ class DisplayGenerator {
 			'defaultFilters' => array(),
 			'visitorFilters' => $this->guess_visitor_filters( $columns ),
 			'sort'           => $this->guess_sort( $columns ),
-			'search'         => array( 'enabled' => true ),
-			'filters'        => array( 'enabled' => true ),
+			'search'         => array(
+				'enabled'             => true,
+				'hideRowsUntilSearch' => false,
+				'placeholder'         => 'Search all fields...',
+				'emptyMessage'        => 'No rows match the current search or filters.',
+			),
+			'filters'        => array( 'enabled' => true, 'showColumnNames' => true, 'hoverColor' => '' ),
 			'pagination'     => array(
-				'enabled' => true,
-				'perPage' => 12,
+				'enabled'         => true,
+				'perPage'         => 12,
+				'showResultCount' => true,
+				'resultLabel'     => 'rows',
 			),
 			'style'          => array(
 				'accentColor'  => '#3525cd',
@@ -47,6 +55,12 @@ class DisplayGenerator {
 					'urlDisplay'  => 'link',
 					'urlLabel'    => '',
 					'buttonStyle' => 'theme',
+				),
+				'coupons' => array(
+					'showCouponLabel' => 'Show coupon',
+					'copyCodeLabel'   => 'Copy code',
+					'dealLabel'       => 'View deal',
+					'copiedLabel'     => 'Copied!',
 				),
 			),
 		);
@@ -63,7 +77,7 @@ class DisplayGenerator {
 		$config['sourceId']    = absint( $source['id'] ?? ( $config['sourceId'] ?? 0 ) );
 
 		$field_roles = array();
-		$allowed_roles = array( 'title', 'subtitle', 'image', 'price', 'badge' );
+		$allowed_roles = array( 'title', 'subtitle', 'image', 'price', 'badge', 'coupon_code', 'affiliate_url' );
 		foreach ( (array) ( $config['fieldRoles'] ?? array() ) as $role => $field ) {
 			$role = sanitize_key( $role );
 			if ( ! in_array( $role, $allowed_roles, true ) ) {
@@ -127,22 +141,36 @@ class DisplayGenerator {
 		$pagination = is_array( $config['pagination'] ?? null ) ? $config['pagination'] : array();
 		$style = is_array( $config['style'] ?? null ) ? $config['style'] : array();
 
-		$config['search'] = array( 'enabled' => ! empty( $search['enabled'] ) );
-		$config['filters'] = array( 'enabled' => ! empty( $filters['enabled'] ) );
+		$config['search'] = array(
+			'enabled'             => ! empty( $search['enabled'] ),
+			'hideRowsUntilSearch' => ! empty( $search['hideRowsUntilSearch'] ),
+			'placeholder'         => sanitize_text_field( $search['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...',
+			'emptyMessage'        => sanitize_text_field( $search['emptyMessage'] ?? 'No rows match the current search or filters.' ) ?: 'No rows match the current search or filters.',
+		);
+		$config['filters'] = array(
+			'enabled'         => ! empty( $filters['enabled'] ),
+			'showColumnNames' => ! array_key_exists( 'showColumnNames', $filters ) || ! empty( $filters['showColumnNames'] ),
+			'hoverColor'      => sanitize_hex_color( $filters['hoverColor'] ?? '' ) ?: '',
+		);
 		$config['pagination'] = array(
-			'enabled' => ! empty( $pagination['enabled'] ),
-			'perPage' => max( 1, min( 100, absint( $pagination['perPage'] ?? 12 ) ) ),
+			'enabled'         => ! empty( $pagination['enabled'] ),
+			'perPage'         => max( 1, min( 100, absint( $pagination['perPage'] ?? 12 ) ) ),
+			'showResultCount' => ! array_key_exists( 'showResultCount', $pagination ) || ! empty( $pagination['showResultCount'] ),
+			'resultLabel'     => sanitize_text_field( $pagination['resultLabel'] ?? 'rows' ) ?: 'rows',
 		);
 		$display_width = sanitize_key( $style['displayWidth'] ?? 'normal' );
+		$card_max_width = absint( $style['cardMaxWidth'] ?? 420 );
 		$config['style'] = array(
 			'accentColor'  => sanitize_hex_color( $style['accentColor'] ?? '#3525cd' ) ?: '#3525cd',
 			'density'      => 'compact' === ( $style['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
 			'imageShape'   => 'square' === ( $style['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
 			'displayWidth' => in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal',
+			'cardMaxWidth' => in_array( $card_max_width, array( 320, 420, 520, 0 ), true ) ? $card_max_width : 420,
 		);
 
 		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
 		$card_options   = is_array( $layout_options['cards'] ?? null ) ? $layout_options['cards'] : array();
+		$coupon_options = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
 		$url_display    = sanitize_key( $card_options['urlDisplay'] ?? 'link' );
 		$button_style   = sanitize_key( $card_options['buttonStyle'] ?? 'theme' );
 		$config['layoutOptions'] = array(
@@ -150,6 +178,12 @@ class DisplayGenerator {
 				'urlDisplay'  => in_array( $url_display, array( 'link', 'button' ), true ) ? $url_display : 'link',
 				'urlLabel'    => sanitize_text_field( $card_options['urlLabel'] ?? '' ),
 				'buttonStyle' => in_array( $button_style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $button_style : 'theme',
+			),
+			'coupons' => array(
+				'showCouponLabel' => sanitize_text_field( $coupon_options['showCouponLabel'] ?? 'Show coupon' ) ?: 'Show coupon',
+				'copyCodeLabel'   => sanitize_text_field( $coupon_options['copyCodeLabel'] ?? 'Copy code' ) ?: 'Copy code',
+				'dealLabel'       => sanitize_text_field( $coupon_options['dealLabel'] ?? 'View deal' ) ?: 'View deal',
+				'copiedLabel'     => sanitize_text_field( $coupon_options['copiedLabel'] ?? 'Copied!' ) ?: 'Copied!',
 			),
 		);
 
@@ -170,13 +204,23 @@ class DisplayGenerator {
 			$price = '';
 		}
 
-		return array(
+		$roles = array(
 			'title'    => $by_label['name'] ?? $by_label['title'] ?? $by_label['student_name'] ?? $by_label['instructor_name'] ?? $this->first_public_key( $columns ),
 			'subtitle' => $by_label['building'] ?? $by_label['location'] ?? $by_label['role'] ?? '',
 			'image'    => $by_type['image'] ?? '',
 			'price'    => $price,
 			'badge'    => $by_type['status'] ?? $by_label['status'] ?? $by_label['category'] ?? $by_label['role'] ?? '',
 		);
+
+		if ( 'coupon_display' === $display_type ) {
+			$roles['title'] = $by_label['offer'] ?? $by_label['deal'] ?? $by_label['name'] ?? $by_label['title'] ?? $this->first_public_key( $columns );
+			$roles['subtitle'] = $by_label['store'] ?? $by_label['merchant'] ?? $by_label['brand'] ?? $by_label['category'] ?? '';
+			$roles['badge'] = $by_label['discount'] ?? $by_label['saving'] ?? $by_label['status'] ?? '';
+			$roles['coupon_code'] = $by_label['coupon_code'] ?? $by_label['promo_code'] ?? $by_label['coupon'] ?? $by_label['code'] ?? '';
+			$roles['affiliate_url'] = $by_label['affiliate_url'] ?? $by_label['deal_url'] ?? $by_label['website'] ?? $by_label['url'] ?? $by_label['link'] ?? ( $by_type['url'] ?? '' );
+		}
+
+		return $roles;
 	}
 
 	private function guess_visitor_filters( array $columns ): array {
@@ -234,7 +278,7 @@ class DisplayGenerator {
 			}
 
 			$key = strtolower( (string) ( $column['label'] ?? $column['key'] ?? '' ) );
-			foreach ( array( 'name', 'title', 'building', 'location', 'role', 'price', 'cost', 'rate', 'fee', 'status', 'category' ) as $token ) {
+			foreach ( array( 'name', 'title', 'building', 'location', 'role', 'price', 'cost', 'rate', 'fee', 'status', 'category', 'offer', 'deal', 'store', 'merchant', 'brand', 'discount', 'saving', 'coupon', 'code', 'website', 'url', 'link' ) as $token ) {
 				if ( str_contains( $key, $token ) && empty( $map[ $token ] ) ) {
 					$map[ $token ] = $column['key'];
 				}

@@ -1,0 +1,5 @@
+Product Name,Category,Brand,Price,Status,Image,Description,Product URL
+Matte Ceramic Mug,Home,Clay Studio,$22,Low Stock,http://127.0.0.1:8090/demo-products/ceramic-mug.png,Hand-finished stoneware with a warm natural glaze.,https://example.com/products/ceramic-mug
+Canvas Weekender Tote,Bags,Field & Co,$64,In Stock,http://127.0.0.1:8090/demo-products/canvas-tote.png,Roomy natural canvas with reinforced leather handles.,https://example.com/products/canvas-tote
+Sage Studio Lamp,Lighting,Northline,$89,In Stock,http://127.0.0.1:8090/demo-products/desk-lamp.png,Adjustable metal lamp with a soft warm reading light.,https://example.com/products/studio-lamp
+Oak Wall Shelf,Furniture,Harbor Home,$140,In Stock,http://127.0.0.1:8090/demo-products/oak-shelf.png,Minimal solid-oak shelf for books and small objects.,https://example.com/products/oak-shelf

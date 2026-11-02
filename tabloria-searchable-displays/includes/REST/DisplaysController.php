@@ -187,7 +187,15 @@ class DisplaysController {
 
 	public function render_data( WP_REST_Request $request ): WP_REST_Response {
 		$renderer = new FrontendRenderer( $this->database );
-		return new WP_REST_Response( $renderer->render_preview_data( absint( $request['id'] ) ) );
+		return new WP_REST_Response(
+			$renderer->render_preview_data(
+				absint( $request['id'] ),
+				array(
+					'filterField' => sanitize_key( $request->get_param( 'filter_field' ) ?? '' ),
+					'filterValue' => sanitize_text_field( $request->get_param( 'filter_value' ) ?? '' ),
+				)
+			)
+		);
 	}
 
 	public function update_data( WP_REST_Request $request ): WP_REST_Response|WP_Error {

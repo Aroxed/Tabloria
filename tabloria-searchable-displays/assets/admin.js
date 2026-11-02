@@ -34,6 +34,11 @@
 			copy: 'Create pricing cards from spreadsheet rows.'
 		},
 		{
+			key: 'coupon_display',
+			label: 'Coupon Code Display',
+			copy: 'Publish coupon codes and affiliate deals with reveal, copy, and visit actions.'
+		},
+		{
 			key: 'simple_data_table',
 			label: 'Simple Data Table',
 			copy: 'Publish a searchable table with sorting and pagination.'
@@ -480,6 +485,8 @@
 			content = '<div class="tabloria-preview-schedule"><span><i></i><b></b><em></em></span><span><i></i><b></b><em></em></span><span><i></i><b></b><em></em></span></div>';
 		} else if (previewType === 'pricing_table') {
 			content = '<div class="tabloria-preview-pricing"><span><b></b><i></i><em></em><em></em></span><span><b></b><i></i><em></em><em></em></span><span><b></b><i></i><em></em><em></em></span></div>';
+		} else if (previewType === 'coupon_display') {
+			content = '<div class="tabloria-preview-pricing"><span><b></b><i></i><em></em><button>Show coupon</button></span><span><b></b><i></i><em></em><button>View deal</button></span></div>';
 		} else {
 			content = '<div class="tabloria-preview-listings"><span><i></i><b></b><em></em></span><span><i></i><b></b><em></em></span></div>';
 		}
@@ -539,10 +546,20 @@
 			].join(''), false),
 			renderSetupAccordion('options', 'Display options', 'Show or hide visitor controls on the published page.', [
 				renderDisplayWidthOptions('display-width', state.config),
+				'<div class="tabloria-field"><label for="card-max-width">Maximum card width</label><select id="card-max-width" class="tabloria-select"><option value="320"' + selected(state.config.style.cardMaxWidth, 320) + '>320px</option><option value="420"' + selected(state.config.style.cardMaxWidth || 420, 420) + '>420px</option><option value="520"' + selected(state.config.style.cardMaxWidth, 520) + '>520px</option><option value="0"' + selected(state.config.style.cardMaxWidth, 0) + '>No limit</option></select></div>',
 				renderCardFieldDisplayOptions('card', state.config),
+				renderCouponOptions('coupon', state.config),
 				renderToggle('show-search', 'Show search', state.config.search.enabled),
+				'<div class="tabloria-field"><label for="search-placeholder">Search placeholder</label><input id="search-placeholder" class="tabloria-input" value="' + escapeHtml(state.config.search.placeholder || 'Search all fields...') + '" /></div>',
+				'<div class="tabloria-field"><label for="empty-message">No results message</label><input id="empty-message" class="tabloria-input" value="' + escapeHtml(state.config.search.emptyMessage || 'No rows match the current search or filters.') + '" /></div>',
+				renderToggle('hide-rows-until-search', 'Hide rows until search', state.config.search.hideRowsUntilSearch),
+				'<p class="tabloria-muted">Do not display table rows until a search query is entered.</p>',
 				renderToggle('show-filters', 'Show filters', state.config.filters.enabled),
+				renderToggle('show-column-names', 'Show column names in filter values', state.config.filters.showColumnNames),
+				'<div class="tabloria-field"><label for="dropdown-hover-color">Dropdown hover color</label><input id="dropdown-hover-color" class="tabloria-input" type="color" value="' + escapeHtml(filterHoverColor(state.config)) + '" /></div>',
 				renderToggle('show-pagination', 'Show pagination', state.config.pagination.enabled),
+				renderToggle('show-result-count', 'Show result count', state.config.pagination.showResultCount),
+				'<div class="tabloria-field"><label for="result-label">Result count label</label><input id="result-label" class="tabloria-input" value="' + escapeHtml(state.config.pagination.resultLabel || 'rows') + '" placeholder="rows, offers, properties" /></div>',
 				'<div class="tabloria-field" style="margin-top:14px"><label for="per-page">Items per page</label><select id="per-page" class="tabloria-select"' + (!state.config.pagination.enabled ? ' disabled' : '') + '><option value="6"' + selected(state.config.pagination.perPage, 6) + '>6 items</option><option value="9"' + selected(state.config.pagination.perPage, 9) + '>9 items</option><option value="12"' + selected(state.config.pagination.perPage, 12) + '>12 items</option><option value="24"' + selected(state.config.pagination.perPage, 24) + '>24 items</option></select></div>'
 			].join(''), false),
 			'<div class="tabloria-actions tabloria-setup-actions">',
@@ -652,6 +669,14 @@
 				{ key: 'price', label: 'Price', description: 'The main price or amount.', optional: true, commerceOnlyWhenEmpty: true, empty: 'No price-like column detected.' },
 				{ key: 'subtitle', label: 'Short description', description: 'A short explanation under the plan name.', optional: true, empty: 'No description-like column detected.' },
 				{ key: 'badge', label: 'Badge', description: 'Popular, recommended, tier, or short label.', optional: true, empty: 'No badge-like column detected.' }
+			],
+			coupon_display: [
+				{ key: 'image', label: 'Offer image', description: 'Optional store or offer image.', optional: true, empty: 'No image-like column detected.' },
+				{ key: 'title', label: 'Offer title', description: 'The deal or offer visitors see first.' },
+				{ key: 'subtitle', label: 'Store / category', description: 'Store, merchant, brand, or category.', optional: true, empty: 'No store-like column detected.' },
+				{ key: 'badge', label: 'Discount badge', description: 'Discount, saving, or short offer label.', optional: true, empty: 'No discount-like column detected.' },
+				{ key: 'coupon_code', label: 'Coupon code', description: 'The code revealed and copied by visitors.', optional: true, empty: 'No coupon code column detected.' },
+				{ key: 'affiliate_url', label: 'Affiliate link', description: 'Opened when visitors reveal a coupon or view a deal.', optional: true, empty: 'No URL-like column detected.' }
 			]
 		};
 
@@ -740,6 +765,14 @@
 				additionalHelp: 'Choose extra columns such as features, limits, term, or audience.',
 				exampleLabel: 'Example pricing item from your data',
 				exampleType: 'pricing'
+			},
+			coupon_display: {
+				structureTitle: 'Coupon / Deal Structure',
+				structureHelp: 'Map the offer, optional coupon code, and affiliate link columns.',
+				additionalTitle: 'Offer Details',
+				additionalHelp: 'Choose extra columns such as expiry, terms, or category.',
+				exampleLabel: 'Example coupon or deal from your data',
+				exampleType: 'coupon'
 			},
 			simple_data_table: {
 				structureTitle: 'Table Columns',
@@ -1001,7 +1034,15 @@
 			});
 		} else if (roleKey === 'badge') {
 			options = publicColumns.filter(function (column) {
-				return matchesColumn(column, ['status'], ['status', 'category', 'type', 'tag', 'label', 'role', 'department']);
+				return matchesColumn(column, ['status'], ['status', 'category', 'type', 'tag', 'label', 'role', 'department', 'discount', 'saving', 'offer']);
+			});
+		} else if (roleKey === 'coupon_code') {
+			options = publicColumns.filter(function (column) {
+				return matchesColumn(column, [], ['coupon', 'promo code', 'promo_code', 'code']);
+			});
+		} else if (roleKey === 'affiliate_url') {
+			options = publicColumns.filter(function (column) {
+				return matchesColumn(column, ['url'], ['affiliate', 'website', 'deal url', 'deal_url', 'link', 'url']);
 			});
 		} else if (roleKey === 'subtitle') {
 			options = publicColumns.filter(function (column) {
@@ -1107,7 +1148,9 @@
 			image: valueOf('#role-image'),
 			price: valueOf('#role-price'),
 			badge: valueOf('#role-badge'),
-			subtitle: valueOf('#role-subtitle')
+			subtitle: valueOf('#role-subtitle'),
+			coupon_code: valueOf('#role-coupon_code'),
+			affiliate_url: valueOf('#role-affiliate_url')
 		};
 		config.visibleFields = checkedValues('visible-field');
 		config.visitorFilters = checkedValues('visitor-filter');
@@ -1221,6 +1264,12 @@
 				urlDisplay: 'link',
 				urlLabel: '',
 				buttonStyle: 'theme'
+			},
+			coupons: {
+				showCouponLabel: 'Show coupon',
+				copyCodeLabel: 'Copy code',
+				dealLabel: 'View deal',
+				copiedLabel: 'Copied!'
 			}
 		};
 	}
@@ -1241,8 +1290,44 @@
 		config = config || {};
 		config.layoutOptions = config.layoutOptions || defaultLayoutOptions();
 		config.layoutOptions.cards = normalizeCardLayoutOptions(config.layoutOptions.cards);
+		config.layoutOptions.coupons = normalizeCouponLayoutOptions(config.layoutOptions.coupons);
 
 		return config.layoutOptions;
+	}
+
+	function normalizeCouponLayoutOptions(options) {
+		options = options || {};
+		return {
+			showCouponLabel: String(options.showCouponLabel || 'Show coupon'),
+			copyCodeLabel: String(options.copyCodeLabel || 'Copy code'),
+			dealLabel: String(options.dealLabel || 'View deal'),
+			copiedLabel: String(options.copiedLabel || 'Copied!')
+		};
+	}
+
+	function renderCouponOptions(prefix, config) {
+		if (currentDisplayType() !== 'coupon_display') {
+			return '';
+		}
+		var options = ensureLayoutOptions(config).coupons;
+		return [
+			'<section class="tabloria-card-field-options"><h3>Coupon actions</h3><div class="tabloria-form-grid tabloria-form-grid--compact">',
+			'<div class="tabloria-field"><label for="' + prefix + '-show-coupon-label">Reveal button text</label><input id="' + prefix + '-show-coupon-label" class="tabloria-input" value="' + escapeHtml(options.showCouponLabel) + '"></div>',
+			'<div class="tabloria-field"><label for="' + prefix + '-copy-code-label">Copy button text</label><input id="' + prefix + '-copy-code-label" class="tabloria-input" value="' + escapeHtml(options.copyCodeLabel) + '"></div>',
+			'<div class="tabloria-field"><label for="' + prefix + '-deal-label">Deal-only button text</label><input id="' + prefix + '-deal-label" class="tabloria-input" value="' + escapeHtml(options.dealLabel) + '" placeholder="View deal or Visit website"></div>',
+			'</div><p class="tabloria-muted">Rows with a coupon reveal and copy the code. Rows without a code use the deal-only button.</p></section>'
+		].join('');
+	}
+
+	function collectCouponOptions(config, prefix) {
+		var showCoupon = root.querySelector('#' + prefix + '-show-coupon-label');
+		if (!showCoupon) {
+			return;
+		}
+		var options = ensureLayoutOptions(config).coupons;
+		options.showCouponLabel = showCoupon.value.trim() || 'Show coupon';
+		options.copyCodeLabel = valueOf('#' + prefix + '-copy-code-label').trim() || 'Copy code';
+		options.dealLabel = valueOf('#' + prefix + '-deal-label').trim() || 'View deal';
 	}
 
 	function cardLayoutOptions(config) {
@@ -1270,6 +1355,11 @@
 		}
 	}
 
+	function filterHoverColor(config) {
+		var configured = config && config.filters ? String(config.filters.hoverColor || '') : '';
+		return /^#[0-9a-f]{6}$/i.test(configured) ? configured : String((config.style && config.style.accentColor) || '#3525cd');
+	}
+
 	function collectCustomize() {
 		var search = root.querySelector('#show-search');
 		var filters = root.querySelector('#show-filters');
@@ -1281,13 +1371,21 @@
 
 		if (search) {
 			state.config.search.enabled = search.checked;
+			state.config.search.hideRowsUntilSearch = root.querySelector('#hide-rows-until-search').checked;
+			state.config.search.placeholder = valueOf('#search-placeholder').trim() || 'Search all fields...';
+			state.config.search.emptyMessage = valueOf('#empty-message').trim() || 'No rows match the current search or filters.';
 		}
 		if (filters) {
 			state.config.filters.enabled = filters.checked;
+			state.config.filters.showColumnNames = root.querySelector('#show-column-names').checked;
+			state.config.filters.hoverColor = valueOf('#dropdown-hover-color');
 		}
 		if (pagination) {
 			state.config.pagination.enabled = pagination.checked;
+			state.config.pagination.showResultCount = root.querySelector('#show-result-count').checked;
 		}
+		state.config.pagination.resultLabel = valueOf('#result-label').trim() || 'rows';
+		state.config.style.cardMaxWidth = parseInt(valueOf('#card-max-width'), 10) || 0;
 		if (perPage) {
 			state.config.pagination.perPage = parseInt(perPage.value, 10) || 12;
 		}
@@ -1295,6 +1393,7 @@
 			state.config.style.displayWidth = displayWidth.value;
 		}
 		collectCardFieldDisplayOptions(state.config, 'card');
+		collectCouponOptions(state.config, 'coupon');
 	}
 
 	function saveDisplay() {
@@ -1542,8 +1641,14 @@
 		config.visitorFilters = Array.isArray(config.visitorFilters) ? config.visitorFilters : [];
 		config.sort = config.sort || { field: '', direction: 'asc' };
 		config.search = config.search || { enabled: true };
+		config.search.hideRowsUntilSearch = !!config.search.hideRowsUntilSearch;
+		config.search.placeholder = String(config.search.placeholder || 'Search all fields...');
+		config.search.emptyMessage = String(config.search.emptyMessage || 'No rows match the current search or filters.');
 		config.filters = config.filters || { enabled: true };
+		config.filters.showColumnNames = config.filters.showColumnNames !== false;
+		config.filters.hoverColor = String(config.filters.hoverColor || '');
 		config.pagination = config.pagination || { enabled: true, perPage: 12 };
+		config.pagination.showResultCount = config.pagination.showResultCount !== false;
 		config.style = config.style || { accentColor: '#3525cd', density: 'comfortable', imageShape: 'rounded' };
 		ensureLayoutOptions(config);
 		state.config = config;
@@ -1673,9 +1778,19 @@
 			'<section class="tabloria-editor-subsection">',
 			'<h3>Components</h3>',
 			renderDisplayWidthOptions('editor-display-width', config),
+			'<div class="tabloria-field"><label for="editor-card-max-width">Maximum card width</label><select id="editor-card-max-width" class="tabloria-select"><option value="320"' + selected(config.style.cardMaxWidth, 320) + '>320px</option><option value="420"' + selected(config.style.cardMaxWidth || 420, 420) + '>420px</option><option value="520"' + selected(config.style.cardMaxWidth, 520) + '>520px</option><option value="0"' + selected(config.style.cardMaxWidth, 0) + '>No limit</option></select></div>',
 			renderToggle('editor-show-search', 'Show search', config.search.enabled),
+			'<div class="tabloria-field"><label for="editor-search-placeholder">Search placeholder</label><input id="editor-search-placeholder" class="tabloria-input" value="' + escapeHtml(config.search.placeholder || 'Search all fields...') + '" /></div>',
+			'<div class="tabloria-field"><label for="editor-empty-message">No results message</label><input id="editor-empty-message" class="tabloria-input" value="' + escapeHtml(config.search.emptyMessage || 'No rows match the current search or filters.') + '" /></div>',
+			renderCouponOptions('editor-coupon', config),
+			renderToggle('editor-hide-rows-until-search', 'Hide rows until search', config.search.hideRowsUntilSearch),
+			'<p class="tabloria-muted">Do not display table rows until a search query is entered.</p>',
 			renderToggle('editor-show-filters', 'Show filters', config.filters.enabled),
+			renderToggle('editor-show-column-names', 'Show column names in filter values', config.filters.showColumnNames),
+			'<div class="tabloria-field"><label for="editor-dropdown-hover-color">Dropdown hover color</label><input id="editor-dropdown-hover-color" class="tabloria-input" type="color" value="' + escapeHtml(filterHoverColor(config)) + '" /></div>',
 			renderToggle('editor-show-pagination', 'Show pagination', config.pagination.enabled),
+			renderToggle('editor-show-result-count', 'Show result count', config.pagination.showResultCount),
+			'<div class="tabloria-field"><label for="editor-result-label">Result count label</label><input id="editor-result-label" class="tabloria-input" value="' + escapeHtml(config.pagination.resultLabel || 'rows') + '" placeholder="rows, offers, properties" /></div>',
 			'<div class="tabloria-field" style="margin-top:14px"><label for="editor-per-page">Items per page</label><select id="editor-per-page" class="tabloria-select"' + (!config.pagination.enabled ? ' disabled' : '') + '><option value="6"' + selected(config.pagination.perPage, 6) + '>6 items</option><option value="9"' + selected(config.pagination.perPage, 9) + '>9 items</option><option value="12"' + selected(config.pagination.perPage, 12) + '>12 items</option><option value="24"' + selected(config.pagination.perPage, 24) + '>24 items</option></select></div>',
 			'</section>',
 			'<section class="tabloria-editor-subsection">',
@@ -1848,7 +1963,9 @@
 				image: valueOf('#editor-role-image'),
 				price: valueOf('#editor-role-price'),
 				badge: valueOf('#editor-role-badge'),
-				subtitle: valueOf('#editor-role-subtitle')
+				subtitle: valueOf('#editor-role-subtitle'),
+				coupon_code: valueOf('#editor-role-coupon_code'),
+				affiliate_url: valueOf('#editor-role-affiliate_url')
 			};
 		}
 
@@ -1857,14 +1974,23 @@
 		}
 
 		collectCardFieldDisplayOptions(config, 'editor-card');
+		collectCouponOptions(config, 'editor-coupon');
 
 		if (root.querySelector('#editor-show-search')) {
 			config.style = config.style || {};
 			config.search.enabled = root.querySelector('#editor-show-search').checked;
+			config.search.hideRowsUntilSearch = root.querySelector('#editor-hide-rows-until-search').checked;
+			config.search.placeholder = valueOf('#editor-search-placeholder').trim() || 'Search all fields...';
+			config.search.emptyMessage = valueOf('#editor-empty-message').trim() || 'No rows match the current search or filters.';
 			config.filters.enabled = root.querySelector('#editor-show-filters').checked;
+			config.filters.showColumnNames = root.querySelector('#editor-show-column-names').checked;
+			config.filters.hoverColor = valueOf('#editor-dropdown-hover-color');
 			config.pagination.enabled = root.querySelector('#editor-show-pagination').checked;
+			config.pagination.showResultCount = root.querySelector('#editor-show-result-count').checked;
+			config.pagination.resultLabel = valueOf('#editor-result-label').trim() || 'rows';
 			config.pagination.perPage = parseInt(valueOf('#editor-per-page'), 10) || 12;
 			config.style.displayWidth = checkedRadioValue('editor-display-width') || 'normal';
+			config.style.cardMaxWidth = parseInt(valueOf('#editor-card-max-width'), 10) || 0;
 		}
 
 		if (root.querySelector('#editor-default-filter-field')) {
@@ -2097,7 +2223,7 @@
 
 	function renderMiniRowsByType(displayType, rows, roles, accent) {
 		if (!rows.length) {
-			return '<p class="tabloria-muted tabloria-mini-empty">No sample rows match the current default filter.</p>';
+			return '<p class="tabloria-muted tabloria-mini-empty">' + escapeHtml((state.config.search && state.config.search.emptyMessage) || 'No rows match the current search or filters.') + '</p>';
 		}
 
 		if (displayType === 'event_schedule') {
@@ -2115,6 +2241,12 @@
 		if (displayType === 'team_directory') {
 			return '<div class="tabloria-mini-profile-grid">' + rows.map(function (row) {
 				return renderMiniProfileItem(row, roles);
+			}).join('') + '</div>';
+		}
+
+		if (displayType === 'coupon_display') {
+			return '<div class="tabloria-mini-grid tabloria-mini-grid--products">' + rows.map(function (row) {
+				return renderMiniCouponItem(row, roles, accent);
 			}).join('') + '</div>';
 		}
 
@@ -2157,6 +2289,31 @@
 			part.actions,
 			'</div>',
 			'</article>'
+		].join('');
+	}
+
+	function renderMiniCouponItem(row, roles, accent) {
+		var part = miniParts(row, roles);
+		var code = valueForExample(row, roles.coupon_code);
+		var affiliateUrl = safeUrl(valueForExample(row, roles.affiliate_url));
+		var options = ensureLayoutOptions(state.config).coupons;
+		var action = '';
+		if (code) {
+			action = '<button type="button" class="tabloria-mini-card__button tabloria-mini-card__button--primary">' + escapeHtml(options.showCouponLabel) + '</button><code>' + escapeHtml(code) + '</code>';
+		} else if (affiliateUrl) {
+			action = '<a class="tabloria-mini-card__button tabloria-mini-card__button--primary" href="' + escapeHtml(affiliateUrl) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(options.dealLabel) + '</a>';
+		}
+		return [
+			'<article class="tabloria-mini-card tabloria-mini-product-card">',
+			renderMiniImage(part.image),
+			'<div class="tabloria-mini-card__body">',
+			part.badge ? '<span class="tabloria-mini-badge">' + escapeHtml(part.badge) + '</span>' : '',
+			'<h4>' + escapeHtml(part.title) + '</h4>',
+			part.subtitle ? '<p>' + escapeHtml(part.subtitle) + '</p>' : '',
+			part.highlight ? '<strong style="color:' + escapeHtml(accent) + '">' + escapeHtml(part.highlight) + '</strong>' : '',
+			part.details,
+			'<div class="tabloria-mini-card__actions">' + action + '</div>',
+			'</div></article>'
 		].join('');
 	}
 
@@ -2236,6 +2393,9 @@
 	}
 
 	function renderPreviewNote(sourceRows) {
+		if (state.config.search && state.config.search.enabled && state.config.search.hideRowsUntilSearch) {
+			return '<p class="tabloria-preview-note">Preview sample. The saved Display will hide rows until a search query is entered.</p>';
+		}
 		if (hasActiveDefaultFilter()) {
 			return '<p class="tabloria-preview-note">Preview sample after the default filter. The saved Display applies this filter to all ' + escapeHtml(sourceRows) + ' source rows.</p>';
 		}
@@ -2321,7 +2481,7 @@
 	function renderMiniControls() {
 		var parts = [];
 		if (state.config.search && state.config.search.enabled) {
-			parts.push('<input class="tabloria-input" placeholder="Search all fields..." />');
+			parts.push('<input class="tabloria-input" placeholder="' + escapeHtml((state.config.search && state.config.search.placeholder) || 'Search all fields...') + '" />');
 		}
 		if (state.config.filters && state.config.filters.enabled && state.config.visitorFilters && state.config.visitorFilters.length) {
 			parts.push('<div class="tabloria-mini-filters">' + state.config.visitorFilters.slice(0, 3).map(function (field) {
@@ -2556,11 +2716,13 @@
 			title: titleFromSource(source),
 			sourceId: source ? source.id : 0,
 			fieldRoles: {
-				title: byLabel(['name', 'title']) || (publicColumns[0] ? publicColumns[0].key : firstKey),
-				subtitle: byLabel(['building', 'location', 'role', 'category']) || '',
+				title: (displayType === 'coupon_display' ? byLabel(['offer', 'deal', 'name', 'title']) : byLabel(['name', 'title'])) || (publicColumns[0] ? publicColumns[0].key : firstKey),
+				subtitle: displayType === 'coupon_display' ? (byLabel(['store', 'merchant', 'brand', 'category']) || '') : (byLabel(['building', 'location', 'role', 'category']) || ''),
 				image: byType.image || byLabel(['photo', 'image']) || '',
 				price: priceField,
-				badge: byType.status || byLabel(['status', 'type']) || ''
+				badge: displayType === 'coupon_display' ? (byLabel(['discount', 'saving', 'status']) || '') : (byType.status || byLabel(['status', 'type']) || ''),
+				coupon_code: displayType === 'coupon_display' ? (byLabel(['coupon code', 'coupon_code', 'promo code', 'promo_code', 'coupon', 'code']) || '') : '',
+				affiliate_url: displayType === 'coupon_display' ? (byLabel(['affiliate url', 'affiliate_url', 'deal url', 'deal_url', 'website', 'url', 'link']) || byType.url || '') : ''
 			},
 			visibleFields: publicColumns.slice(0, 7).map(function (column) { return column.key; }),
 			defaultFilters: [],
@@ -2568,9 +2730,9 @@
 				return ['status', 'number', 'date'].indexOf(column.type) >= 0;
 			}).slice(0, 4).map(function (column) { return column.key; }),
 			sort: { field: sortField, direction: 'asc' },
-			search: { enabled: true },
-			filters: { enabled: true },
-			pagination: { enabled: true, perPage: 12 },
+			search: { enabled: true, hideRowsUntilSearch: false, placeholder: 'Search all fields...', emptyMessage: 'No rows match the current search or filters.' },
+			filters: { enabled: true, showColumnNames: true, hoverColor: '' },
+			pagination: { enabled: true, perPage: 12, showResultCount: true },
 			style: { accentColor: '#3525cd', density: 'comfortable', imageShape: 'rounded', displayWidth: 'normal' },
 			layoutOptions: defaultLayoutOptions()
 		};

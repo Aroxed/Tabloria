@@ -28,7 +28,7 @@ class FrontendRenderer {
 			return '<div class="tabloria-notice">' . esc_html__( 'The source spreadsheet for this Display could not be found.', 'tabloria-searchable-displays' ) . '</div>';
 		}
 
-		$config = $display['config'] ?? array();
+		$config = $this->apply_placement_filter( $display['config'] ?? array(), $attributes, $source );
 		$rows   = $this->prepare_rows( $this->database->get_rows( absint( $source['id'] ) ), $config );
 		$uid    = 'tabloria-display-' . $display_id . '-' . wp_generate_uuid4();
 
@@ -36,6 +36,9 @@ class FrontendRenderer {
 		wp_enqueue_script( 'tabloria-frontend' );
 
 		$accent = sanitize_hex_color( $config['style']['accentColor'] ?? '#3525cd' ) ?: '#3525cd';
+		$dropdown_hover_color = sanitize_hex_color( $config['filters']['hoverColor'] ?? '' ) ?: $accent;
+		$card_max_width = absint( $config['style']['cardMaxWidth'] ?? 420 );
+		$card_width_class = in_array( $card_max_width, array( 320, 420, 520 ), true ) ? 'is-card-width-' . $card_max_width : 'is-card-width-unlimited';
 		$density = 'compact' === ( $config['style']['density'] ?? '' ) ? 'is-compact' : 'is-comfortable';
 		$shape = 'square' === ( $config['style']['imageShape'] ?? '' ) ? 'is-square' : 'is-rounded';
 		$per_page = max( 1, absint( $config['pagination']['perPage'] ?? 12 ) );
@@ -54,10 +57,13 @@ class FrontendRenderer {
 		?>
 		<section
 			id="<?php echo esc_attr( $uid ); ?>"
-			class="tabloria-display <?php echo esc_attr( trim( $density . ' ' . $shape . ' ' . $type_class . ' ' . $width_class . ' ' . $contained_class ) ); ?>"
-			style="--tabloria-accent: <?php echo esc_attr( $accent ); ?>"
+			class="tabloria-display <?php echo esc_attr( trim( $density . ' ' . $shape . ' ' . $type_class . ' ' . $width_class . ' ' . $contained_class . ' ' . $card_width_class ) ); ?>"
+			style="--tabloria-accent: <?php echo esc_attr( $accent ); ?>; --tabloria-dropdown-hover: <?php echo esc_attr( $dropdown_hover_color ); ?>"
 			data-per-page="<?php echo esc_attr( $per_page ); ?>"
+			data-hide-rows-until-search="<?php echo $this->hide_rows_until_search( $config ) ? 'true' : 'false'; ?>"
 			data-pagination="<?php echo ! empty( $config['pagination']['enabled'] ) ? 'true' : 'false'; ?>"
+			data-show-result-count="<?php echo $this->show_result_count( $config ) ? 'true' : 'false'; ?>"
+			data-result-label="<?php echo esc_attr( sanitize_text_field( $config['pagination']['resultLabel'] ?? 'rows' ) ?: 'rows' ); ?>"
 			data-display-type="<?php echo esc_attr( $display_type ); ?>"
 			data-contained="<?php echo esc_attr( $is_contained ? 'true' : 'false' ); ?>"
 		>
@@ -72,11 +78,11 @@ class FrontendRenderer {
 			<?php $this->render_rows( $rows, $config, $source, $display_type ); ?>
 
 			<div class="tabloria-display__empty" hidden>
-				<?php esc_html_e( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ); ?>
+				<?php echo esc_html( sanitize_text_field( $config['search']['emptyMessage'] ?? 'No rows match the current search or filters.' ) ?: __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) ); ?>
 			</div>
 
 			<footer class="tabloria-display__footer">
-				<p class="tabloria-display__status" aria-live="polite"></p>
+				<p class="tabloria-display__status" aria-live="polite"<?php echo $this->show_result_count( $config ) ? '' : ' hidden'; ?>></p>
 				<nav class="tabloria-display__pagination" aria-label="<?php esc_attr_e( 'Display pagination', 'tabloria-searchable-displays' ); ?>"></nav>
 			</footer>
 		</section>
@@ -134,7 +140,7 @@ class FrontendRenderer {
 		return (string) ob_get_clean();
 	}
 
-	public function render_preview_data( int $display_id ): array {
+	public function render_preview_data( int $display_id, array $attributes = array() ): array {
 		$display = $this->database->get_display( $display_id );
 		if ( ! $display ) {
 			return array();
@@ -145,16 +151,23 @@ class FrontendRenderer {
 			return array();
 		}
 
+		$config = $this->apply_placement_filter( $display['config'] ?? array(), $attributes, $source );
+		$display['config'] = $config;
+		$prepared_rows = $this->prepare_rows( $this->database->get_rows( absint( $source['id'] ) ), $config );
+
 		return array(
 			'display' => $display,
 			'source'  => $source,
-			'rows'    => array_slice( $this->prepare_rows( $this->database->get_rows( absint( $source['id'] ) ), $display['config'] ?? array() ), 0, 12 ),
+			'rows'    => array_slice( $prepared_rows, 0, 12 ),
+			'rowCount' => count( $prepared_rows ),
 		);
 	}
 
 	private function render_controls( array $rows, array $config, array $source ): void {
 		$search_enabled  = ! empty( $config['search']['enabled'] );
 		$filters_enabled = ! empty( $config['filters']['enabled'] ) && ! empty( $config['visitorFilters'] );
+		$show_column_names = ! array_key_exists( 'showColumnNames', $config['filters'] ?? array() ) || ! empty( $config['filters']['showColumnNames'] );
+		$search_placeholder = sanitize_text_field( $config['search']['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...';
 
 		if ( ! $search_enabled && ! $filters_enabled ) {
 			return;
@@ -165,7 +178,7 @@ class FrontendRenderer {
 			<?php if ( $search_enabled ) : ?>
 				<label class="tabloria-display__search">
 					<span class="screen-reader-text"><?php esc_html_e( 'Search all fields in this Display', 'tabloria-searchable-displays' ); ?></span>
-					<input type="search" data-tabloria-search placeholder="<?php esc_attr_e( 'Search all fields...', 'tabloria-searchable-displays' ); ?>" />
+					<input type="search" data-tabloria-search placeholder="<?php echo esc_attr( $search_placeholder ); ?>" />
 				</label>
 			<?php endif; ?>
 
@@ -195,12 +208,14 @@ class FrontendRenderer {
 								<option value=""><?php echo esc_html( $all_label ); ?></option>
 								<?php foreach ( $values as $value ) : ?>
 									<?php
-									$value_label = sprintf(
-										/* translators: 1: column label, 2: filter value. */
-										__( '%1$s: %2$s', 'tabloria-searchable-displays' ),
-										$label,
-										$value
-									);
+									$value_label = $show_column_names
+						? sprintf(
+							/* translators: 1: column label, 2: filter value. */
+							__( '%1$s: %2$s', 'tabloria-searchable-displays' ),
+							$label,
+							$value
+						)
+						: $value;
 									?>
 									<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $value_label ); ?></option>
 								<?php endforeach; ?>
@@ -208,6 +223,7 @@ class FrontendRenderer {
 						</label>
 					<?php endforeach; ?>
 				</div>
+				<button type="button" class="tabloria-display__reset" data-tabloria-reset-filters hidden><?php esc_html_e( 'Reset all', 'tabloria-searchable-displays' ); ?></button>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -262,6 +278,11 @@ class FrontendRenderer {
 	}
 
 	private function render_card( array $row, array $config, array $source, string $display_type ): void {
+		if ( 'coupon_display' === $display_type ) {
+			$this->render_coupon_card( $row, $config, $source );
+			return;
+		}
+
 		$roles = $config['fieldRoles'] ?? array();
 		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
 		$title = '' !== $title ? $title : $this->best_title_value( $row, $source );
@@ -343,6 +364,102 @@ class FrontendRenderer {
 		<?php
 	}
 
+	private function render_coupon_card( array $row, array $config, array $source ): void {
+		$roles = is_array( $config['fieldRoles'] ?? null ) ? $config['fieldRoles'] : array();
+		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
+		$title = '' !== $title ? $title : $this->best_title_value( $row, $source );
+		$subtitle = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
+		$image_url = $this->sanitizer->sanitize_image_url( $this->typed_field_value( $row, $roles['image'] ?? '', $source ) );
+		$price = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
+		$badge = $this->typed_field_value( $row, $roles['badge'] ?? '', $source );
+		$coupon_code = $this->typed_field_value( $row, $roles['coupon_code'] ?? '', $source );
+		$affiliate_url = $this->sanitizer->sanitize_url_value( $this->typed_field_value( $row, $roles['affiliate_url'] ?? '', $source ) );
+		$options = $this->coupon_options( $config );
+		$field_rows = array();
+
+		foreach ( (array) ( $config['visibleFields'] ?? array() ) as $field ) {
+			$field = sanitize_key( $field );
+			$value = $this->typed_field_value( $row, $field, $source );
+			if ( '' === $field || '' === $value || in_array( $field, $roles, true ) || $this->is_technical_field( $field ) ) {
+				continue;
+			}
+			$field_rows[] = array(
+				'label' => $this->column_label( $source, $field ),
+				'value' => $value,
+			);
+		}
+		?>
+		<article class="tabloria-card tabloria-card--coupon-display tabloria-coupon"<?php echo $this->item_data_attributes( $row, $config, $source ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<?php if ( $image_url ) : ?>
+				<div class="tabloria-card__image"><img src="<?php echo esc_url( $image_url ); ?>" alt="" loading="lazy" /></div>
+			<?php endif; ?>
+			<div class="tabloria-card__body">
+				<?php if ( $badge ) : ?><span class="tabloria-card__badge tabloria-card__badge--plain"><?php echo esc_html( $badge ); ?></span><?php endif; ?>
+				<?php if ( $title ) : ?><h3><?php echo esc_html( $title ); ?></h3><?php endif; ?>
+				<?php if ( $subtitle ) : ?><p class="tabloria-card__subtitle"><?php echo esc_html( $subtitle ); ?></p><?php endif; ?>
+				<?php if ( $price ) : ?><p class="tabloria-card__price"><?php echo esc_html( $price ); ?></p><?php endif; ?>
+				<?php if ( $field_rows ) : ?>
+					<dl class="tabloria-card__fields">
+						<?php foreach ( $field_rows as $field_row ) : ?>
+							<div><dt><?php echo esc_html( $field_row['label'] ); ?></dt><dd><?php echo esc_html( $field_row['value'] ); ?></dd></div>
+						<?php endforeach; ?>
+					</dl>
+				<?php endif; ?>
+				<div class="tabloria-coupon__actions">
+					<?php if ( '' !== $coupon_code ) : ?>
+						<?php if ( '' !== $affiliate_url ) : ?>
+							<a class="tabloria-coupon__show" href="<?php echo esc_url( $affiliate_url ); ?>" target="_blank" rel="noopener noreferrer sponsored" data-tabloria-show-coupon aria-expanded="false"><?php echo esc_html( $options['showCouponLabel'] ); ?></a>
+						<?php else : ?>
+							<button type="button" class="tabloria-coupon__show" data-tabloria-show-coupon aria-expanded="false"><?php echo esc_html( $options['showCouponLabel'] ); ?></button>
+						<?php endif; ?>
+						<div class="tabloria-coupon__reveal" data-tabloria-coupon-reveal hidden>
+							<code><?php echo esc_html( $coupon_code ); ?></code>
+							<button type="button" data-tabloria-copy-coupon data-coupon-code="<?php echo esc_attr( $coupon_code ); ?>" data-copied-label="<?php echo esc_attr( $options['copiedLabel'] ); ?>"><?php echo esc_html( $options['copyCodeLabel'] ); ?></button>
+							<span class="screen-reader-text" data-tabloria-copy-status aria-live="polite"></span>
+						</div>
+					<?php elseif ( '' !== $affiliate_url ) : ?>
+						<a class="tabloria-coupon__deal" href="<?php echo esc_url( $affiliate_url ); ?>" target="_blank" rel="noopener noreferrer sponsored"><?php echo esc_html( $options['dealLabel'] ); ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+		</article>
+		<?php
+	}
+
+	private function coupon_options( array $config ): array {
+		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
+		$options = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
+
+		return array(
+			'showCouponLabel' => sanitize_text_field( $options['showCouponLabel'] ?? 'Show coupon' ) ?: 'Show coupon',
+			'copyCodeLabel'   => sanitize_text_field( $options['copyCodeLabel'] ?? 'Copy code' ) ?: 'Copy code',
+			'dealLabel'       => sanitize_text_field( $options['dealLabel'] ?? 'View deal' ) ?: 'View deal',
+			'copiedLabel'     => sanitize_text_field( $options['copiedLabel'] ?? 'Copied!' ) ?: 'Copied!',
+		);
+	}
+
+	private function apply_placement_filter( array $config, array $attributes, array $source ): array {
+		$field = sanitize_key( $attributes['filterField'] ?? '' );
+		$value = sanitize_text_field( $attributes['filterValue'] ?? '' );
+		$allowed_fields = array_map(
+			static fn( array $column ): string => sanitize_key( $column['key'] ?? '' ),
+			(array) ( $source['columns'] ?? array() )
+		);
+
+		if ( '' === $field || '' === $value || ! in_array( $field, $allowed_fields, true ) ) {
+			return $config;
+		}
+
+		$config['defaultFilters'] = (array) ( $config['defaultFilters'] ?? array() );
+		$config['defaultFilters'][] = array(
+			'field'    => $field,
+			'operator' => 'equals',
+			'value'    => $value,
+		);
+
+		return $config;
+	}
+
 	private function item_data_attributes( array $row, array $config, array $source ): string {
 		$search_text = $this->normalize_search_text(
 			implode(
@@ -357,6 +474,10 @@ class FrontendRenderer {
 		);
 		$attributes = ' data-tabloria-item data-search="' . esc_attr( $search_text ) . '"';
 
+		if ( $this->hide_rows_until_search( $config ) ) {
+			$attributes .= ' hidden';
+		}
+
 		foreach ( (array) ( $config['visitorFilters'] ?? array() ) as $field ) {
 			$field = sanitize_key( $field );
 			if ( $field ) {
@@ -365,6 +486,15 @@ class FrontendRenderer {
 		}
 
 		return $attributes;
+	}
+
+	private function hide_rows_until_search( array $config ): bool {
+		return ! empty( $config['search']['enabled'] ) && ! empty( $config['search']['hideRowsUntilSearch'] );
+	}
+
+	private function show_result_count( array $config ): bool {
+		$pagination = is_array( $config['pagination'] ?? null ) ? $config['pagination'] : array();
+		return ! array_key_exists( 'showResultCount', $pagination ) || ! empty( $pagination['showResultCount'] );
 	}
 
 	private function normalize_search_text( string $value ): string {
