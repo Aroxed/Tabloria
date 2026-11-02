@@ -57,7 +57,7 @@ class SpreadsheetSanitizer {
 		);
 	}
 
-	public function validate_csv_file_path( string $path ): true|WP_Error {
+	public function validate_csv_file_path( string $path ): bool|WP_Error {
 		if ( ! is_readable( $path ) ) {
 			return new WP_Error( 'tabloria_csv_unreadable', __( 'The uploaded CSV file could not be read.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
 		}

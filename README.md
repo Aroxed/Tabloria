@@ -8,7 +8,7 @@
 
 Tabloria is a WordPress plugin that turns CSV data into searchable catalogs, directories, listings, schedules, pricing tables, coupon displays, and responsive data tables—without custom code.
 
-The current release is **0.2.0**. The public plugin package is available on [WordPress.org](https://wordpress.org/plugins/tabloria-searchable-displays/).
+The current release is **0.2.1**. The public plugin package is available on [WordPress.org](https://wordpress.org/plugins/tabloria-searchable-displays/).
 
 ## Features
 

@@ -99,7 +99,7 @@ class UploadController {
 		);
 	}
 
-	private function post_payload_too_large(): true|WP_Error {
+	private function post_payload_too_large(): bool|WP_Error {
 		$content_length = absint( $_SERVER['CONTENT_LENGTH'] ?? 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Used only as a numeric byte count for limit comparison.
 		if ( $content_length <= 0 ) {
 			return true;

@@ -4,7 +4,7 @@ Tags: csv, searchable table, product catalog, directory, data table
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,10 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 5. Manage reusable Displays without rebuilding page content.
 
 == Changelog ==
+
+= 0.2.1 =
+
+* Fixed PHP 8.1 compatibility for CSV validation and upload request checks.
 
 = 0.2.0 =
 
