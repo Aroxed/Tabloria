@@ -79,7 +79,8 @@ class SpreadsheetSanitizer {
 		$sample = fread( $handle, 4096 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread -- Reads only the first bytes to reject binary CSV uploads.
 		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing the uploaded CSV temp file handle.
 
-		if ( false !== $sample && str_contains( $sample, "\0" ) ) {
+		$utf16_bom = is_string( $sample ) && ( str_starts_with( $sample, "\xFF\xFE" ) || str_starts_with( $sample, "\xFE\xFF" ) );
+		if ( false !== $sample && str_contains( $sample, "\0" ) && ! $utf16_bom ) {
 			return new WP_Error( 'tabloria_csv_binary', __( 'The uploaded file does not look like a plain CSV file.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
 		}
 

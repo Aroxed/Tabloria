@@ -1,4 +1,4 @@
-# Tabloria Searchable Displays
+# Tabloria - CSV Product Catalog & Searchable Displays
 
 [![CI](https://github.com/Aroxed/Tabloria/actions/workflows/ci.yml/badge.svg)](https://github.com/Aroxed/Tabloria/actions/workflows/ci.yml)
 [![WordPress plugin version](https://img.shields.io/wordpress/plugin/v/tabloria-searchable-displays.svg)](https://wordpress.org/plugins/tabloria-searchable-displays/)
@@ -6,11 +6,11 @@
 
 ![Tabloria Searchable Displays](wordpress-org-assets/assets/banner-1544x500.png)
 
-Tabloria is a WordPress plugin that turns CSV data into searchable catalogs, directories, listings, schedules, pricing tables, coupon displays, and responsive data tables—without custom code.
+Tabloria turns a product CSV into a searchable WordPress catalog with cards, filters, and a Gutenberg block. It also supports directories, listings, schedules, pricing tables, coupon displays, and responsive data tables.
 
 [Website](https://tabloria.site/) · [Live demo](https://tabloria.site/demo.html) · [WordPress.org](https://wordpress.org/plugins/tabloria-searchable-displays/)
 
-The current release is **0.2.1**.
+The next release prepared in this repository is **0.2.2**; the current WordPress.org release may differ until publication.
 
 ## Features
 

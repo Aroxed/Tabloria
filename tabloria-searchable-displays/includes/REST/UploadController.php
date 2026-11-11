@@ -55,24 +55,9 @@ class UploadController {
 			return $meta;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-
-		$upload = wp_handle_upload(
-			$file,
-			array(
-				'test_form' => false,
-				'test_type' => false,
-				'mimes'     => array(
-					'csv' => 'text/csv',
-				),
-			)
-		);
-
-		if ( isset( $upload['error'] ) ) {
-			return new WP_Error( 'tabloria_upload_failed', sanitize_text_field( $upload['error'] ), array( 'status' => 400 ) );
-		}
-
-		$parsed = ( new CsvParser() )->parse( $upload['file'] );
+		// PHP removes the request's temporary file after this request. The parsed rows
+		// live in our database, so keeping a raw CSV in public uploads is unnecessary.
+		$parsed = ( new CsvParser() )->parse( $file['tmp_name'] );
 
 		if ( is_wp_error( $parsed ) ) {
 			return $parsed;
@@ -87,6 +72,9 @@ class UploadController {
 			),
 			$parsed['rows']
 		);
+		if ( ! $source_id ) {
+			return new WP_Error( 'tabloria_source_save_failed', __( 'The CSV was read, but its data could not be saved. Please try again.', 'tabloria-searchable-displays' ), array( 'status' => 500 ) );
+		}
 
 		$source = $this->database->get_source( $source_id );
 

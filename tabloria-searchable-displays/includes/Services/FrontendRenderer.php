@@ -285,9 +285,9 @@ class FrontendRenderer {
 
 		$roles = $config['fieldRoles'] ?? array();
 		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
-		$title = '' !== $title ? $title : $this->best_title_value( $row, $source );
+		$title = '' !== $title ? $title : $this->best_title_value( $row, $source, $this->public_fields( $config, $source ) );
 		$subtitle = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
-		$subtitle = '' !== $subtitle ? $subtitle : $this->best_subtitle_value( $row, $title, $source );
+		$subtitle = '' !== $subtitle ? $subtitle : $this->best_subtitle_value( $row, $title, $source, $this->public_fields( $config, $source ) );
 		$image = $this->typed_field_value( $row, $roles['image'] ?? '', $source );
 		$image_url = $this->sanitizer->sanitize_image_url( $image );
 		$price = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
@@ -367,7 +367,7 @@ class FrontendRenderer {
 	private function render_coupon_card( array $row, array $config, array $source ): void {
 		$roles = is_array( $config['fieldRoles'] ?? null ) ? $config['fieldRoles'] : array();
 		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
-		$title = '' !== $title ? $title : $this->best_title_value( $row, $source );
+		$title = '' !== $title ? $title : $this->best_title_value( $row, $source, $this->public_fields( $config, $source ) );
 		$subtitle = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
 		$image_url = $this->sanitizer->sanitize_image_url( $this->typed_field_value( $row, $roles['image'] ?? '', $source ) );
 		$price = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
@@ -461,6 +461,10 @@ class FrontendRenderer {
 	}
 
 	private function item_data_attributes( array $row, array $config, array $source ): string {
+		$fields = $this->public_fields( $config, $source );
+		if ( ! empty( $config['filters']['enabled'] ) ) {
+			$fields = array_values( array_unique( array_filter( array_map( 'sanitize_key', array_merge( $fields, (array) ( $config['visitorFilters'] ?? array() ) ) ), fn( string $field ): bool => $this->source_has_field( $source, $field ) ) ) );
+		}
 		$search_text = $this->normalize_search_text(
 			implode(
 				' ',
@@ -468,7 +472,7 @@ class FrontendRenderer {
 					function ( $field ) use ( $row, $source ): string {
 						return $this->typed_field_value( $row, (string) $field, $source );
 					},
-					array_keys( $row )
+					$fields
 				)
 			)
 		);
@@ -478,9 +482,9 @@ class FrontendRenderer {
 			$attributes .= ' hidden';
 		}
 
-		foreach ( (array) ( $config['visitorFilters'] ?? array() ) as $field ) {
+		foreach ( ! empty( $config['filters']['enabled'] ) ? (array) ( $config['visitorFilters'] ?? array() ) : array() as $field ) {
 			$field = sanitize_key( $field );
-			if ( $field ) {
+			if ( $field && $this->source_has_field( $source, $field ) ) {
 				$attributes .= ' data-filter-' . esc_attr( $field ) . '="' . esc_attr( $this->typed_field_value( $row, $field, $source ) ) . '"';
 			}
 		}
@@ -512,11 +516,11 @@ class FrontendRenderer {
 		$fields = array_values(
 			array_filter(
 				array_map( 'sanitize_key', (array) ( $config['visibleFields'] ?? array() ) ),
-				fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field )
+				fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field ) && $this->source_has_field( $source, $field )
 			)
 		);
 
-		if ( $fields ) {
+		if ( array_key_exists( 'visibleFields', $config ) ) {
 			return $fields;
 		}
 
@@ -529,6 +533,27 @@ class FrontendRenderer {
 				fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field )
 			)
 		);
+	}
+
+	private function public_fields( array $config, array $source ): array {
+		$display_type = sanitize_key( $config['displayType'] ?? '' );
+		if ( 'simple_data_table' === $display_type ) {
+			return $this->table_fields( $config, $source );
+		}
+
+		$roles = is_array( $config['fieldRoles'] ?? null ) ? array_values( $config['fieldRoles'] ) : array();
+		$visible = is_array( $config['visibleFields'] ?? null ) ? $config['visibleFields'] : array();
+		$fields = array_map( 'sanitize_key', array_merge( $roles, $visible ) );
+		return array_values( array_unique( array_filter( $fields, fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field ) && $this->source_has_field( $source, $field ) ) ) );
+	}
+
+	private function source_has_field( array $source, string $field ): bool {
+		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
+			if ( $field === sanitize_key( $column['key'] ?? '' ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function prepare_rows( array $rows, array $config ): array {
@@ -757,8 +782,8 @@ class FrontendRenderer {
 		return sanitize_text_field( ucwords( strtolower( $label ?: __( 'Field', 'tabloria-searchable-displays' ) ) ) );
 	}
 
-	private function best_title_value( array $row, array $source ): string {
-		foreach ( $row as $field => $value ) {
+	private function best_title_value( array $row, array $source, array $fields ): string {
+		foreach ( $fields as $field ) {
 			$field = sanitize_key( $field );
 			$value = $this->typed_field_value( $row, $field, $source );
 			if ( '' === $value || $this->is_technical_field( $field ) ) {
@@ -769,7 +794,7 @@ class FrontendRenderer {
 			}
 		}
 
-		foreach ( $row as $field => $value ) {
+		foreach ( $fields as $field ) {
 			$field = sanitize_key( $field );
 			$value = $this->typed_field_value( $row, $field, $source );
 			if ( '' !== $value && ! $this->is_technical_field( $field ) ) {
@@ -780,8 +805,8 @@ class FrontendRenderer {
 		return '';
 	}
 
-	private function best_subtitle_value( array $row, string $title, array $source ): string {
-		foreach ( $row as $field => $value ) {
+	private function best_subtitle_value( array $row, string $title, array $source, array $fields ): string {
+		foreach ( $fields as $field ) {
 			$field = sanitize_key( $field );
 			$value = $this->typed_field_value( $row, $field, $source );
 			if ( '' === $value || $value === $title || $this->is_technical_field( $field ) ) {

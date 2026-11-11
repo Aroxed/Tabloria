@@ -88,8 +88,11 @@ CREATE TABLE {$displays} (
 		$columns = $this->sanitizer->sanitize_columns( (array) ( $source['columns'] ?? array() ) );
 		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
 		$now = current_time( 'mysql' );
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Keep source metadata and rows together.
+			return 0;
+		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Tabloria stores imported spreadsheets in plugin-owned custom tables.
-		$wpdb->insert(
+		$inserted = $wpdb->insert(
 			self::sources_table(),
 			array(
 				'name'              => sanitize_text_field( $source['name'] ?? '' ),
@@ -105,7 +108,14 @@ CREATE TABLE {$displays} (
 		);
 
 		$source_id = absint( $wpdb->insert_id );
-		$this->replace_rows( $source_id, $rows );
+		if ( false === $inserted || ! $source_id || ! $this->replace_rows( $source_id, $rows ) ) {
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Undo an incomplete source import.
+			return 0;
+		}
+		if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Commit a complete source import.
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Best effort after failed commit.
+			return 0;
+		}
 
 		return $source_id;
 	}
@@ -115,6 +125,9 @@ CREATE TABLE {$displays} (
 
 		$columns = $this->sanitizer->sanitize_columns( $columns );
 		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Keep old data until the whole replacement is ready.
+			return false;
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Tabloria stores imported spreadsheets in plugin-owned custom tables.
 		$updated = $wpdb->update(
@@ -132,18 +145,29 @@ CREATE TABLE {$displays} (
 		);
 
 		if ( false === $updated ) {
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Preserve previous source data.
 			return false;
 		}
 
-		$this->replace_rows( $source_id, $rows );
+		if ( ! $this->replace_rows( $source_id, $rows ) ) {
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Preserve previous source data.
+			return false;
+		}
+
+		if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Commit the complete replacement.
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Best effort after failed commit.
+			return false;
+		}
 		return true;
 	}
 
-	public function replace_rows( int $source_id, array $rows ): void {
+	public function replace_rows( int $source_id, array $rows ): bool {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Replacing rows in a plugin-owned custom table.
-		$wpdb->delete( self::rows_table(), array( 'source_id' => $source_id ), array( '%d' ) );
+		if ( false === $wpdb->delete( self::rows_table(), array( 'source_id' => $source_id ), array( '%d' ) ) ) {
+			return false;
+		}
 
 		$now = current_time( 'mysql' );
 		foreach ( $rows as $index => $row ) {
@@ -152,7 +176,7 @@ CREATE TABLE {$displays} (
 			}
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Tabloria stores imported spreadsheet rows in a plugin-owned custom table.
-			$wpdb->insert(
+			$inserted = $wpdb->insert(
 				self::rows_table(),
 				array(
 					'source_id'  => $source_id,
@@ -162,7 +186,11 @@ CREATE TABLE {$displays} (
 				),
 				array( '%d', '%d', '%s', '%s' )
 			);
+			if ( false === $inserted ) {
+				return false;
+			}
 		}
+		return true;
 	}
 
 	public function get_source( int $source_id ): ?array {

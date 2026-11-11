@@ -1,7 +1,9 @@
 <?php
 
 use Tabloria\Database;
+use Tabloria\REST\UploadController;
 use Tabloria\Services\CsvParser;
+use Tabloria\Services\DataUpdater;
 use Tabloria\Services\DisplayGenerator;
 use Tabloria\Services\FrontendRenderer;
 use Tabloria\Services\SpreadsheetSanitizer;
@@ -559,6 +561,108 @@ $tests['coupon display supports coupon and deal-only rows'] = static function ()
 	tabloria_test_assert_contains( '>Copy it</button>', $html, 'Copy text should be configurable.' );
 	tabloria_test_assert_contains( 'href="https://example.com/deal"', $html, 'Deal-only row should keep its affiliate link.' );
 	tabloria_test_assert_contains( '>Visit website</a>', $html, 'Deal-only button text should be configurable.' );
+};
+
+$tests['csv parser accepts common delimiters and UTF-16 exports'] = static function (): void {
+	foreach ( array( ',', ';', "\t" ) as $delimiter ) {
+		$path = tempnam( sys_get_temp_dir(), 'tabloria-format-' );
+		$handle = fopen( $path, 'wb' );
+		fputcsv( $handle, array( 'Name', 'Notes' ), $delimiter, '"', '' );
+		fputcsv( $handle, array( 'Mug', "Quoted, semicolon; and\nnewline" ), $delimiter, '"', '' );
+		fclose( $handle );
+		$result = ( new CsvParser() )->parse( $path );
+		unlink( $path );
+		tabloria_test_assert_true( ! is_wp_error( $result ), 'Common CSV delimiters should parse.' );
+		tabloria_test_assert_same( 2, count( $result['columns'] ), 'Delimiter detection should produce two columns.' );
+		tabloria_test_assert_same( 'Mug', $result['rows'][0]['name'], 'The first value should survive.' );
+		tabloria_test_assert_contains( 'Quoted, semicolon; and', $result['rows'][0]['notes'], 'Quoted delimiters should stay in the cell.' );
+	}
+
+	$path = tempnam( sys_get_temp_dir(), 'tabloria-utf16-' );
+	file_put_contents( $path, "\xFF\xFE" . iconv( 'UTF-8', 'UTF-16LE', "Name;Price\r\nCafé;€12\r\n" ) );
+	$result = ( new CsvParser() )->parse( $path );
+	unlink( $path );
+	tabloria_test_assert_true( ! is_wp_error( $result ), 'UTF-16 CSV with BOM should parse.' );
+	tabloria_test_assert_same( 'Café', $result['rows'][0]['name'], 'Unicode text should survive conversion.' );
+};
+
+$tests['csv parser rejects malformed widths instead of dropping values'] = static function (): void {
+	$path = tempnam( sys_get_temp_dir(), 'tabloria-mismatch-' );
+	file_put_contents( $path, "Name,Price\nMug,12,extra\n" );
+	$result = ( new CsvParser() )->parse( $path );
+	unlink( $path );
+	tabloria_test_assert_true( is_wp_error( $result ), 'A row with extra columns should fail.' );
+	tabloria_test_assert_same( 'tabloria_csv_column_mismatch', $result->get_error_code(), 'A width error should be actionable.' );
+};
+
+$tests['data replacement treats changed column keys as incompatible'] = static function (): void {
+	$summary = ( new DataUpdater() )->compare_columns(
+		array( array( 'key' => 'product_name', 'label' => 'Product Name' ) ),
+		array( array( 'key' => 'name', 'label' => 'Product Name' ) )
+	);
+	tabloria_test_assert_same( 1, $summary['missingCount'], 'A changed key must not silently break saved field mappings.' );
+};
+
+$tests['frontend keeps unpublished column values out of HTML'] = static function (): void {
+	$columns = array(
+		array( 'key' => 'title', 'label' => 'Title', 'type' => 'text' ),
+		array( 'key' => 'internal_note', 'label' => 'Internal Note', 'type' => 'text' ),
+	);
+	$rows = array( array( 'title' => 'Public product', 'internal_note' => 'PRIVATE-CSV-VALUE-429' ) );
+	foreach ( array( 'product_catalog', 'simple_data_table' ) as $type ) {
+		$html = ( new FrontendRenderer( new Tabloria_Fixture_Test_Database( $columns, $rows, array(
+			'displayType' => $type,
+			'fieldRoles' => array( 'title' => 'title' ),
+			'visibleFields' => array( 'title' ),
+			'visitorFilters' => array(),
+		) ) ) )->render( 90 );
+		tabloria_test_assert_contains( 'Public product', $html, 'The published field should render.' );
+		tabloria_test_assert_not_contains( 'PRIVATE-CSV-VALUE-429', $html, 'Hidden values must not reach the HTML or search index.' );
+	}
+};
+
+$tests['failed data replacement rolls back rows and metadata'] = static function (): void {
+	$database = new Database();
+	$columns = array( array( 'key' => 'name', 'label' => 'Name', 'type' => 'text' ) );
+	$id = $database->create_source( array( 'name' => 'Rollback test', 'original_filename' => 'old.csv', 'columns' => $columns ), array( array( 'name' => 'Old row' ) ) );
+	tabloria_test_assert_true( $id > 0, 'Fixture source should save.' );
+	try {
+		$failing = new class extends Database {
+			public function replace_rows( int $source_id, array $rows ): bool {
+				parent::replace_rows( $source_id, $rows );
+				return false;
+			}
+		};
+		$changed = $failing->update_source_data( $id, $columns, array( array( 'name' => 'New row' ) ), 'new.csv', 'csv' );
+		tabloria_test_assert_same( false, $changed, 'The forced failure should be reported.' );
+		tabloria_test_assert_same( 'old.csv', $database->get_source( $id )['original_filename'], 'Metadata should roll back.' );
+		tabloria_test_assert_same( 'Old row', $database->get_rows( $id )[0]['name'], 'Rows should roll back.' );
+	} finally {
+		global $wpdb;
+		$wpdb->delete( Database::rows_table(), array( 'source_id' => $id ), array( '%d' ) );
+		$wpdb->delete( Database::sources_table(), array( 'id' => $id ), array( '%d' ) );
+	}
+};
+
+$tests['upload parses the temporary CSV without publishing a raw file'] = static function (): void {
+	$path = tabloria_test_csv_file( array( array( 'Name', 'Price' ), array( 'Mug', '12' ) ) );
+	$name = 'tabloria-private-test-' . wp_generate_uuid4() . '.csv';
+	$request = new WP_REST_Request( 'POST', '/tabloria/v1/upload' );
+	$request->set_file_params( array( 'file' => array( 'name' => $name, 'tmp_name' => $path, 'size' => filesize( $path ), 'error' => UPLOAD_ERR_OK ) ) );
+	$response = ( new UploadController() )->upload( $request );
+	try {
+		tabloria_test_assert_true( ! is_wp_error( $response ), 'A valid upload should create a source.' );
+		$source_id = $response->get_data()['source']['id'];
+		tabloria_test_assert_true( $source_id > 0, 'The parsed source should be stored.' );
+		tabloria_test_assert_true( ! file_exists( wp_upload_dir()['path'] . '/' . $name ), 'Raw CSV must not be copied to public uploads.' );
+	} finally {
+		unlink( $path );
+		if ( isset( $source_id ) ) {
+			global $wpdb;
+			$wpdb->delete( Database::rows_table(), array( 'source_id' => $source_id ), array( '%d' ) );
+			$wpdb->delete( Database::sources_table(), array( 'id' => $source_id ), array( '%d' ) );
+		}
+	}
 };
 
 $failures = 0;

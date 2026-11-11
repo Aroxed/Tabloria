@@ -7,12 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class DataUpdater {
-	private ColumnDetector $detector;
-
-	public function __construct( ?ColumnDetector $detector = null ) {
-		$this->detector = $detector ?: new ColumnDetector();
-	}
-
 	public function compare_columns( array $old_columns, array $new_columns ): array {
 		$old_by_key = array();
 		$new_by_key = array();
@@ -44,15 +38,7 @@ class DataUpdater {
 				continue;
 			}
 
-			$label_match = $this->find_label_match( $old_column, $new_by_key );
-			if ( $label_match ) {
-				$matched[] = array(
-					'old' => $old_column,
-					'new' => $label_match,
-				);
-			} else {
-				$missing[] = $old_column;
-			}
+			$missing[] = $old_column;
 		}
 
 		$matched_new_keys = array_map(
@@ -76,16 +62,4 @@ class DataUpdater {
 		);
 	}
 
-	private function find_label_match( array $old_column, array $new_columns ): ?array {
-		$old_label = $this->detector->normalize_key( (string) ( $old_column['label'] ?? '' ) );
-
-		foreach ( $new_columns as $new_column ) {
-			$new_label = $this->detector->normalize_key( (string) ( $new_column['label'] ?? '' ) );
-			if ( $old_label && $new_label && $old_label === $new_label ) {
-				return $new_column;
-			}
-		}
-
-		return null;
-	}
 }
