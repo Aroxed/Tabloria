@@ -220,25 +220,27 @@ class DisplaysController {
 			return $meta;
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$upload = wp_handle_upload(
-			$file,
-			array(
-				'test_form' => false,
-				'test_type' => false,
-			)
-		);
-		if ( isset( $upload['error'] ) ) {
-			return new WP_Error( 'tabloria_upload_failed', sanitize_text_field( $upload['error'] ), array( 'status' => 400 ) );
-		}
-
-		$parsed = ( new CsvParser() )->parse( $upload['file'] );
+		$parsed = ( new CsvParser() )->parse( $file['tmp_name'] );
 		if ( is_wp_error( $parsed ) ) {
 			return $parsed;
 		}
 
 		$summary = ( new DataUpdater() )->compare_columns( $source['columns'], $parsed['columns'] );
-		$this->database->update_source_data( absint( $source['id'] ), $parsed['columns'], $parsed['rows'], $meta['filename'], 'csv' );
+		if ( $summary['missingCount'] > 0 ) {
+			$missing = array_map( static fn( array $column ): string => (string) ( $column['label'] ?? $column['key'] ?? '' ), array_slice( $summary['missing'], 0, 3 ) );
+			return new WP_Error(
+				'tabloria_csv_missing_columns',
+				sprintf(
+					/* translators: %s: comma-separated column names. */
+					__( 'The replacement is missing existing columns (%s). Keep the same headers so saved Display fields keep working. No data was changed.', 'tabloria-searchable-displays' ),
+					implode( ', ', $missing )
+				),
+				array( 'status' => 409 )
+			);
+		}
+		if ( ! $this->database->update_source_data( absint( $source['id'] ), $parsed['columns'], $parsed['rows'], $meta['filename'], 'csv' ) ) {
+			return new WP_Error( 'tabloria_source_update_failed', __( 'The replacement could not be saved. The previous CSV data is still available.', 'tabloria-searchable-displays' ), array( 'status' => 500 ) );
+		}
 
 		return new WP_REST_Response(
 			array(

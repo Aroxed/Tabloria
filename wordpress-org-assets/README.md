@@ -18,3 +18,18 @@ node wordpress-org-assets/tools/capture-assets.js
 ```
 
 The generated product images are original AI-generated demo assets. They contain no logos, text, people, or third-party product designs.
+
+## GitHub Pages catalog demo
+
+The `tabloria-site` repository serves a static export of a Display rendered by the local WordPress installation. Search and filters use the plugin's `assets/frontend.js`; GitHub Pages does not run WordPress PHP or its admin.
+
+To refresh the demo, render the local Gutenberg demo page and save its HTML, then run:
+
+```bash
+node wordpress-org-assets/tools/export-github-pages-demo.js \
+  /tmp/tabloria-wp-demo-page.html \
+  /tmp/tabloria-site-demo.html \
+  /tmp/tabloria-site-demo-export.html
+```
+
+Copy the exported HTML to `tabloria-site/demo.html` and the plugin's `assets/frontend.css` and `assets/frontend.js` to `tabloria-site/demo-assets/`. The exporter rewrites the four local product image paths to `.webp` files under `demo-products/`; resize and export the corresponding images from `source/demo-products/` and update the downloadable `catalog.csv` to use the public image URLs. Review the result in a local HTTP server before publishing.

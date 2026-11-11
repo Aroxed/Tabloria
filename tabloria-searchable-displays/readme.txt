@@ -1,18 +1,20 @@
-=== Tabloria Searchable Displays ===
+=== Tabloria - CSV Product Catalog & Searchable Displays ===
 Contributors: publishly
 Tags: csv, searchable table, product catalog, directory, data table
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.1
+Stable tag: 0.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Turn a CSV into searchable catalogs, directories, coupon displays, listings, and responsive data tables—without code.
+Build a searchable WordPress product catalog from CSV, with filters, cards, and a Gutenberg block.
 
 == Description ==
 
-Tabloria turns CSV rows into polished, searchable WordPress content without custom code.
+Upload a product CSV, map its columns to card fields, and publish a searchable catalog on a WordPress page. Visitors can search and filter products without a page reload. [See the catalog demo](https://tabloria.site/demo.html) and [download its sample CSV](https://tabloria.site/demo-products/catalog.csv).
+
+Tabloria also turns CSV rows into directories, coupon displays, listings, schedules, pricing displays, and responsive data tables.
 
 Upload a CSV, choose which columns become titles, images, prices, badges, descriptions, coupon codes, or links, and publish the result as a product catalog, directory, coupon display, listing, schedule, pricing display, or responsive data table.
 
@@ -83,7 +85,7 @@ That makes it useful when your data is more like a directory, catalog, listing, 
 == Installation ==
 
 1. Upload the `tabloria-searchable-displays` folder to `/wp-content/plugins/`.
-2. Activate Tabloria Searchable Displays from the WordPress Plugins screen.
+2. Activate Tabloria from the WordPress Plugins screen.
 3. Open Tabloria -> Create Display.
 4. Upload a CSV file and follow the guided setup flow.
 5. Insert a Tabloria Display block, use Tabloria Display Grid for multiple displays, or copy the shortcode.
@@ -112,7 +114,11 @@ Yes. Map the coupon code and affiliate URL columns. Rows with a code get reveal 
 
 = What file format does Tabloria support? =
 
-The current MVP imports CSV files. XLSX import is not part of the main public workflow yet.
+Tabloria imports UTF-8 CSV (including a BOM) and UTF-16 CSV exports. Comma, semicolon, and tab delimiters are detected. XLSX import is not part of the main public workflow yet.
+
+= Is the uploaded CSV publicly accessible? =
+
+From version 0.2.2, Tabloria reads the temporary upload and stores parsed rows in its database without saving the raw CSV to public uploads. Columns not selected for a displayed role, visible field, or visitor filter are omitted from frontend HTML and search data. CSV files uploaded with older versions may still remain in `wp-content/uploads/`; review their filenames and dates with your hosting file manager, confirm they are not used elsewhere, then back up and remove those legacy public files. Existing Displays keep using their database rows.
 
 = Does Tabloria edit spreadsheet rows? =
 
@@ -139,6 +145,12 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 5. Manage reusable Displays without rebuilding page content.
 
 == Changelog ==
+
+= 0.2.2 =
+
+* Prevent new raw CSV uploads from being stored in public uploads, and omit unpublished column values from frontend HTML.
+* Support common CSV delimiters and UTF-16 exports, reject malformed row widths, and preserve old data when replacement fails.
+* Focus the plugin listing and demo on a searchable product catalog from CSV.
 
 = 0.2.1 =
 
