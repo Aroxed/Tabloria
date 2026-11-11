@@ -118,7 +118,7 @@ Tabloria imports UTF-8 CSV (including a BOM) and UTF-16 CSV exports. Comma, semi
 
 = Is the uploaded CSV publicly accessible? =
 
-From version 0.2.2, Tabloria reads the temporary upload and stores parsed rows in its database without saving the raw CSV to public uploads. Columns not selected for a displayed role, visible field, or visitor filter are omitted from frontend HTML and search data. CSV files uploaded with older versions may still remain in `wp-content/uploads/`; review and remove those legacy files separately after confirming they are not used elsewhere. See the [legacy CSV cleanup guide](https://github.com/Aroxed/Tabloria/blob/master/tabloria-searchable-displays/docs/CSV-SECURITY-UPGRADE.md).
+From version 0.2.2, Tabloria reads the temporary upload and stores parsed rows in its database without saving the raw CSV to public uploads. Columns not selected for a displayed role, visible field, or visitor filter are omitted from frontend HTML and search data. CSV files uploaded with older versions may still remain in `wp-content/uploads/`; review their filenames and dates with your hosting file manager, confirm they are not used elsewhere, then back up and remove those legacy public files. Existing Displays keep using their database rows.
 
 = Does Tabloria edit spreadsheet rows? =
 

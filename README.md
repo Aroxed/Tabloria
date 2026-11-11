@@ -10,7 +10,7 @@ Tabloria turns a product CSV into a searchable WordPress catalog with cards, fil
 
 [Website](https://tabloria.site/) · [Live demo](https://tabloria.site/demo.html) · [WordPress.org](https://wordpress.org/plugins/tabloria-searchable-displays/)
 
-The next release prepared in this repository is **0.2.2**; the current WordPress.org release may differ until publication.
+The current WordPress.org release is **0.2.2**.
 
 ## Features
 
@@ -25,7 +25,7 @@ The next release prepared in this repository is **0.2.2**; the current WordPress
 
 ## Install
 
-For a normal WordPress installation, install **Tabloria Searchable Displays** from the WordPress plugin directory or download the [latest official ZIP](https://downloads.wordpress.org/plugin/tabloria-searchable-displays.latest-stable.zip).
+For a normal WordPress installation, install **Tabloria - CSV Product Catalog & Searchable Displays** from the WordPress plugin directory or download the [latest official ZIP](https://downloads.wordpress.org/plugin/tabloria-searchable-displays.latest-stable.zip).
 
 For local development, copy or mount `tabloria-searchable-displays/` into `wp-content/plugins/`, then activate it in WordPress.
 
