@@ -8,6 +8,12 @@ $tabloria_delete_data = get_option( 'tabloria_delete_data_on_uninstall', false )
 
 if ( $tabloria_delete_data ) {
 	global $wpdb;
+	foreach ( (array) get_option( 'tabloria_source_sync_ids', array() ) as $tabloria_source_id ) {
+		$tabloria_source_id = absint( $tabloria_source_id );
+		wp_clear_scheduled_hook( 'tabloria_sync_csv_source', array( $tabloria_source_id ) );
+		delete_option( 'tabloria_source_sync_' . $tabloria_source_id );
+	}
+	delete_option( 'tabloria_source_sync_ids' );
 
 	$tabloria_tables = array(
 		$wpdb->prefix . 'tabloria_rows',

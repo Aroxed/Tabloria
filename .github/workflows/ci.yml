@@ -83,3 +83,4 @@ jobs:
         run: |
           php tabloria-searchable-displays/tests/run-unit-tests.php
           php tabloria-searchable-displays/tests/wordpress-smoke.php
+          php tabloria-searchable-displays/tests/source-sync-smoke.php

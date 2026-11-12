@@ -1727,6 +1727,19 @@
 	margin-top: 22px;
 }
 
+.tabloria-source-sync-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 12px;
+	margin-top: 18px;
+}
+
+.tabloria-source-sync-error {
+	margin-top: 18px;
+	color: #9b1c1c;
+	font-weight: 650;
+}
+
 .tabloria-source-stat {
 	display: grid;
 	gap: 6px;
