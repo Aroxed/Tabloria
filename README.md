@@ -10,7 +10,7 @@ Tabloria turns a product CSV into a searchable WordPress catalog with cards, fil
 
 [Website](https://tabloria.site/) · [Live demo](https://tabloria.site/demo.html) · [WordPress.org](https://wordpress.org/plugins/tabloria-searchable-displays/)
 
-The next release prepared here is **0.2.3**; WordPress.org currently serves **0.2.2**.
+The source for **0.2.3** is on `master`. The WordPress.org release is pending; the directory currently serves **0.2.2**.
 
 ## Features
 
