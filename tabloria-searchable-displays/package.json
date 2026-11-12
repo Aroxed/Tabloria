@@ -1,6 +1,6 @@
 {
   "name": "tabloria-searchable-displays",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "A friendly spreadsheet publishing assistant for WordPress.",
   "scripts": {

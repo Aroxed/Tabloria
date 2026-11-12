@@ -4,7 +4,7 @@ Tags: csv, searchable table, product catalog, directory, data table
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.2
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,6 +15,8 @@ Build a searchable WordPress product catalog from CSV, with filters, cards, and 
 Upload a product CSV, map its columns to card fields, and publish a searchable catalog on a WordPress page. Visitors can search and filter products without a page reload. [See the catalog demo](https://tabloria.site/demo.html) and [download its sample CSV](https://tabloria.site/demo-products/catalog.csv).
 
 Tabloria also turns CSV rows into directories, coupon displays, listings, schedules, pricing displays, and responsive data tables.
+
+For a catalog updated by a supplier, connect a CSV file in a private server directory and refresh it on demand or on a configurable schedule.
 
 Upload a CSV, choose which columns become titles, images, prices, badges, descriptions, coupon codes, or links, and publish the result as a product catalog, directory, coupon display, listing, schedule, pricing display, or responsive data table.
 
@@ -116,6 +118,10 @@ Yes. Map the coupon code and affiliate URL columns. Rows with a code get reveal 
 
 Tabloria imports UTF-8 CSV (including a BOM) and UTF-16 CSV exports. Comma, semicolon, and tab delimiters are detected. XLSX import is not part of the main public workflow yet.
 
+= Can Tabloria refresh a CSV placed on my server? =
+
+Yes. Place a CSV in a private directory outside the public website directory using SFTP. In the Display editor's Data Source tab, enter the filename and use Refresh now. You can also choose an automatic refresh every 6 hours, 12 hours, day, or week, with a start time in the WordPress site timezone. Weekly schedules also let you choose a weekday. WP-Cron runs on site visits, so scheduled refreshes may start late on low-traffic sites. A bad replacement leaves the previous catalog available. The default private directory is the `tabloria-imports` folder beside the WordPress installation; hosts with another layout can define `TABLORIA_IMPORT_DIR` in `wp-config.php`.
+
 = Is the uploaded CSV publicly accessible? =
 
 From version 0.2.2, Tabloria reads the temporary upload and stores parsed rows in its database without saving the raw CSV to public uploads. Columns not selected for a displayed role, visible field, or visitor filter are omitted from frontend HTML and search data. CSV files uploaded with older versions may still remain in `wp-content/uploads/`; review their filenames and dates with your hosting file manager, confirm they are not used elsewhere, then back up and remove those legacy public files. Existing Displays keep using their database rows.
@@ -145,6 +151,12 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 5. Manage reusable Displays without rebuilding page content.
 
 == Changelog ==
+
+= 0.2.3 =
+
+* Added a private server CSV source with manual refresh and configurable 6-hour, 12-hour, daily, or weekly schedules.
+* Added last check, last success, next refresh, and error status; unchanged files are skipped during scheduled checks.
+* Reused safe CSV replacement checks for uploads and server files, keeping old rows when validation fails.
 
 = 0.2.2 =
 

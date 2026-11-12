@@ -10,11 +10,12 @@ Tabloria turns a product CSV into a searchable WordPress catalog with cards, fil
 
 [Website](https://tabloria.site/) · [Live demo](https://tabloria.site/demo.html) · [WordPress.org](https://wordpress.org/plugins/tabloria-searchable-displays/)
 
-The current WordPress.org release is **0.2.2**.
+The next release prepared here is **0.2.3**; WordPress.org currently serves **0.2.2**.
 
 ## Features
 
 - Guided CSV upload, column detection, field mapping, and preview.
+- Optional server CSV source with manual refresh and a configurable schedule in the WordPress timezone.
 - Seven display types: Searchable Listings, Product Catalog, Team Directory, Event Schedule, Pricing Table, Coupon Code Display, and Simple Data Table.
 - Instant search, visitor filters, default filters, sorting, pagination, and custom empty-result text.
 - Reusable Master Displays with a different exact-value filter on each page.
@@ -58,6 +59,10 @@ Map the optional **Coupon code** and **Affiliate link** columns:
 
 See the [detailed guide](tabloria-searchable-displays/docs/REUSABLE-DISPLAYS-AND-COUPONS.md) and [sample coupon CSV](tabloria-searchable-displays/samples/coupons.csv).
 
+## Refresh a CSV from the server
+
+After creating a Display, open **Data Source** to connect a CSV placed in a private server directory via SFTP. Use **Refresh now** or set a 6-hour, 12-hour, daily, or weekly schedule and a start time. See the [server CSV setup guide](tabloria-searchable-displays/docs/SERVER-CSV-SYNC.md).
+
 ## Development
 
 Start the local WordPress environment:
@@ -80,7 +85,8 @@ docker compose exec -T wordpress sh -lc \
   "cd /var/www/html/wp-content/plugins/tabloria-searchable-displays && \
   find . -name '*.php' -print0 | xargs -0 -n1 php -l && \
   php tests/run-unit-tests.php && \
-  php tests/wordpress-smoke.php"
+  php tests/wordpress-smoke.php && \
+  php tests/source-sync-smoke.php"
 ```
 
 ## Repository structure

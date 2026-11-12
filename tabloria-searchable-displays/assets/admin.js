@@ -48,6 +48,7 @@
 	var state = {
 		screen: initialScreen(),
 		source: null,
+		sync: null,
 		sample: [],
 		displayType: 'searchable_listings',
 		config: null,
@@ -1600,6 +1601,7 @@
 		state.config = cloneConfig(display.config || state.config || {});
 		state.config.displayType = state.config.displayType || displayType;
 		state.source = display.source || state.source;
+		state.sync = null;
 		render();
 
 		var sourceId = display.source_id || (display.source && display.source.id) || (state.source && state.source.id);
@@ -1613,6 +1615,7 @@
 			.then(function (response) {
 				state.source = response.source || state.source;
 				state.sample = response.sample || [];
+				state.sync = response.sync || null;
 				state.loading = false;
 				render();
 			})
@@ -1821,6 +1824,8 @@
 		var source = state.source || {};
 		var columns = source.columns || [];
 		var summary = state.updateSummary;
+		var sync = state.sync || { path: '', enabled: false, frequency: 'daily', time: '03:00', weekday: 1 };
+		var weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 		return [
 			'<div class="tabloria-editor-section">',
@@ -1836,6 +1841,26 @@
 			'<label class="tabloria-button is-primary">Replace CSV<input type="file" accept=".csv,text/csv" data-editor-update hidden></label>',
 			'</div>',
 			summary ? renderUpdateSummary(summary) : '',
+			'<section class="tabloria-editor-subsection" style="margin-top:24px">',
+			'<h3>CSV file on this server</h3>',
+			'<p class="tabloria-muted">Place the CSV in a private directory using SFTP. A refresh updates every Display using this source. Upload a new file under a temporary name, then rename it into place.</p>',
+			'<p class="tabloria-muted">Private directory: <code>' + escapeHtml(sync.importDirectory || '') + '</code></p>',
+			'<div class="tabloria-field"><label for="tabloria-sync-path">CSV filename in that directory</label><input class="tabloria-input" id="tabloria-sync-path" data-sync-control value="' + escapeHtml(sync.path || '') + '" placeholder="catalog.csv" /></div>',
+			'<label class="tabloria-check-row"><input type="checkbox" id="tabloria-sync-enabled" data-sync-control' + (sync.enabled ? ' checked' : '') + '><span>Refresh automatically</span></label>',
+			'<div class="tabloria-source-sync-grid">',
+			'<div class="tabloria-field"><label for="tabloria-sync-frequency">Repeat</label><select class="tabloria-select" id="tabloria-sync-frequency" data-sync-control><option value="six_hours"' + selected(sync.frequency, 'six_hours') + '>Every 6 hours</option><option value="twelve_hours"' + selected(sync.frequency, 'twelve_hours') + '>Every 12 hours</option><option value="daily"' + selected(sync.frequency, 'daily') + '>Every day</option><option value="weekly"' + selected(sync.frequency, 'weekly') + '>Every week</option></select></div>',
+			'<div class="tabloria-field"><label for="tabloria-sync-time">Start time</label><input type="time" class="tabloria-input" id="tabloria-sync-time" data-sync-control value="' + escapeHtml(sync.time || '03:00') + '" /></div>',
+			'<div class="tabloria-field"><label for="tabloria-sync-weekday">Weekday (weekly only)</label><select class="tabloria-select" id="tabloria-sync-weekday" data-sync-control>' + weekdays.map(function (day, index) { return '<option value="' + (index + 1) + '"' + selected(sync.weekday, index + 1) + '>' + day + '</option>'; }).join('') + '</select></div>',
+			'</div>',
+			'<p class="tabloria-muted">Times use the WordPress site timezone: ' + escapeHtml(sync.timezone || '') + '. WP-Cron runs when the site receives a visit, so an automatic refresh may start later than the selected time.</p>',
+			'<div class="tabloria-actions"><button type="button" class="tabloria-button" data-source-sync-save>Save source settings</button><button type="button" class="tabloria-button is-primary" data-source-sync-refresh>Refresh now</button></div>',
+			'<div class="tabloria-source-grid">',
+			renderSourceStat('Last check', sync.lastCheck || 'Never'),
+			renderSourceStat('Last success', sync.lastSuccess || 'Never'),
+			renderSourceStat('Next refresh', sync.nextRunLabel || 'Not scheduled'),
+			'</div>',
+			sync.lastError ? '<p class="tabloria-source-sync-error" role="alert">Last error: ' + escapeHtml(sync.lastError) + '</p>' : '',
+			'</section>',
 			'<section class="tabloria-editor-subsection" style="margin-top:24px">',
 			'<h3>Current Sample</h3>',
 			renderTable((state.sample || []).slice(0, 5), columns),
@@ -1932,7 +1957,7 @@
 		}
 
 		root.querySelectorAll('.tabloria-editor-main input, .tabloria-editor-main select').forEach(function (control) {
-			if (control.matches('[data-editor-update], #editor-display-type')) {
+			if (control.matches('[data-editor-update], [data-sync-control], #editor-display-type')) {
 				return;
 			}
 			control.addEventListener('change', function () {
@@ -1947,6 +1972,14 @@
 			updateInput.addEventListener('change', function () {
 				updateEditorData(updateInput);
 			});
+		}
+		var saveSyncButton = root.querySelector('[data-source-sync-save]');
+		if (saveSyncButton) {
+			saveSyncButton.addEventListener('click', saveSourceSync);
+		}
+		var refreshSourceButton = root.querySelector('[data-source-sync-refresh]');
+		if (refreshSourceButton) {
+			refreshSourceButton.addEventListener('click', refreshSourceNow);
 		}
 	}
 
@@ -2102,6 +2135,60 @@
 				state.loading = false;
 				state.editorTab = 'source';
 				state.notice = 'CSV data updated. Review the column summary before saving field changes.';
+				render();
+			})
+			.catch(function (error) {
+				state.loading = false;
+				setError(error);
+			});
+	}
+
+	function sourceSyncPayload() {
+		return {
+			path: valueOf('#tabloria-sync-path').trim(),
+			enabled: !!root.querySelector('#tabloria-sync-enabled').checked,
+			frequency: valueOf('#tabloria-sync-frequency'),
+			time: valueOf('#tabloria-sync-time') || '03:00',
+			weekday: parseInt(valueOf('#tabloria-sync-weekday'), 10) || 1
+		};
+	}
+
+	function saveSourceSync() {
+		var payload = sourceSyncPayload();
+		state.loading = true;
+		state.notice = '';
+		render();
+		request('/sources/' + state.source.id + '/sync', { method: 'PUT', body: payload })
+			.then(function (sync) {
+				state.sync = sync;
+				state.loading = false;
+				state.notice = 'Source settings saved.';
+				render();
+			})
+			.catch(function (error) {
+				state.loading = false;
+				setError(error);
+			});
+	}
+
+	function refreshSourceNow() {
+		var payload = sourceSyncPayload();
+		state.loading = true;
+		state.notice = '';
+		render();
+		request('/sources/' + state.source.id + '/sync', { method: 'PUT', body: payload })
+			.then(function (sync) {
+				state.sync = sync;
+				return request('/sources/' + state.source.id + '/refresh', { method: 'POST' });
+			})
+			.then(function (response) {
+				state.source = response.source || state.source;
+				state.sample = response.sample || state.sample;
+				state.sync = response.sync || state.sync;
+				state.updateSummary = response.summary || null;
+				state.loadedDisplays = false;
+				state.loading = false;
+				state.notice = 'CSV refreshed from the server file.';
 				render();
 			})
 			.catch(function (error) {

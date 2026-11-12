@@ -7,6 +7,7 @@ use Tabloria\REST\SettingsController;
 use Tabloria\REST\SourcesController;
 use Tabloria\REST\UploadController;
 use Tabloria\Services\FrontendRenderer;
+use Tabloria\Services\SourceSync;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,6 +21,7 @@ class Plugin {
 	}
 
 	public function init(): void {
+		( new SourceSync( $this->database ) )->register_hooks();
 		add_action( 'init', array( $this, 'register_assets' ) );
 		add_action( 'init', array( $this, 'register_block' ) );
 		add_action( 'init', array( $this, 'register_shortcodes' ) );

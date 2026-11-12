@@ -3,7 +3,7 @@
  * Plugin Name: Tabloria - CSV Product Catalog & Searchable Displays
  * Plugin URI: https://tabloria.site/
  * Description: Build a searchable WordPress product catalog from CSV, with filters, cards, and a Gutenberg block.
- * Version: 0.2.2
+ * Version: 0.2.3
  * Author: Tabloria
  * Text Domain: tabloria-searchable-displays
  * Requires at least: 6.3
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'TABLORIA_VERSION', '0.2.2' );
+define( 'TABLORIA_VERSION', '0.2.3' );
 define( 'TABLORIA_FILE', __FILE__ );
 define( 'TABLORIA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TABLORIA_URL', plugin_dir_url( __FILE__ ) );
@@ -31,6 +31,8 @@ require_once TABLORIA_DIR . 'includes/REST/UploadController.php';
 require_once TABLORIA_DIR . 'includes/REST/DisplaysController.php';
 require_once TABLORIA_DIR . 'includes/REST/SettingsController.php';
 require_once TABLORIA_DIR . 'includes/Services/CsvParser.php';
+require_once TABLORIA_DIR . 'includes/Services/DataReplacementService.php';
+require_once TABLORIA_DIR . 'includes/Services/SourceSync.php';
 require_once TABLORIA_DIR . 'includes/Services/ColumnDetector.php';
 require_once TABLORIA_DIR . 'includes/Services/DisplayGenerator.php';
 require_once TABLORIA_DIR . 'includes/Services/DataUpdater.php';
@@ -40,6 +42,7 @@ require_once TABLORIA_DIR . 'includes/Models/Source.php';
 require_once TABLORIA_DIR . 'includes/Models/Display.php';
 
 register_activation_hook( __FILE__, array( 'Tabloria\\Activator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'Tabloria\\Services\\SourceSync', 'deactivate' ) );
 
 add_action(
 	'plugins_loaded',
