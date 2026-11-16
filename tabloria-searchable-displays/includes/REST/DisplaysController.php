@@ -21,9 +21,9 @@ class DisplaysController {
 	private SpreadsheetSanitizer $sanitizer;
 
 	public function __construct( ?Database $database = null, ?DisplayGenerator $generator = null, ?SpreadsheetSanitizer $sanitizer = null ) {
-		$this->database  = $database ?: new Database();
-		$this->generator = $generator ?: new DisplayGenerator();
-		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
+		$this->database  = $database ?? new Database();
+		$this->generator = $generator ?? new DisplayGenerator();
+		$this->sanitizer = $sanitizer ?? new SpreadsheetSanitizer();
 	}
 
 	public function register_routes(): void {
@@ -123,30 +123,37 @@ class DisplaysController {
 	}
 
 	public function create( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$source_id = absint( $request->get_param( 'sourceId' ) ?: $request->get_param( 'source_id' ) );
+		$source_param = $request->get_param( 'sourceId' );
+		if ( empty( $source_param ) ) {
+			$source_param = $request->get_param( 'source_id' );
+		}
+		$source_id = absint( $source_param );
 		$source    = $this->database->get_source( $source_id );
 
 		if ( ! $source ) {
 			return new WP_Error( 'tabloria_source_required', __( 'Choose a source spreadsheet before saving a Display.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
 		}
 
-		$display_type = sanitize_key( $request->get_param( 'displayType' ) ?: 'searchable_listings' );
-		$display_type = $this->generator->sanitize_display_type( $display_type );
-		$config       = $request->get_param( 'config' );
+		$display_type_param = $request->get_param( 'displayType' );
+		$display_type       = sanitize_key( empty( $display_type_param ) ? 'searchable_listings' : $display_type_param );
+		$display_type       = $this->generator->sanitize_display_type( $display_type );
+		$config             = $request->get_param( 'config' );
 		if ( ! is_array( $config ) ) {
 			$config = $this->generator->generate( $source, $display_type, array( 'title' => $request->get_param( 'name' ) ) );
 		}
 
-		$config = $this->generator->sanitize_config( $config, $source );
-		$name   = sanitize_text_field( $request->get_param( 'name' ) ?: ( $config['title'] ?? __( 'Published Display', 'tabloria-searchable-displays' ) ) );
+		$config     = $this->generator->sanitize_config( $config, $source );
+		$name_param = $request->get_param( 'name' );
+		$name       = sanitize_text_field( empty( $name_param ) ? ( $config['title'] ?? __( 'Published Display', 'tabloria-searchable-displays' ) ) : $name_param );
 
-		$display_id = $this->database->create_display(
+		$status_param = $request->get_param( 'status' );
+		$display_id   = $this->database->create_display(
 			array(
 				'source_id'    => $source_id,
 				'name'         => $name,
 				'display_type' => $display_type,
 				'config'       => $config,
-				'status'       => sanitize_key( $request->get_param( 'status' ) ?: 'published' ),
+				'status'       => sanitize_key( empty( $status_param ) ? 'published' : $status_param ),
 			)
 		);
 

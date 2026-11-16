@@ -13,8 +13,8 @@ class FrontendRenderer {
 	private SpreadsheetSanitizer $sanitizer;
 
 	public function __construct( ?Database $database = null, ?SpreadsheetSanitizer $sanitizer = null ) {
-		$this->database  = $database ?: new Database();
-		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
+		$this->database  = $database ?? new Database();
+		$this->sanitizer = $sanitizer ?? new SpreadsheetSanitizer();
 	}
 
 	public function render( int $display_id, array $attributes = array() ): string {
@@ -35,8 +35,8 @@ class FrontendRenderer {
 		wp_enqueue_style( 'tabloria-frontend' );
 		wp_enqueue_script( 'tabloria-frontend' );
 
-		$accent = sanitize_hex_color( $config['style']['accentColor'] ?? '#3525cd' ) ?: '#3525cd';
-		$dropdown_hover_color = sanitize_hex_color( $config['filters']['hoverColor'] ?? '' ) ?: $accent;
+		$accent = $this->color_or_default( $config['style']['accentColor'] ?? '#3525cd', '#3525cd' );
+		$dropdown_hover_color = $this->color_or_default( $config['filters']['hoverColor'] ?? '', $accent );
 		$card_max_width = absint( $config['style']['cardMaxWidth'] ?? 420 );
 		$card_width_class = in_array( $card_max_width, array( 320, 420, 520 ), true ) ? 'is-card-width-' . $card_max_width : 'is-card-width-unlimited';
 		$density = 'compact' === ( $config['style']['density'] ?? '' ) ? 'is-compact' : 'is-comfortable';
@@ -63,7 +63,7 @@ class FrontendRenderer {
 			data-hide-rows-until-search="<?php echo $this->hide_rows_until_search( $config ) ? 'true' : 'false'; ?>"
 			data-pagination="<?php echo ! empty( $config['pagination']['enabled'] ) ? 'true' : 'false'; ?>"
 			data-show-result-count="<?php echo $this->show_result_count( $config ) ? 'true' : 'false'; ?>"
-			data-result-label="<?php echo esc_attr( sanitize_text_field( $config['pagination']['resultLabel'] ?? 'rows' ) ?: 'rows' ); ?>"
+			data-result-label="<?php echo esc_attr( $this->text_or_default( $config['pagination']['resultLabel'] ?? 'rows', 'rows' ) ); ?>"
 			data-display-type="<?php echo esc_attr( $display_type ); ?>"
 			data-contained="<?php echo esc_attr( $is_contained ? 'true' : 'false' ); ?>"
 		>
@@ -78,7 +78,7 @@ class FrontendRenderer {
 			<?php $this->render_rows( $rows, $config, $source, $display_type ); ?>
 
 			<div class="tabloria-display__empty" hidden>
-				<?php echo esc_html( sanitize_text_field( $config['search']['emptyMessage'] ?? 'No rows match the current search or filters.' ) ?: __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) ); ?>
+				<?php echo esc_html( $this->text_or_default( $config['search']['emptyMessage'] ?? 'No rows match the current search or filters.', __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) ) ); ?>
 			</div>
 
 			<footer class="tabloria-display__footer">
@@ -167,7 +167,7 @@ class FrontendRenderer {
 		$search_enabled  = ! empty( $config['search']['enabled'] );
 		$filters_enabled = ! empty( $config['filters']['enabled'] ) && ! empty( $config['visitorFilters'] );
 		$show_column_names = ! array_key_exists( 'showColumnNames', $config['filters'] ?? array() ) || ! empty( $config['filters']['showColumnNames'] );
-		$search_placeholder = sanitize_text_field( $config['search']['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...';
+		$search_placeholder = $this->text_or_default( $config['search']['placeholder'] ?? 'Search all fields...', 'Search all fields...' );
 
 		if ( ! $search_enabled && ! $filters_enabled ) {
 			return;
@@ -431,10 +431,10 @@ class FrontendRenderer {
 		$options = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
 
 		return array(
-			'showCouponLabel' => sanitize_text_field( $options['showCouponLabel'] ?? 'Show coupon' ) ?: 'Show coupon',
-			'copyCodeLabel'   => sanitize_text_field( $options['copyCodeLabel'] ?? 'Copy code' ) ?: 'Copy code',
-			'dealLabel'       => sanitize_text_field( $options['dealLabel'] ?? 'View deal' ) ?: 'View deal',
-			'copiedLabel'     => sanitize_text_field( $options['copiedLabel'] ?? 'Copied!' ) ?: 'Copied!',
+			'showCouponLabel' => $this->text_or_default( $options['showCouponLabel'] ?? 'Show coupon', 'Show coupon' ),
+			'copyCodeLabel'   => $this->text_or_default( $options['copyCodeLabel'] ?? 'Copy code', 'Copy code' ),
+			'dealLabel'       => $this->text_or_default( $options['dealLabel'] ?? 'View deal', 'View deal' ),
+			'copiedLabel'     => $this->text_or_default( $options['copiedLabel'] ?? 'Copied!', 'Copied!' ),
 		);
 	}
 
@@ -549,7 +549,7 @@ class FrontendRenderer {
 
 	private function source_has_field( array $source, string $field ): bool {
 		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
-			if ( $field === sanitize_key( $column['key'] ?? '' ) ) {
+			if ( sanitize_key( $column['key'] ?? '' ) === $field ) {
 				return true;
 			}
 		}
@@ -757,7 +757,7 @@ class FrontendRenderer {
 
 	private function column_type( array $source, string $field ): string {
 		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
-			if ( $field === ( $column['key'] ?? '' ) ) {
+			if ( ( $column['key'] ?? '' ) === $field ) {
 				return sanitize_key( $column['type'] ?? 'text' );
 			}
 		}
@@ -767,7 +767,7 @@ class FrontendRenderer {
 
 	private function column_label( array $source, string $field ): string {
 		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
-			if ( $field === ( $column['key'] ?? '' ) ) {
+			if ( ( $column['key'] ?? '' ) === $field ) {
 				return $this->humanize_label( (string) ( $column['label'] ?? $field ) );
 			}
 		}
@@ -779,7 +779,7 @@ class FrontendRenderer {
 		$label = trim( str_replace( array( '_', '-' ), ' ', $label ) );
 		$label = preg_replace( '/\s+/', ' ', $label );
 
-		return sanitize_text_field( ucwords( strtolower( $label ?: __( 'Field', 'tabloria-searchable-displays' ) ) ) );
+		return sanitize_text_field( ucwords( strtolower( empty( $label ) ? __( 'Field', 'tabloria-searchable-displays' ) : $label ) ) );
 	}
 
 	private function best_title_value( array $row, array $source, array $fields ): string {
@@ -837,5 +837,33 @@ class FrontendRenderer {
 		natcasesort( $values );
 
 		return array_values( array_slice( $values, 0, 50 ) );
+	}
+
+	/**
+	 * Sanitize text and fall back to a default when nothing is left.
+	 *
+	 * @param mixed  $value    Value to sanitize.
+	 * @param string $fallback Text to use when the sanitized value is empty.
+	 *
+	 * @return string Sanitized text or the fallback.
+	 */
+	private function text_or_default( mixed $value, string $fallback ): string {
+		$text = sanitize_text_field( $value );
+
+		return empty( $text ) ? $fallback : $text;
+	}
+
+	/**
+	 * Sanitize a hex color and fall back to a default when it is not valid.
+	 *
+	 * @param mixed  $value    Value to sanitize.
+	 * @param string $fallback Color to use when the value is not a valid hex color.
+	 *
+	 * @return string Hex color or the fallback.
+	 */
+	private function color_or_default( mixed $value, string $fallback ): string {
+		$color = sanitize_hex_color( $value );
+
+		return empty( $color ) ? $fallback : $color;
 	}
 }

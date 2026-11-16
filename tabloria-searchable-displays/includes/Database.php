@@ -12,7 +12,7 @@ class Database {
 	private SpreadsheetSanitizer $sanitizer;
 
 	public function __construct( ?SpreadsheetSanitizer $sanitizer = null ) {
-		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
+		$this->sanitizer = $sanitizer ?? new SpreadsheetSanitizer();
 	}
 
 	public static function sources_table(): string {
@@ -210,7 +210,7 @@ CREATE TABLE {$displays} (
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
 		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY updated_at DESC', self::sources_table() ), ARRAY_A );
-		return array_map( array( $this, 'prepare_source' ), $rows ?: array() );
+		return array_map( array( $this, 'prepare_source' ), $rows ?? array() );
 	}
 
 	public function get_rows( int $source_id, int $limit = 0 ): array {
@@ -240,7 +240,7 @@ CREATE TABLE {$displays} (
 				$row = json_decode( $record['row_json'], true );
 				return is_array( $row ) ? $this->sanitizer->sanitize_untyped_row( $row ) : array();
 			},
-			$records ?: array()
+			$records ?? array()
 		);
 	}
 
@@ -319,7 +319,7 @@ CREATE TABLE {$displays} (
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reads from a plugin-owned custom table.
 		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY updated_at DESC', self::displays_table() ), ARRAY_A );
-		return array_map( array( $this, 'prepare_display' ), $rows ?: array() );
+		return array_map( array( $this, 'prepare_display' ), $rows ?? array() );
 	}
 
 	private function prepare_source( array $row ): array {

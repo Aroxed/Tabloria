@@ -35,7 +35,7 @@ class ColumnDetector {
 		$key = preg_replace( '/[^a-z0-9]+/', '_', $key );
 		$key = trim( (string) $key, '_' );
 
-		return $key ?: 'field';
+		return empty( $key ) ? 'field' : $key;
 	}
 
 	private function detect_type( array $values, string $label ): string {
@@ -190,6 +190,6 @@ class ColumnDetector {
 			}
 		}
 
-		return $matched === count( $distinct_values );
+		return count( $distinct_values ) === $matched;
 	}
 }
