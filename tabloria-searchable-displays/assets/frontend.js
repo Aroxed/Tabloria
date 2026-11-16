@@ -1,6 +1,48 @@
 (function () {
 	'use strict';
 
+	// English fallbacks. The server sends translated copies in each Display's data-i18n attribute.
+	var defaultStrings = {
+		showing: 'Showing %1$s to %2$s of %3$s %4$s',
+		showingNone: 'Showing 0 %s',
+		pageNote: 'Page 1 of 1',
+		prev: 'Prev',
+		next: 'Next',
+		copyFailed: 'Copy failed. Select the code and copy it manually.',
+		tableWarning: 'Tabloria Display is inside a table. Use Columns, Group, or Tabloria Display Grid instead.',
+		semanticWarning: 'Tabloria Display is inside a semantic block. Use Group, Columns, or Tabloria Display Grid instead.'
+	};
+
+	function readStrings(display) {
+		var sent = {};
+		try {
+			sent = JSON.parse((display.dataset && display.dataset.i18n) || '{}') || {};
+		} catch (error) {
+			sent = {};
+		}
+		return function (key) {
+			return typeof sent[key] === 'string' && sent[key] ? sent[key] : defaultStrings[key];
+		};
+	}
+
+	// Fill %s and %1$s style placeholders with the given values.
+	function format(template, values) {
+		var next = 0;
+		return String(template).replace(/%(?:(\d+)\$)?s/g, function (match, position) {
+			var index = position ? parseInt(position, 10) - 1 : next++;
+			return index < values.length ? String(values[index]) : '';
+		});
+	}
+
+	function escapeHtml(value) {
+		return String(value)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;');
+	}
+
 	function cssNumber(element, propertyName) {
 		var value = window.getComputedStyle(element).getPropertyValue(propertyName);
 		var number = parseFloat(value);
@@ -96,9 +138,8 @@
 
 		var warning = document.createElement('div');
 		warning.className = 'tabloria-embed-warning';
-		warning.textContent = reason === 'table'
-			? 'Tabloria Display is inside a table. Use Columns, Group, or Tabloria Display Grid instead.'
-			: 'Tabloria Display is inside a semantic block. Use Group, Columns, or Tabloria Display Grid instead.';
+		var t = readStrings(display);
+		warning.textContent = reason === 'table' ? t('tableWarning') : t('semanticWarning');
 		display.insertBefore(warning, display.firstChild);
 	}
 
@@ -116,6 +157,7 @@
 		var hideRowsUntilSearch = display.dataset.hideRowsUntilSearch === 'true';
 		var resetFilters = display.querySelector('[data-tabloria-reset-filters]');
 		var currentPage = 1;
+		var t = readStrings(display);
 
 		function normalizeText(value) {
 			return String(value || '').normalize('NFKC').toLocaleLowerCase();
@@ -178,12 +220,12 @@
 			status.hidden = false;
 
 			if (totalItems === 0) {
-				status.textContent = 'Showing 0 ' + (display.dataset.resultLabel || 'rows');
+				status.textContent = format(t('showingNone'), [display.dataset.resultLabel || 'rows']);
 				return;
 			}
 
 			var label = display.dataset.resultLabel || 'rows';
-			status.textContent = 'Showing ' + (start + 1) + ' to ' + Math.min(end, totalItems) + ' of ' + totalItems + ' ' + label;
+			status.textContent = format(t('showing'), [start + 1, Math.min(end, totalItems), totalItems, label]);
 		}
 
 		function renderPagination(totalPages, totalItems) {
@@ -197,11 +239,11 @@
 			}
 
 			if (totalPages <= 1) {
-				pagination.innerHTML = '<span class="tabloria-display__page-note">Page 1 of 1</span>';
+				pagination.innerHTML = '<span class="tabloria-display__page-note">' + escapeHtml(t('pageNote')) + '</span>';
 				return;
 			}
 
-			var html = '<button type="button" data-page="' + Math.max(1, currentPage - 1) + '"' + (currentPage === 1 ? ' disabled' : '') + '>Prev</button>';
+			var html = '<button type="button" data-page="' + Math.max(1, currentPage - 1) + '"' + (currentPage === 1 ? ' disabled' : '') + '>' + escapeHtml(t('prev')) + '</button>';
 			for (var page = 1; page <= totalPages; page++) {
 				if (totalPages > 7 && page > 2 && page < totalPages - 1 && Math.abs(page - currentPage) > 1) {
 					if (page === 3 || page === totalPages - 2) {
@@ -211,7 +253,7 @@
 				}
 				html += '<button type="button" class="' + (page === currentPage ? 'is-active' : '') + '" data-page="' + page + '">' + page + '</button>';
 			}
-			html += '<button type="button" data-page="' + Math.min(totalPages, currentPage + 1) + '"' + (currentPage === totalPages ? ' disabled' : '') + '>Next</button>';
+			html += '<button type="button" data-page="' + Math.min(totalPages, currentPage + 1) + '"' + (currentPage === totalPages ? ' disabled' : '') + '>' + escapeHtml(t('next')) + '</button>';
 			pagination.innerHTML = html;
 
 			pagination.querySelectorAll('[data-page]').forEach(function (button) {
@@ -273,7 +315,7 @@
 					var reveal = button.closest('[data-tabloria-coupon-reveal]');
 					var status = reveal ? reveal.querySelector('[data-tabloria-copy-status]') : null;
 					if (status) {
-						status.textContent = 'Copy failed. Select the code and copy it manually.';
+						status.textContent = readStrings(display)('copyFailed');
 					}
 				});
 			});

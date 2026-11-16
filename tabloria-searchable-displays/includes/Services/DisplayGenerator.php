@@ -7,15 +7,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class DisplayGenerator {
-	public const TYPES = array(
-		'searchable_listings' => 'Searchable Listings',
-		'product_catalog'     => 'Product Catalog',
-		'team_directory'      => 'Team Directory',
-		'event_schedule'      => 'Event Schedule',
-		'pricing_table'       => 'Pricing Table',
-		'coupon_display'      => 'Coupon Code Display',
-		'simple_data_table'   => 'Simple Data Table',
-	);
+	/**
+	 * Get the Display types and their translated names.
+	 *
+	 * @return array<string,string> Map of display type slug to its name.
+	 */
+	public static function types(): array {
+		return array(
+			'searchable_listings' => __( 'Searchable Listings', 'tabloria-searchable-displays' ),
+			'product_catalog'     => __( 'Product Catalog', 'tabloria-searchable-displays' ),
+			'team_directory'      => __( 'Team Directory', 'tabloria-searchable-displays' ),
+			'event_schedule'      => __( 'Event Schedule', 'tabloria-searchable-displays' ),
+			'pricing_table'       => __( 'Pricing Table', 'tabloria-searchable-displays' ),
+			'coupon_display'      => __( 'Coupon Code Display', 'tabloria-searchable-displays' ),
+			'simple_data_table'   => __( 'Simple Data Table', 'tabloria-searchable-displays' ),
+		);
+	}
 
 	public function generate( array $source, string $display_type = 'searchable_listings', array $overrides = array() ): array {
 		$display_type = $this->sanitize_display_type( $display_type );
@@ -34,15 +41,15 @@ class DisplayGenerator {
 			'search'         => array(
 				'enabled'             => true,
 				'hideRowsUntilSearch' => false,
-				'placeholder'         => 'Search all fields...',
-				'emptyMessage'        => 'No rows match the current search or filters.',
+				'placeholder'         => __( 'Search all fields...', 'tabloria-searchable-displays' ),
+				'emptyMessage'        => __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ),
 			),
 			'filters'        => array( 'enabled' => true, 'showColumnNames' => true, 'hoverColor' => '' ),
 			'pagination'     => array(
 				'enabled'         => true,
 				'perPage'         => 12,
 				'showResultCount' => true,
-				'resultLabel'     => 'rows',
+				'resultLabel'     => _x( 'rows', 'default label for a count of rows', 'tabloria-searchable-displays' ),
 			),
 			'style'          => array(
 				'accentColor'  => '#3525cd',
@@ -57,10 +64,10 @@ class DisplayGenerator {
 					'buttonStyle' => 'theme',
 				),
 				'coupons' => array(
-					'showCouponLabel' => 'Show coupon',
-					'copyCodeLabel'   => 'Copy code',
-					'dealLabel'       => 'View deal',
-					'copiedLabel'     => 'Copied!',
+					'showCouponLabel' => __( 'Show coupon', 'tabloria-searchable-displays' ),
+					'copyCodeLabel'   => __( 'Copy code', 'tabloria-searchable-displays' ),
+					'dealLabel'       => __( 'View deal', 'tabloria-searchable-displays' ),
+					'copiedLabel'     => __( 'Copied!', 'tabloria-searchable-displays' ),
 				),
 			),
 		);
@@ -144,8 +151,8 @@ class DisplayGenerator {
 		$config['search'] = array(
 			'enabled'             => ! empty( $search['enabled'] ),
 			'hideRowsUntilSearch' => ! empty( $search['hideRowsUntilSearch'] ),
-			'placeholder'         => sanitize_text_field( $search['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...',
-			'emptyMessage'        => sanitize_text_field( $search['emptyMessage'] ?? 'No rows match the current search or filters.' ) ?: 'No rows match the current search or filters.',
+			'placeholder'         => sanitize_text_field( $search['placeholder'] ?? __( 'Search all fields...', 'tabloria-searchable-displays' ) ) ?: __( 'Search all fields...', 'tabloria-searchable-displays' ),
+			'emptyMessage'        => sanitize_text_field( $search['emptyMessage'] ?? __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) ) ?: __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ),
 		);
 		$config['filters'] = array(
 			'enabled'         => ! empty( $filters['enabled'] ),
@@ -156,7 +163,7 @@ class DisplayGenerator {
 			'enabled'         => ! empty( $pagination['enabled'] ),
 			'perPage'         => max( 1, min( 100, absint( $pagination['perPage'] ?? 12 ) ) ),
 			'showResultCount' => ! array_key_exists( 'showResultCount', $pagination ) || ! empty( $pagination['showResultCount'] ),
-			'resultLabel'     => sanitize_text_field( $pagination['resultLabel'] ?? 'rows' ) ?: 'rows',
+			'resultLabel'     => sanitize_text_field( $pagination['resultLabel'] ?? _x( 'rows', 'default label for a count of rows', 'tabloria-searchable-displays' ) ) ?: _x( 'rows', 'default label for a count of rows', 'tabloria-searchable-displays' ),
 		);
 		$display_width = sanitize_key( $style['displayWidth'] ?? 'normal' );
 		$card_max_width = absint( $style['cardMaxWidth'] ?? 420 );
@@ -180,10 +187,10 @@ class DisplayGenerator {
 				'buttonStyle' => in_array( $button_style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $button_style : 'theme',
 			),
 			'coupons' => array(
-				'showCouponLabel' => sanitize_text_field( $coupon_options['showCouponLabel'] ?? 'Show coupon' ) ?: 'Show coupon',
-				'copyCodeLabel'   => sanitize_text_field( $coupon_options['copyCodeLabel'] ?? 'Copy code' ) ?: 'Copy code',
-				'dealLabel'       => sanitize_text_field( $coupon_options['dealLabel'] ?? 'View deal' ) ?: 'View deal',
-				'copiedLabel'     => sanitize_text_field( $coupon_options['copiedLabel'] ?? 'Copied!' ) ?: 'Copied!',
+				'showCouponLabel' => sanitize_text_field( $coupon_options['showCouponLabel'] ?? __( 'Show coupon', 'tabloria-searchable-displays' ) ) ?: __( 'Show coupon', 'tabloria-searchable-displays' ),
+				'copyCodeLabel'   => sanitize_text_field( $coupon_options['copyCodeLabel'] ?? __( 'Copy code', 'tabloria-searchable-displays' ) ) ?: __( 'Copy code', 'tabloria-searchable-displays' ),
+				'dealLabel'       => sanitize_text_field( $coupon_options['dealLabel'] ?? __( 'View deal', 'tabloria-searchable-displays' ) ) ?: __( 'View deal', 'tabloria-searchable-displays' ),
+				'copiedLabel'     => sanitize_text_field( $coupon_options['copiedLabel'] ?? __( 'Copied!', 'tabloria-searchable-displays' ) ) ?: __( 'Copied!', 'tabloria-searchable-displays' ),
 			),
 		);
 
@@ -192,7 +199,7 @@ class DisplayGenerator {
 
 	public function sanitize_display_type( mixed $display_type ): string {
 		$display_type = sanitize_key( $display_type );
-		return isset( self::TYPES[ $display_type ] ) ? $display_type : 'searchable_listings';
+		return isset( self::types()[ $display_type ] ) ? $display_type : 'searchable_listings';
 	}
 
 	private function guess_roles( array $columns, string $display_type ): array {
@@ -253,7 +260,7 @@ class DisplayGenerator {
 	private function default_title( array $source, string $display_type ): string {
 		$name = $source['name'] ?? __( 'Published Display', 'tabloria-searchable-displays' );
 		$clean_name = preg_replace( '/\.[a-z0-9]+$/i', '', $name );
-		$fallback   = self::TYPES[ $display_type ] ?? 'Published Display';
+		$fallback   = self::types()[ $display_type ] ?? __( 'Published Display', 'tabloria-searchable-displays' );
 
 		return sanitize_text_field( $clean_name ?: $fallback );
 	}
