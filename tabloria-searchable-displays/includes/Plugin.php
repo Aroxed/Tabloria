@@ -42,7 +42,7 @@ class Plugin {
 		wp_register_script(
 			'tabloria-admin',
 			TABLORIA_URL . 'assets/admin.js',
-			array(),
+			array( 'wp-i18n' ),
 			TABLORIA_VERSION,
 			true
 		);
@@ -69,6 +69,9 @@ class Plugin {
 			TABLORIA_VERSION,
 			true
 		);
+
+		wp_set_script_translations( 'tabloria-admin', 'tabloria-searchable-displays' );
+		wp_set_script_translations( 'tabloria-block', 'tabloria-searchable-displays' );
 
 		wp_localize_script(
 			'tabloria-block',
