@@ -5,7 +5,7 @@ use Tabloria\Services\CsvParser;
 use Tabloria\Services\SourceSync;
 
 $import_dir = sys_get_temp_dir() . '/tabloria-sync-test-' . getmypid();
-if ( ! mkdir( $import_dir, 0700 ) ) {
+if ( ! mkdir( $import_dir, 0700 ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- The private import directory must be mode 0700.
 	throw new RuntimeException( 'Could not create private CSV test directory.' );
 }
 define( 'TABLORIA_IMPORT_DIR', $import_dir );
@@ -111,13 +111,13 @@ try {
 		$wpdb->delete( Database::sources_table(), array( 'id' => $source_id ), array( '%d' ) );
 	}
 	if ( file_exists( $csv ) ) {
-		unlink( $csv );
+		wp_delete_file( $csv );
 	}
 	if ( is_link( $import_dir . '/linked.csv' ) ) {
-		unlink( $import_dir . '/linked.csv' );
+		wp_delete_file( $import_dir . '/linked.csv' );
 	}
 	if ( file_exists( $outside_csv ) ) {
-		unlink( $outside_csv );
+		wp_delete_file( $outside_csv );
 	}
-	rmdir( $import_dir );
+	rmdir( $import_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Removes the temporary import directory created by this test.
 }
