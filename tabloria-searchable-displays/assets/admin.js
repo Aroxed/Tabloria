@@ -1,6 +1,11 @@
 (function () {
 	'use strict';
 
+	var i18n = window.wp.i18n;
+	var __ = i18n.__;
+	var _n = i18n._n;
+	var sprintf = i18n.sprintf;
+
 	var root = document.getElementById('tabloria-admin-root');
 	if (!root) {
 		return;
@@ -10,38 +15,38 @@
 	var displayTypes = [
 		{
 			key: 'searchable_listings',
-			label: 'Searchable Listings',
-			copy: 'Create searchable cards from rows of data. Great for properties, services, resources, or locations.'
+			label: __( 'Searchable Listings', 'tabloria-searchable-displays' ),
+			copy: __( 'Create searchable cards from rows of data. Great for properties, services, resources, or locations.', 'tabloria-searchable-displays' )
 		},
 		{
 			key: 'product_catalog',
-			label: 'Product Catalog',
-			copy: 'Display products, assets, or offers with images, prices, and filters.'
+			label: __( 'Product Catalog', 'tabloria-searchable-displays' ),
+			copy: __( 'Display products, assets, or offers with images, prices, and filters.', 'tabloria-searchable-displays' )
 		},
 		{
 			key: 'team_directory',
-			label: 'Team Directory',
-			copy: 'Create a clean people or organization directory.'
+			label: __( 'Team Directory', 'tabloria-searchable-displays' ),
+			copy: __( 'Create a clean people or organization directory.', 'tabloria-searchable-displays' )
 		},
 		{
 			key: 'event_schedule',
-			label: 'Event Schedule',
-			copy: 'Turn date-based rows into a readable schedule.'
+			label: __( 'Event Schedule', 'tabloria-searchable-displays' ),
+			copy: __( 'Turn date-based rows into a readable schedule.', 'tabloria-searchable-displays' )
 		},
 		{
 			key: 'pricing_table',
-			label: 'Pricing Table',
-			copy: 'Create pricing cards from spreadsheet rows.'
+			label: __( 'Pricing Table', 'tabloria-searchable-displays' ),
+			copy: __( 'Create pricing cards from spreadsheet rows.', 'tabloria-searchable-displays' )
 		},
 		{
 			key: 'coupon_display',
-			label: 'Coupon Code Display',
-			copy: 'Publish coupon codes and affiliate deals with reveal, copy, and visit actions.'
+			label: __( 'Coupon Code Display', 'tabloria-searchable-displays' ),
+			copy: __( 'Publish coupon codes and affiliate deals with reveal, copy, and visit actions.', 'tabloria-searchable-displays' )
 		},
 		{
 			key: 'simple_data_table',
-			label: 'Simple Data Table',
-			copy: 'Publish a searchable table with sorting and pagination.'
+			label: __( 'Simple Data Table', 'tabloria-searchable-displays' ),
+			copy: __( 'Publish a searchable table with sorting and pagination.', 'tabloria-searchable-displays' )
 		}
 	];
 
@@ -73,6 +78,11 @@
 			return 'settings';
 		}
 		return 'welcome';
+	}
+
+	function itemsLabel(count) {
+		/* translators: %d: number of items. */
+		return sprintf( _n( '%d item', '%d items', count, 'tabloria-searchable-displays' ), count );
 	}
 
 	function escapeHtml(value) {
@@ -149,7 +159,7 @@
 					}
 				}
 				if (!response.ok) {
-					throw new Error(data.message || response.statusText || 'Tabloria request failed.');
+					throw new Error(data.message || response.statusText || __( 'Tabloria request failed.', 'tabloria-searchable-displays' ));
 				}
 				return data;
 			});
@@ -159,7 +169,7 @@
 	function readableServerError(text) {
 		var message = String(text || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 		if (!message) {
-			return 'Tabloria received an invalid server response.';
+			return __( 'Tabloria received an invalid server response.', 'tabloria-searchable-displays' );
 		}
 		return message.slice(0, 220);
 	}
@@ -202,15 +212,15 @@
 
 	function renderTopbar() {
 		var items = [
-			['welcome', 'Create Display'],
-			['displays', 'Published Displays'],
-			['settings', 'Settings']
+			['welcome', __( 'Create Display', 'tabloria-searchable-displays' )],
+			['displays', __( 'Published Displays', 'tabloria-searchable-displays' )],
+			['settings', __( 'Settings', 'tabloria-searchable-displays' )]
 		];
 
 		return [
 			'<header class="tabloria-topbar">',
-			'<div class="tabloria-brand"><span class="tabloria-logo">T</span><span>Tabloria</span></div>',
-			'<nav class="tabloria-nav" aria-label="Tabloria navigation">',
+			'<div class="tabloria-brand"><span class="tabloria-logo">T</span><span>' + escapeHtml( __( 'Tabloria', 'tabloria-searchable-displays' ) ) + '</span></div>',
+			'<nav class="tabloria-nav" aria-label="' + escapeHtml( __( 'Tabloria navigation', 'tabloria-searchable-displays' ) ) + '">',
 			items.map(function (item) {
 				var active = navIsActive(item[0]) ? ' is-active' : '';
 				return '<button type="button" class="' + active + '" data-screen="' + item[0] + '">' + escapeHtml(item[1]) + '</button>';
@@ -240,7 +250,7 @@
 
 	function renderCurrentScreen() {
 		if (state.loading) {
-			return '<div class="tabloria-loading">Loading Tabloria...</div>';
+			return '<div class="tabloria-loading">' + escapeHtml( __( 'Loading Tabloria...', 'tabloria-searchable-displays' ) ) + '</div>';
 		}
 
 		switch (state.screen) {
@@ -297,9 +307,9 @@
 	function renderWelcome() {
 		return [
 			'<section class="tabloria-hero tabloria-choice-hero">',
-			'<p class="tabloria-kicker">Published Display</p>',
-			'<h1>What would you like to display?</h1>',
-			'<p class="tabloria-subtitle">Choose the kind of page you want to create. Tabloria will use this to shape fields, filters, sorting, pagination, and preview defaults.</p>',
+			'<p class="tabloria-kicker">' + escapeHtml( __( 'Published Display', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<h1>' + escapeHtml( __( 'What would you like to display?', 'tabloria-searchable-displays' ) ) + '</h1>',
+			'<p class="tabloria-subtitle">' + escapeHtml( __( 'Choose the kind of page you want to create. Tabloria will use this to shape fields, filters, sorting, pagination, and preview defaults.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</section>',
 			'<section class="tabloria-grid tabloria-type-grid">',
 			displayTypes.map(function (type) {
@@ -307,9 +317,9 @@
 			}).join(''),
 			'</section>',
 			'<div class="tabloria-actions">',
-			'<button class="tabloria-button is-primary" data-action="start">Create Display</button>',
-			'<button class="tabloria-button" data-action="displays">Published Displays</button>',
-			'<button class="tabloria-button is-ghost" disabled>Connect Google Sheets <span class="tabloria-badge">Coming soon</span></button>',
+			'<button class="tabloria-button is-primary" data-action="start">' + escapeHtml( __( 'Create Display', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button" data-action="displays">' + escapeHtml( __( 'Published Displays', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button is-ghost" disabled>' + escapeHtml( __( 'Connect Google Sheets', 'tabloria-searchable-displays' ) ) + ' <span class="tabloria-badge">' + escapeHtml( __( 'Coming soon', 'tabloria-searchable-displays' ) ) + '</span></button>',
 			'</div>'
 		].join('');
 	}
@@ -346,18 +356,18 @@
 	function renderUpload() {
 		return [
 			'<section class="tabloria-hero">',
-			'<p class="tabloria-kicker">Create Display</p>',
-			'<h1>Upload your spreadsheet.</h1>',
-			'<p class="tabloria-subtitle">Start with a CSV file. Tabloria will detect columns, field types, and a few useful publishing defaults.</p>',
+			'<p class="tabloria-kicker">' + escapeHtml( __( 'Create Display', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<h1>' + escapeHtml( __( 'Upload your spreadsheet.', 'tabloria-searchable-displays' ) ) + '</h1>',
+			'<p class="tabloria-subtitle">' + escapeHtml( __( 'Start with a CSV file. Tabloria will detect columns, field types, and a few useful publishing defaults.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</section>',
 			'<form class="tabloria-upload" id="tabloria-upload-form">',
 			'<div>',
-			'<h2>Choose a CSV file</h2>',
-			'<p class="tabloria-muted">Excel support is prepared in the architecture, but this MVP imports CSV first. Maximum file size: 5 MB.</p>',
+			'<h2>' + escapeHtml( __( 'Choose a CSV file', 'tabloria-searchable-displays' ) ) + '</h2>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Excel support is prepared in the architecture, but this MVP imports CSV first. Maximum file size: 5 MB.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'<input class="tabloria-input" type="file" name="file" accept=".csv,text/csv" required />',
 			'<div class="tabloria-actions" style="justify-content:center">',
-			'<button class="tabloria-button" type="button" data-back>Back</button>',
-			'<button class="tabloria-button is-primary" type="submit">Upload Spreadsheet</button>',
+			'<button class="tabloria-button" type="button" data-back>' + escapeHtml( __( 'Back', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button is-primary" type="submit">' + escapeHtml( __( 'Upload Spreadsheet', 'tabloria-searchable-displays' ) ) + '</button>',
 			'</div>',
 			'</div>',
 			'</form>'
@@ -380,11 +390,11 @@
 			var input = form.querySelector('input[type="file"]');
 			var file = input && input.files ? input.files[0] : null;
 			if (!file) {
-				setError(new Error('Please choose a CSV file to upload.'));
+				setError(new Error(__( 'Please choose a CSV file to upload.', 'tabloria-searchable-displays' )));
 				return;
 			}
 			if (file.size > 5242880) {
-				setError(new Error('The CSV file is too large. Tabloria currently accepts files up to 5 MB.'));
+				setError(new Error(__( 'The CSV file is too large. Tabloria currently accepts files up to 5 MB.', 'tabloria-searchable-displays' )));
 				return;
 			}
 			var data = new FormData(form);
@@ -409,9 +419,9 @@
 	function renderOutcome() {
 		return [
 			'<section class="tabloria-hero" style="text-align:center;margin-left:auto;margin-right:auto">',
-			'<p class="tabloria-kicker">Published Display</p>',
-			'<h1>What would you like to display?</h1>',
-			'<p class="tabloria-subtitle">Choose the kind of page you want to create from this spreadsheet. Tabloria will choose helpful defaults for fields, filters, sorting, and pagination.</p>',
+			'<p class="tabloria-kicker">' + escapeHtml( __( 'Published Display', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<h1>' + escapeHtml( __( 'What would you like to display?', 'tabloria-searchable-displays' ) ) + '</h1>',
+			'<p class="tabloria-subtitle">' + escapeHtml( __( 'Choose the kind of page you want to create from this spreadsheet. Tabloria will choose helpful defaults for fields, filters, sorting, and pagination.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</section>',
 			'<section class="tabloria-grid tabloria-type-grid">',
 			displayTypes.map(function (type) {
@@ -419,8 +429,8 @@
 			}).join(''),
 			'</section>',
 			'<div class="tabloria-actions" style="justify-content:flex-end">',
-			'<button class="tabloria-button" data-back>Back</button>',
-			'<button class="tabloria-button is-primary" data-continue>Continue</button>',
+			'<button class="tabloria-button" data-back>' + escapeHtml( __( 'Back', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button is-primary" data-continue>' + escapeHtml( __( 'Continue', 'tabloria-searchable-displays' ) ) + '</button>',
 			'</div>'
 		].join('');
 	}
@@ -443,7 +453,7 @@
 		} else if (previewType === 'pricing_table') {
 			content = '<div class="tabloria-preview-pricing"><span><b></b><i></i><em></em><em></em></span><span><b></b><i></i><em></em><em></em></span><span><b></b><i></i><em></em><em></em></span></div>';
 		} else if (previewType === 'coupon_display') {
-			content = '<div class="tabloria-preview-pricing"><span><b></b><i></i><em></em><button>Show coupon</button></span><span><b></b><i></i><em></em><button>View deal</button></span></div>';
+			content = '<div class="tabloria-preview-pricing"><span><b></b><i></i><em></em><button>' + escapeHtml( __( 'Show coupon', 'tabloria-searchable-displays' ) ) + '</button></span><span><b></b><i></i><em></em><button>' + escapeHtml( __( 'View deal', 'tabloria-searchable-displays' ) ) + '</button></span></div>';
 		} else {
 			content = '<div class="tabloria-preview-listings"><span><i></i><b></b><em></em></span><span><i></i><b></b><em></em></span></div>';
 		}
@@ -477,52 +487,52 @@
 
 		return [
 			'<section class="tabloria-hero">',
-			'<p class="tabloria-kicker">Display Setup</p>',
-			'<h1>Set up and preview</h1>',
-			'<p class="tabloria-subtitle">Choose the Display structure and see the page update with your spreadsheet data.</p>',
+			'<p class="tabloria-kicker">' + escapeHtml( __( 'Display Setup', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<h1>' + escapeHtml( __( 'Set up and preview', 'tabloria-searchable-displays' ) ) + '</h1>',
+			'<p class="tabloria-subtitle">' + escapeHtml( __( 'Choose the Display structure and see the page update with your spreadsheet data.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</section>',
 			'<div class="tabloria-setup-layout">',
 			'<aside class="tabloria-setup-controls">',
 			renderImportedSource(),
 			'<section class="tabloria-panel tabloria-panel--compact">',
 			'<div class="tabloria-form-grid tabloria-form-grid--compact">',
-			'<div class="tabloria-field"><label for="display-name">Display name</label><input id="display-name" class="tabloria-input" value="' + escapeHtml(state.config.title || '') + '" /></div>',
-			'<div class="tabloria-field"><label for="setup-display-type">Display type</label>' + renderDisplayTypeSelect('setup-display-type', currentDisplayType()) + '</div>',
+			'<div class="tabloria-field"><label for="display-name">' + escapeHtml( __( 'Display name', 'tabloria-searchable-displays' ) ) + '</label><input id="display-name" class="tabloria-input" value="' + escapeHtml(state.config.title || '') + '" /></div>',
+			'<div class="tabloria-field"><label for="setup-display-type">' + escapeHtml( __( 'Display type', 'tabloria-searchable-displays' ) ) + '</label>' + renderDisplayTypeSelect('setup-display-type', currentDisplayType()) + '</div>',
 			'</div>',
 			'</section>',
-			renderSetupAccordion('content', 'Display Content', 'Map columns to the visible parts of this Display.', renderContentMapper(roles, state.config, 'role-', 'visible-field', false), true),
-			renderSetupAccordion('filters', 'Filtering & Sorting', 'Choose visitor filters, default filter, and sort order.', [
-				'<h3>Default Filter</h3>',
+			renderSetupAccordion('content', __( 'Display Content', 'tabloria-searchable-displays' ), __( 'Map columns to the visible parts of this Display.', 'tabloria-searchable-displays' ), renderContentMapper(roles, state.config, 'role-', 'visible-field', false), true),
+			renderSetupAccordion('filters', __( 'Filtering & Sorting', 'tabloria-searchable-displays' ), __( 'Choose visitor filters, default filter, and sort order.', 'tabloria-searchable-displays' ), [
+				'<h3>' + escapeHtml( __( 'Default Filter', 'tabloria-searchable-displays' ) ) + '</h3>',
 				renderDefaultFilter(),
-				'<h3 style="margin-top:24px">Visitor Filters</h3>',
+				'<h3 style="margin-top:24px">' + escapeHtml( __( 'Visitor Filters', 'tabloria-searchable-displays' ) ) + '</h3>',
 				columns.map(function (column) {
 					var checked = (state.config.visitorFilters || []).indexOf(column.key) >= 0 ? ' checked' : '';
 					return '<label class="tabloria-check-row"><input type="checkbox" name="visitor-filter" value="' + escapeHtml(column.key) + '"' + checked + '><span>' + escapeHtml(column.label) + '</span></label>';
 				}).join(''),
-				'<h3 style="margin-top:24px">Default Sort</h3>',
-				'<div class="tabloria-filter-builder">' + renderColumnSelect('sort-field', state.config.sort.field || '', true) + '<select class="tabloria-select" id="sort-direction"><option value="asc"' + selected(state.config.sort.direction, 'asc') + '>Low to high</option><option value="desc"' + selected(state.config.sort.direction, 'desc') + '>High to low</option></select><span></span></div>'
+				'<h3 style="margin-top:24px">' + escapeHtml( __( 'Default Sort', 'tabloria-searchable-displays' ) ) + '</h3>',
+				'<div class="tabloria-filter-builder">' + renderColumnSelect('sort-field', state.config.sort.field || '', true) + '<select class="tabloria-select" id="sort-direction"><option value="asc"' + selected(state.config.sort.direction, 'asc') + '>' + escapeHtml( __( 'Low to high', 'tabloria-searchable-displays' ) ) + '</option><option value="desc"' + selected(state.config.sort.direction, 'desc') + '>' + escapeHtml( __( 'High to low', 'tabloria-searchable-displays' ) ) + '</option></select><span></span></div>'
 			].join(''), false),
-			renderSetupAccordion('options', 'Display options', 'Show or hide visitor controls on the published page.', [
+			renderSetupAccordion('options', __( 'Display options', 'tabloria-searchable-displays' ), __( 'Show or hide visitor controls on the published page.', 'tabloria-searchable-displays' ), [
 				renderDisplayWidthOptions('display-width', state.config),
-				'<div class="tabloria-field"><label for="card-max-width">Maximum card width</label><select id="card-max-width" class="tabloria-select"><option value="320"' + selected(state.config.style.cardMaxWidth, 320) + '>320px</option><option value="420"' + selected(state.config.style.cardMaxWidth || 420, 420) + '>420px</option><option value="520"' + selected(state.config.style.cardMaxWidth, 520) + '>520px</option><option value="0"' + selected(state.config.style.cardMaxWidth, 0) + '>No limit</option></select></div>',
+				'<div class="tabloria-field"><label for="card-max-width">' + escapeHtml( __( 'Maximum card width', 'tabloria-searchable-displays' ) ) + '</label><select id="card-max-width" class="tabloria-select"><option value="320"' + selected(state.config.style.cardMaxWidth, 320) + '>320px</option><option value="420"' + selected(state.config.style.cardMaxWidth || 420, 420) + '>420px</option><option value="520"' + selected(state.config.style.cardMaxWidth, 520) + '>520px</option><option value="0"' + selected(state.config.style.cardMaxWidth, 0) + '>' + escapeHtml( __( 'No limit', 'tabloria-searchable-displays' ) ) + '</option></select></div>',
 				renderCardFieldDisplayOptions('card', state.config),
 				renderCouponOptions('coupon', state.config),
-				renderToggle('show-search', 'Show search', state.config.search.enabled),
-				'<div class="tabloria-field"><label for="search-placeholder">Search placeholder</label><input id="search-placeholder" class="tabloria-input" value="' + escapeHtml(state.config.search.placeholder || 'Search all fields...') + '" /></div>',
-				'<div class="tabloria-field"><label for="empty-message">No results message</label><input id="empty-message" class="tabloria-input" value="' + escapeHtml(state.config.search.emptyMessage || 'No rows match the current search or filters.') + '" /></div>',
-				renderToggle('hide-rows-until-search', 'Hide rows until search', state.config.search.hideRowsUntilSearch),
-				'<p class="tabloria-muted">Do not display table rows until a search query is entered.</p>',
-				renderToggle('show-filters', 'Show filters', state.config.filters.enabled),
-				renderToggle('show-column-names', 'Show column names in filter values', state.config.filters.showColumnNames),
-				'<div class="tabloria-field"><label for="dropdown-hover-color">Dropdown hover color</label><input id="dropdown-hover-color" class="tabloria-input" type="color" value="' + escapeHtml(filterHoverColor(state.config)) + '" /></div>',
-				renderToggle('show-pagination', 'Show pagination', state.config.pagination.enabled),
-				renderToggle('show-result-count', 'Show result count', state.config.pagination.showResultCount),
-				'<div class="tabloria-field"><label for="result-label">Result count label</label><input id="result-label" class="tabloria-input" value="' + escapeHtml(state.config.pagination.resultLabel || 'rows') + '" placeholder="rows, offers, properties" /></div>',
-				'<div class="tabloria-field" style="margin-top:14px"><label for="per-page">Items per page</label><select id="per-page" class="tabloria-select"' + (!state.config.pagination.enabled ? ' disabled' : '') + '><option value="6"' + selected(state.config.pagination.perPage, 6) + '>6 items</option><option value="9"' + selected(state.config.pagination.perPage, 9) + '>9 items</option><option value="12"' + selected(state.config.pagination.perPage, 12) + '>12 items</option><option value="24"' + selected(state.config.pagination.perPage, 24) + '>24 items</option></select></div>'
+				renderToggle('show-search', __( 'Show search', 'tabloria-searchable-displays' ), state.config.search.enabled),
+				'<div class="tabloria-field"><label for="search-placeholder">' + escapeHtml( __( 'Search placeholder', 'tabloria-searchable-displays' ) ) + '</label><input id="search-placeholder" class="tabloria-input" value="' + escapeHtml(state.config.search.placeholder || __( 'Search all fields...', 'tabloria-searchable-displays' )) + '" /></div>',
+				'<div class="tabloria-field"><label for="empty-message">' + escapeHtml( __( 'No results message', 'tabloria-searchable-displays' ) ) + '</label><input id="empty-message" class="tabloria-input" value="' + escapeHtml(state.config.search.emptyMessage || __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' )) + '" /></div>',
+				renderToggle('hide-rows-until-search', __( 'Hide rows until search', 'tabloria-searchable-displays' ), state.config.search.hideRowsUntilSearch),
+				'<p class="tabloria-muted">' + escapeHtml( __( 'Do not display table rows until a search query is entered.', 'tabloria-searchable-displays' ) ) + '</p>',
+				renderToggle('show-filters', __( 'Show filters', 'tabloria-searchable-displays' ), state.config.filters.enabled),
+				renderToggle('show-column-names', __( 'Show column names in filter values', 'tabloria-searchable-displays' ), state.config.filters.showColumnNames),
+				'<div class="tabloria-field"><label for="dropdown-hover-color">' + escapeHtml( __( 'Dropdown hover color', 'tabloria-searchable-displays' ) ) + '</label><input id="dropdown-hover-color" class="tabloria-input" type="color" value="' + escapeHtml(filterHoverColor(state.config)) + '" /></div>',
+				renderToggle('show-pagination', __( 'Show pagination', 'tabloria-searchable-displays' ), state.config.pagination.enabled),
+				renderToggle('show-result-count', __( 'Show result count', 'tabloria-searchable-displays' ), state.config.pagination.showResultCount),
+				'<div class="tabloria-field"><label for="result-label">' + escapeHtml( __( 'Result count label', 'tabloria-searchable-displays' ) ) + '</label><input id="result-label" class="tabloria-input" value="' + escapeHtml(state.config.pagination.resultLabel || 'rows') + '" placeholder="' + escapeHtml( __( 'rows, offers, properties', 'tabloria-searchable-displays' ) ) + '" /></div>',
+				'<div class="tabloria-field" style="margin-top:14px"><label for="per-page">' + escapeHtml( __( 'Items per page', 'tabloria-searchable-displays' ) ) + '</label><select id="per-page" class="tabloria-select"' + (!state.config.pagination.enabled ? ' disabled' : '') + '><option value="6"' + selected(state.config.pagination.perPage, 6) + '>' + escapeHtml(itemsLabel(6)) + '</option><option value="9"' + selected(state.config.pagination.perPage, 9) + '>' + escapeHtml(itemsLabel(9)) + '</option><option value="12"' + selected(state.config.pagination.perPage, 12) + '>' + escapeHtml(itemsLabel(12)) + '</option><option value="24"' + selected(state.config.pagination.perPage, 24) + '>' + escapeHtml(itemsLabel(24)) + '</option></select></div>'
 			].join(''), false),
 			'<div class="tabloria-actions tabloria-setup-actions">',
-			'<button class="tabloria-button" data-back>Upload different CSV</button>',
-			'<button class="tabloria-button is-primary" data-continue>Save Display</button>',
+			'<button class="tabloria-button" data-back>' + escapeHtml( __( 'Upload different CSV', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button is-primary" data-continue>' + escapeHtml( __( 'Save Display', 'tabloria-searchable-displays' ) ) + '</button>',
 			'</div>',
 			'</aside>',
 			'<section class="tabloria-preview tabloria-setup-preview">',
@@ -538,7 +548,7 @@
 		var columns = source.columns || [];
 		return [
 			'<details class="tabloria-panel tabloria-panel--compact tabloria-accordion" data-detected-columns' + (state.detectedColumnsOpen ? ' open' : '') + '>',
-			'<summary class="tabloria-accordion__summary"><span><strong>CSV imported: ' + escapeHtml(source.original_filename || 'spreadsheet.csv') + '</strong><small>' + escapeHtml(source.row_count || 0) + ' rows and ' + escapeHtml(columns.length) + ' columns detected. Review the mapping below.</small></span></summary>',
+			'<summary class="tabloria-accordion__summary"><span><strong>' + escapeHtml( sprintf( /* translators: %s: CSV filename. */ __( 'CSV imported: %s', 'tabloria-searchable-displays' ), source.original_filename || 'spreadsheet.csv' ) ) + '</strong><small>' + escapeHtml( sprintf( /* translators: 1: number of rows, 2: number of columns. */ __( '%1$s rows and %2$s columns detected. Review the mapping below.', 'tabloria-searchable-displays' ), source.row_count || 0, columns.length ) ) + '</small></span></summary>',
 			'<div class="tabloria-accordion__body"><div class="tabloria-columns">',
 			columns.map(function (column) {
 				return '<div class="tabloria-column"><div><strong>' + escapeHtml(column.label) + '</strong><span class="tabloria-muted">' + escapeHtml(column.key) + '</span></div><span class="tabloria-type">' + escapeHtml(column.type) + '</span></div>';
@@ -572,7 +582,7 @@
 			'<div class="tabloria-filter-builder">',
 			renderColumnSelect('default-filter-field', filter.field || '', true),
 			renderFilterOperatorSelect('default-filter-operator', filter.operator || 'equals'),
-			'<input id="default-filter-value" class="tabloria-input" placeholder="Value, for example Available" value="' + escapeHtml(filter.value || '') + '" />',
+			'<input id="default-filter-value" class="tabloria-input" placeholder="' + escapeHtml( __( 'Value, for example Available', 'tabloria-searchable-displays' ) ) + '" value="' + escapeHtml(filter.value || '') + '" />',
 			'</div>'
 		].join('');
 	}
@@ -601,7 +611,7 @@
 		var columns = state.source ? state.source.columns || [] : [];
 		return [
 			'<select class="tabloria-select" id="' + escapeHtml(id) + '">',
-			includeNone ? '<option value="">None</option>' : '',
+			includeNone ? '<option value="">' + escapeHtml( __( 'None', 'tabloria-searchable-displays' ) ) + '</option>' : '',
 			columns.map(function (column) {
 				return '<option value="' + escapeHtml(column.key) + '"' + selected(current, column.key) + '>' + escapeHtml(column.label) + '</option>';
 			}).join(''),
@@ -612,44 +622,44 @@
 	function roleDefinitions() {
 		var definitions = {
 			searchable_listings: [
-				{ key: 'image', label: 'Image', description: 'Optional visual for each listing.', optional: true, empty: 'No image-like column detected.' },
-				{ key: 'title', label: 'Listing title', description: 'The primary text visitors notice first.' },
-				{ key: 'subtitle', label: 'Supporting line', description: 'Location, category, or short context.' },
-				{ key: 'price', label: 'Highlight', description: 'A featured value such as price, rate, or amount.', optional: true, empty: 'No highlight-like column detected.' },
-				{ key: 'badge', label: 'Label / badge', description: 'A short status, category, or tag.', optional: true, empty: 'No badge-like column detected.' }
+				{ key: 'image', label: __( 'Image', 'tabloria-searchable-displays' ), description: __( 'Optional visual for each listing.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No image-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'title', label: __( 'Listing title', 'tabloria-searchable-displays' ), description: __( 'The primary text visitors notice first.', 'tabloria-searchable-displays' ) },
+				{ key: 'subtitle', label: __( 'Supporting line', 'tabloria-searchable-displays' ), description: __( 'Location, category, or short context.', 'tabloria-searchable-displays' ) },
+				{ key: 'price', label: __( 'Highlight', 'tabloria-searchable-displays' ), description: __( 'A featured value such as price, rate, or amount.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No highlight-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'badge', label: __( 'Label / badge', 'tabloria-searchable-displays' ), description: __( 'A short status, category, or tag.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No badge-like column detected.', 'tabloria-searchable-displays' ) }
 			],
 			product_catalog: [
-				{ key: 'image', label: 'Product image', description: 'The product photo or visual.', optional: true, empty: 'No image-like column detected.' },
-				{ key: 'title', label: 'Product name', description: 'The product name visitors see first.' },
-				{ key: 'subtitle', label: 'Category line', description: 'Category, brand, or short product context.' },
-				{ key: 'price', label: 'Price', description: 'The product price or amount.', optional: true, commerceOnlyWhenEmpty: true, empty: 'No price-like column detected.' },
-				{ key: 'badge', label: 'Availability badge', description: 'Availability, category, or short label.', optional: true, empty: 'No badge-like column detected.' }
+				{ key: 'image', label: __( 'Product image', 'tabloria-searchable-displays' ), description: __( 'The product photo or visual.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No image-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'title', label: __( 'Product name', 'tabloria-searchable-displays' ), description: __( 'The product name visitors see first.', 'tabloria-searchable-displays' ) },
+				{ key: 'subtitle', label: __( 'Category line', 'tabloria-searchable-displays' ), description: __( 'Category, brand, or short product context.', 'tabloria-searchable-displays' ) },
+				{ key: 'price', label: __( 'Price', 'tabloria-searchable-displays' ), description: __( 'The product price or amount.', 'tabloria-searchable-displays' ), optional: true, commerceOnlyWhenEmpty: true, empty: __( 'No price-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'badge', label: __( 'Availability badge', 'tabloria-searchable-displays' ), description: __( 'Availability, category, or short label.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No badge-like column detected.', 'tabloria-searchable-displays' ) }
 			],
 			team_directory: [
-				{ key: 'image', label: 'Photo', description: 'The person photo or avatar.', optional: true, empty: 'No photo-like column detected.' },
-				{ key: 'title', label: 'Name', description: 'The person or organization name.' },
-				{ key: 'subtitle', label: 'Position', description: 'Role, title, or short profile context.' },
-				{ key: 'badge', label: 'Team / department', description: 'Team, department, group, or label.', optional: true, empty: 'No team-like column detected.' }
+				{ key: 'image', label: __( 'Photo', 'tabloria-searchable-displays' ), description: __( 'The person photo or avatar.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No photo-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'title', label: __( 'Name', 'tabloria-searchable-displays' ), description: __( 'The person or organization name.', 'tabloria-searchable-displays' ) },
+				{ key: 'subtitle', label: __( 'Position', 'tabloria-searchable-displays' ), description: __( 'Role, title, or short profile context.', 'tabloria-searchable-displays' ) },
+				{ key: 'badge', label: __( 'Team / department', 'tabloria-searchable-displays' ), description: __( 'Team, department, group, or label.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No team-like column detected.', 'tabloria-searchable-displays' ) }
 			],
 			event_schedule: [
-				{ key: 'title', label: 'Event title', description: 'The event, session, or agenda item name.' },
-				{ key: 'price', label: 'Date / time', description: 'The date, time, or schedule slot.', optional: true, empty: 'No date/time-like column detected.' },
-				{ key: 'subtitle', label: 'Location', description: 'Location, room, track, or context.', optional: true, empty: 'No location-like column detected.' },
-				{ key: 'badge', label: 'Track / status', description: 'Track, type, status, or label.', optional: true, empty: 'No label-like column detected.' }
+				{ key: 'title', label: __( 'Event title', 'tabloria-searchable-displays' ), description: __( 'The event, session, or agenda item name.', 'tabloria-searchable-displays' ) },
+				{ key: 'price', label: __( 'Date / time', 'tabloria-searchable-displays' ), description: __( 'The date, time, or schedule slot.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No date/time-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'subtitle', label: __( 'Location', 'tabloria-searchable-displays' ), description: __( 'Location, room, track, or context.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No location-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'badge', label: __( 'Track / status', 'tabloria-searchable-displays' ), description: __( 'Track, type, status, or label.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No label-like column detected.', 'tabloria-searchable-displays' ) }
 			],
 			pricing_table: [
-				{ key: 'title', label: 'Plan name', description: 'The pricing plan or offer name.' },
-				{ key: 'price', label: 'Price', description: 'The main price or amount.', optional: true, commerceOnlyWhenEmpty: true, empty: 'No price-like column detected.' },
-				{ key: 'subtitle', label: 'Short description', description: 'A short explanation under the plan name.', optional: true, empty: 'No description-like column detected.' },
-				{ key: 'badge', label: 'Badge', description: 'Popular, recommended, tier, or short label.', optional: true, empty: 'No badge-like column detected.' }
+				{ key: 'title', label: __( 'Plan name', 'tabloria-searchable-displays' ), description: __( 'The pricing plan or offer name.', 'tabloria-searchable-displays' ) },
+				{ key: 'price', label: __( 'Price', 'tabloria-searchable-displays' ), description: __( 'The main price or amount.', 'tabloria-searchable-displays' ), optional: true, commerceOnlyWhenEmpty: true, empty: __( 'No price-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'subtitle', label: __( 'Short description', 'tabloria-searchable-displays' ), description: __( 'A short explanation under the plan name.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No description-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'badge', label: __( 'Badge', 'tabloria-searchable-displays' ), description: __( 'Popular, recommended, tier, or short label.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No badge-like column detected.', 'tabloria-searchable-displays' ) }
 			],
 			coupon_display: [
-				{ key: 'image', label: 'Offer image', description: 'Optional store or offer image.', optional: true, empty: 'No image-like column detected.' },
-				{ key: 'title', label: 'Offer title', description: 'The deal or offer visitors see first.' },
-				{ key: 'subtitle', label: 'Store / category', description: 'Store, merchant, brand, or category.', optional: true, empty: 'No store-like column detected.' },
-				{ key: 'badge', label: 'Discount badge', description: 'Discount, saving, or short offer label.', optional: true, empty: 'No discount-like column detected.' },
-				{ key: 'coupon_code', label: 'Coupon code', description: 'The code revealed and copied by visitors.', optional: true, empty: 'No coupon code column detected.' },
-				{ key: 'affiliate_url', label: 'Affiliate link', description: 'Opened when visitors reveal a coupon or view a deal.', optional: true, empty: 'No URL-like column detected.' }
+				{ key: 'image', label: __( 'Offer image', 'tabloria-searchable-displays' ), description: __( 'Optional store or offer image.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No image-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'title', label: __( 'Offer title', 'tabloria-searchable-displays' ), description: __( 'The deal or offer visitors see first.', 'tabloria-searchable-displays' ) },
+				{ key: 'subtitle', label: __( 'Store / category', 'tabloria-searchable-displays' ), description: __( 'Store, merchant, brand, or category.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No store-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'badge', label: __( 'Discount badge', 'tabloria-searchable-displays' ), description: __( 'Discount, saving, or short offer label.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No discount-like column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'coupon_code', label: __( 'Coupon code', 'tabloria-searchable-displays' ), description: __( 'The code revealed and copied by visitors.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No coupon code column detected.', 'tabloria-searchable-displays' ) },
+				{ key: 'affiliate_url', label: __( 'Affiliate link', 'tabloria-searchable-displays' ), description: __( 'Opened when visitors reveal a coupon or view a deal.', 'tabloria-searchable-displays' ), optional: true, empty: __( 'No URL-like column detected.', 'tabloria-searchable-displays' ) }
 			]
 		};
 
@@ -700,59 +710,59 @@
 	function displayContentModel() {
 		var models = {
 			searchable_listings: {
-				structureTitle: 'Listing Structure',
-				structureHelp: 'Choose the columns that shape each listing.',
-				additionalTitle: 'Listing Details',
-				additionalHelp: 'Choose extra columns visitors can read after the main listing content.',
-				exampleLabel: 'Example listing from your data',
+				structureTitle: __( 'Listing Structure', 'tabloria-searchable-displays' ),
+				structureHelp: __( 'Choose the columns that shape each listing.', 'tabloria-searchable-displays' ),
+				additionalTitle: __( 'Listing Details', 'tabloria-searchable-displays' ),
+				additionalHelp: __( 'Choose extra columns visitors can read after the main listing content.', 'tabloria-searchable-displays' ),
+				exampleLabel: __( 'Example listing from your data', 'tabloria-searchable-displays' ),
 				exampleType: 'listing'
 			},
 			product_catalog: {
-				structureTitle: 'Product Structure',
-				structureHelp: 'Choose the columns that shape each product in the catalog.',
-				additionalTitle: 'Product Details',
-				additionalHelp: 'Choose extra product columns such as SKU, supplier, dimensions, or description.',
-				exampleLabel: 'Example product from your data',
+				structureTitle: __( 'Product Structure', 'tabloria-searchable-displays' ),
+				structureHelp: __( 'Choose the columns that shape each product in the catalog.', 'tabloria-searchable-displays' ),
+				additionalTitle: __( 'Product Details', 'tabloria-searchable-displays' ),
+				additionalHelp: __( 'Choose extra product columns such as SKU, supplier, dimensions, or description.', 'tabloria-searchable-displays' ),
+				exampleLabel: __( 'Example product from your data', 'tabloria-searchable-displays' ),
 				exampleType: 'product'
 			},
 			team_directory: {
-				structureTitle: 'Directory Profile',
-				structureHelp: 'Choose the columns that shape each profile in the directory.',
-				additionalTitle: 'Contact & Profile Details',
-				additionalHelp: 'Choose extra profile fields such as email, phone, website, or bio.',
-				exampleLabel: 'Example profile from your data',
+				structureTitle: __( 'Directory Profile', 'tabloria-searchable-displays' ),
+				structureHelp: __( 'Choose the columns that shape each profile in the directory.', 'tabloria-searchable-displays' ),
+				additionalTitle: __( 'Contact & Profile Details', 'tabloria-searchable-displays' ),
+				additionalHelp: __( 'Choose extra profile fields such as email, phone, website, or bio.', 'tabloria-searchable-displays' ),
+				exampleLabel: __( 'Example profile from your data', 'tabloria-searchable-displays' ),
 				exampleType: 'profile'
 			},
 			event_schedule: {
-				structureTitle: 'Schedule Item',
-				structureHelp: 'Choose the columns that shape each item in the schedule.',
-				additionalTitle: 'Event Details',
-				additionalHelp: 'Choose extra event fields such as speaker, description, audience, or notes.',
-				exampleLabel: 'Example schedule item from your data',
+				structureTitle: __( 'Schedule Item', 'tabloria-searchable-displays' ),
+				structureHelp: __( 'Choose the columns that shape each item in the schedule.', 'tabloria-searchable-displays' ),
+				additionalTitle: __( 'Event Details', 'tabloria-searchable-displays' ),
+				additionalHelp: __( 'Choose extra event fields such as speaker, description, audience, or notes.', 'tabloria-searchable-displays' ),
+				exampleLabel: __( 'Example schedule item from your data', 'tabloria-searchable-displays' ),
 				exampleType: 'schedule'
 			},
 			pricing_table: {
-				structureTitle: 'Pricing Item',
-				structureHelp: 'Choose the columns that shape each pricing plan or offer.',
-				additionalTitle: 'Included Details',
-				additionalHelp: 'Choose extra columns such as features, limits, term, or audience.',
-				exampleLabel: 'Example pricing item from your data',
+				structureTitle: __( 'Pricing Item', 'tabloria-searchable-displays' ),
+				structureHelp: __( 'Choose the columns that shape each pricing plan or offer.', 'tabloria-searchable-displays' ),
+				additionalTitle: __( 'Included Details', 'tabloria-searchable-displays' ),
+				additionalHelp: __( 'Choose extra columns such as features, limits, term, or audience.', 'tabloria-searchable-displays' ),
+				exampleLabel: __( 'Example pricing item from your data', 'tabloria-searchable-displays' ),
 				exampleType: 'pricing'
 			},
 			coupon_display: {
-				structureTitle: 'Coupon / Deal Structure',
-				structureHelp: 'Map the offer, optional coupon code, and affiliate link columns.',
-				additionalTitle: 'Offer Details',
-				additionalHelp: 'Choose extra columns such as expiry, terms, or category.',
-				exampleLabel: 'Example coupon or deal from your data',
+				structureTitle: __( 'Coupon / Deal Structure', 'tabloria-searchable-displays' ),
+				structureHelp: __( 'Map the offer, optional coupon code, and affiliate link columns.', 'tabloria-searchable-displays' ),
+				additionalTitle: __( 'Offer Details', 'tabloria-searchable-displays' ),
+				additionalHelp: __( 'Choose extra columns such as expiry, terms, or category.', 'tabloria-searchable-displays' ),
+				exampleLabel: __( 'Example coupon or deal from your data', 'tabloria-searchable-displays' ),
 				exampleType: 'coupon'
 			},
 			simple_data_table: {
-				structureTitle: 'Table Columns',
-				structureHelp: 'Choose which spreadsheet columns appear in the published table.',
+				structureTitle: __( 'Table Columns', 'tabloria-searchable-displays' ),
+				structureHelp: __( 'Choose which spreadsheet columns appear in the published table.', 'tabloria-searchable-displays' ),
 				additionalTitle: '',
 				additionalHelp: '',
-				exampleLabel: 'Example table from your data',
+				exampleLabel: __( 'Example table from your data', 'tabloria-searchable-displays' ),
 				exampleType: 'table'
 			}
 		};
@@ -770,7 +780,7 @@
 		});
 
 		if (!fields.length) {
-			return '<p class="tabloria-muted">No extra columns remain after the main structure.</p>';
+			return '<p class="tabloria-muted">' + escapeHtml( __( 'No extra columns remain after the main structure.', 'tabloria-searchable-displays' ) ) + '</p>';
 		}
 
 		return '<div class="tabloria-detail-field-list">' + fields.map(function (column) {
@@ -783,7 +793,7 @@
 		var rows = roles.map(function (role) {
 			return renderRoleRow(role, config, idPrefix);
 		}).filter(Boolean);
-		return rows.length ? rows.join('') : '<p class="tabloria-muted">No role fields are needed for this source.</p>';
+		return rows.length ? rows.join('') : '<p class="tabloria-muted">' + escapeHtml( __( 'No role fields are needed for this source.', 'tabloria-searchable-displays' ) ) + '</p>';
 	}
 
 	function renderRoleRow(role, config, idPrefix) {
@@ -799,12 +809,12 @@
 
 	function renderRoleSelect(id, role, current, options) {
 		if (!options.length) {
-			return '<select class="tabloria-select" id="' + escapeHtml(id) + '" disabled><option value="">' + escapeHtml(role.empty || 'No matching column') + '</option></select>';
+			return '<select class="tabloria-select" id="' + escapeHtml(id) + '" disabled><option value="">' + escapeHtml(role.empty || __( 'No matching column', 'tabloria-searchable-displays' )) + '</option></select>';
 		}
 
 		return [
 			'<select class="tabloria-select" id="' + escapeHtml(id) + '">',
-			'<option value="">None</option>',
+			'<option value="">' + escapeHtml( __( 'None', 'tabloria-searchable-displays' ) ) + '</option>',
 			options.map(function (column) {
 				return '<option value="' + escapeHtml(column.key) + '"' + selected(current, column.key) + '>' + escapeHtml(column.label) + '</option>';
 			}).join(''),
@@ -828,7 +838,7 @@
 	function mappingParts(config) {
 		var roles = config.fieldRoles || {};
 		var row = exampleRowForConfig(config);
-		var title = valueForExample(row, roles.title) || bestRowTitle(row) || 'Display item';
+		var title = valueForExample(row, roles.title) || bestRowTitle(row) || __( 'Display item', 'tabloria-searchable-displays' );
 		var subtitle = valueForExample(row, roles.subtitle) || bestRowSubtitle(row, title) || '';
 		var image = valueForExample(row, roles.image);
 		var highlight = valueForExample(row, roles.price);
@@ -849,20 +859,20 @@
 
 	function renderMappingVisualExample(config, type) {
 		var part = mappingParts(config);
-		var imageLabel = type === 'product' ? 'Product image' : 'Image';
-		var titleLabel = type === 'product' ? 'Product name' : 'Listing title';
-		var highlightLabel = type === 'product' ? 'Price' : 'Highlight';
+		var imageLabel = type === 'product' ? __( 'Product image', 'tabloria-searchable-displays' ) : __( 'Image', 'tabloria-searchable-displays' );
+		var titleLabel = type === 'product' ? __( 'Product name', 'tabloria-searchable-displays' ) : __( 'Listing title', 'tabloria-searchable-displays' );
+		var highlightLabel = type === 'product' ? __( 'Price', 'tabloria-searchable-displays' ) : __( 'Highlight', 'tabloria-searchable-displays' );
 
 		return [
 			'<article class="tabloria-mapping-card tabloria-mapping-' + escapeHtml(type || 'listing') + '">',
 			part.roles.image || part.image ? '<div class="tabloria-slot-label">' + escapeHtml(imageLabel) + '</div>' + renderMiniImage(part.image) : '',
 			'<div class="tabloria-mapping-card__body">',
-			part.badge ? '<div class="tabloria-slot-label">Label / badge</div><span class="tabloria-mapping-badge">' + escapeHtml(part.badge) + '</span>' : '',
+			part.badge ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Label / badge', 'tabloria-searchable-displays' ) ) + '</div><span class="tabloria-mapping-badge">' + escapeHtml(part.badge) + '</span>' : '',
 			'<div class="tabloria-slot-label">' + escapeHtml(titleLabel) + '</div>',
 			'<h4>' + escapeHtml(part.title) + '</h4>',
-			part.subtitle ? '<div class="tabloria-slot-label">' + (type === 'product' ? 'Category line' : 'Supporting line') + '</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
+			part.subtitle ? '<div class="tabloria-slot-label">' + (type === 'product' ? __( 'Category line', 'tabloria-searchable-displays' ) : __( 'Supporting line', 'tabloria-searchable-displays' )) + '</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
 			part.highlight ? '<div class="tabloria-slot-label">' + escapeHtml(highlightLabel) + '</div><strong>' + escapeHtml(part.highlight) + '</strong>' : '',
-			part.details ? '<div class="tabloria-slot-label">Additional fields</div>' + part.details : '',
+			part.details ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Additional fields', 'tabloria-searchable-displays' ) ) + '</div>' + part.details : '',
 			'</div>',
 			'</article>'
 		].join('');
@@ -875,10 +885,10 @@
 			part.roles.image || part.image ? renderMiniImage(part.image) : '',
 			'<div class="tabloria-mapping-card__body">',
 			part.badge ? '<span class="tabloria-mapping-badge">' + escapeHtml(part.badge) + '</span>' : '',
-			'<div class="tabloria-slot-label">Name</div>',
+			'<div class="tabloria-slot-label">' + escapeHtml( __( 'Name', 'tabloria-searchable-displays' ) ) + '</div>',
 			'<h4>' + escapeHtml(part.title) + '</h4>',
-			part.subtitle ? '<div class="tabloria-slot-label">Position</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
-			part.details ? '<div class="tabloria-slot-label">Contact & profile details</div>' + part.details : '',
+			part.subtitle ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Position', 'tabloria-searchable-displays' ) ) + '</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
+			part.details ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Contact & profile details', 'tabloria-searchable-displays' ) ) + '</div>' + part.details : '',
 			'</div>',
 			'</article>'
 		].join('');
@@ -889,15 +899,15 @@
 		return [
 			'<article class="tabloria-mapping-schedule">',
 			'<div class="tabloria-mapping-schedule__time">',
-			'<span>Date / time</span>',
-			'<strong>' + escapeHtml(part.highlight || 'Not set') + '</strong>',
+			'<span>' + escapeHtml( __( 'Date / time', 'tabloria-searchable-displays' ) ) + '</span>',
+			'<strong>' + escapeHtml(part.highlight || __( 'Not set', 'tabloria-searchable-displays' )) + '</strong>',
 			'</div>',
 			'<div class="tabloria-mapping-schedule__body">',
 			part.badge ? '<span class="tabloria-mapping-badge">' + escapeHtml(part.badge) + '</span>' : '',
-			'<div class="tabloria-slot-label">Event title</div>',
+			'<div class="tabloria-slot-label">' + escapeHtml( __( 'Event title', 'tabloria-searchable-displays' ) ) + '</div>',
 			'<h4>' + escapeHtml(part.title) + '</h4>',
-			part.subtitle ? '<div class="tabloria-slot-label">Location</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
-			part.details ? '<div class="tabloria-slot-label">Event details</div>' + part.details : '',
+			part.subtitle ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Location', 'tabloria-searchable-displays' ) ) + '</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
+			part.details ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Event details', 'tabloria-searchable-displays' ) ) + '</div>' + part.details : '',
 			'</div>',
 			'</article>'
 		].join('');
@@ -909,11 +919,11 @@
 			'<article class="tabloria-mapping-card tabloria-mapping-pricing">',
 			'<div class="tabloria-mapping-card__body">',
 			part.badge ? '<span class="tabloria-mapping-badge">' + escapeHtml(part.badge) + '</span>' : '',
-			'<div class="tabloria-slot-label">Plan name</div>',
+			'<div class="tabloria-slot-label">' + escapeHtml( __( 'Plan name', 'tabloria-searchable-displays' ) ) + '</div>',
 			'<h4>' + escapeHtml(part.title) + '</h4>',
-			part.highlight ? '<div class="tabloria-slot-label">Price</div><strong>' + escapeHtml(part.highlight) + '</strong>' : '',
-			part.subtitle ? '<div class="tabloria-slot-label">Short description</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
-			part.details ? '<div class="tabloria-slot-label">Included details</div>' + part.details : '',
+			part.highlight ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Price', 'tabloria-searchable-displays' ) ) + '</div><strong>' + escapeHtml(part.highlight) + '</strong>' : '',
+			part.subtitle ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Short description', 'tabloria-searchable-displays' ) ) + '</div><p>' + escapeHtml(part.subtitle) + '</p>' : '',
+			part.details ? '<div class="tabloria-slot-label">' + escapeHtml( __( 'Included details', 'tabloria-searchable-displays' ) ) + '</div>' + part.details : '',
 			'</div>',
 			'</article>'
 		].join('');
@@ -927,10 +937,10 @@
 		var columnWidth = displayWidth === 'full' ? 96 : (displayWidth === 'wide' ? 120 : 160);
 		var tableMinWidth = Math.max(520, columns.length * columnWidth);
 		if (!columns.length) {
-			return '<p class="tabloria-muted">Choose columns to see a table example.</p>';
+			return '<p class="tabloria-muted">' + escapeHtml( __( 'Choose columns to see a table example.', 'tabloria-searchable-displays' ) ) + '</p>';
 		}
 		if (!rows.length) {
-			return '<p class="tabloria-muted">No sample rows match the current default filter.</p>';
+			return '<p class="tabloria-muted">' + escapeHtml( __( 'No sample rows match the current default filter.', 'tabloria-searchable-displays' ) ) + '</p>';
 		}
 
 		return [
@@ -1121,7 +1131,7 @@
 
 	function collectSetup() {
 		var config = state.config || generateConfig(state.source, state.displayType);
-		config.title = root.querySelector('#display-name').value.trim() || 'Published Display';
+		config.title = root.querySelector('#display-name').value.trim() || __( 'Published Display', 'tabloria-searchable-displays' );
 		config.fieldRoles = {
 			title: valueOf('#role-title'),
 			image: valueOf('#role-image'),
@@ -1157,7 +1167,7 @@
 		collectCustomize();
 		state.displayType = displayType;
 		state.config = rebuildConfigForDisplayType(displayType, cloneConfig(state.config));
-		state.notice = 'Display type changed. Review fields before saving.';
+		state.notice = __( 'Display type changed. Review fields before saving.', 'tabloria-searchable-displays' );
 		render();
 	}
 
@@ -1183,14 +1193,14 @@
 
 		var current = displayWidthValue(config);
 		var options = [
-			['normal', 'Normal'],
-			['wide', 'Wide'],
-			['full', 'Full Width']
+			['normal', __( 'Normal', 'tabloria-searchable-displays' )],
+			['wide', __( 'Wide', 'tabloria-searchable-displays' )],
+			['full', __( 'Full Width', 'tabloria-searchable-displays' )]
 		];
 
 		return [
 			'<fieldset class="tabloria-radio-group">',
-			'<legend>Display Width</legend>',
+			'<legend>' + escapeHtml( __( 'Display Width', 'tabloria-searchable-displays' ) ) + '</legend>',
 			options.map(function (option) {
 				return '<label class="tabloria-radio-row"><input type="radio" name="' + escapeHtml(name) + '" value="' + escapeHtml(option[0]) + '"' + (current === option[0] ? ' checked' : '') + '><span>' + escapeHtml(option[1]) + '</span></label>';
 			}).join(''),
@@ -1210,23 +1220,23 @@
 
 		return [
 			'<section class="tabloria-card-field-options">',
-			'<h3>Card Field Display</h3>',
+			'<h3>' + escapeHtml( __( 'Card Field Display', 'tabloria-searchable-displays' ) ) + '</h3>',
 			'<div class="tabloria-form-grid tabloria-form-grid--compact">',
-			'<div class="tabloria-field"><label for="' + escapeHtml(urlDisplayId) + '">URL display</label><select id="' + escapeHtml(urlDisplayId) + '" class="tabloria-select"><option value="link"' + selected(options.urlDisplay, 'link') + '>Link</option><option value="button"' + selected(options.urlDisplay, 'button') + '>Button</option></select></div>',
-			'<div class="tabloria-field"><label for="' + escapeHtml(urlLabelId) + '">Link/button text</label><input id="' + escapeHtml(urlLabelId) + '" class="tabloria-input" placeholder="Use column header" value="' + escapeHtml(options.urlLabel || '') + '"></div>',
-			options.urlDisplay === 'button' ? '<div class="tabloria-field"><label for="' + escapeHtml(buttonStyleId) + '">Button style</label><select id="' + escapeHtml(buttonStyleId) + '" class="tabloria-select">' + cardButtonStyleOptions(options.buttonStyle).join('') + '</select></div>' : '',
+			'<div class="tabloria-field"><label for="' + escapeHtml(urlDisplayId) + '">' + escapeHtml( __( 'URL display', 'tabloria-searchable-displays' ) ) + '</label><select id="' + escapeHtml(urlDisplayId) + '" class="tabloria-select"><option value="link"' + selected(options.urlDisplay, 'link') + '>' + escapeHtml( __( 'Link', 'tabloria-searchable-displays' ) ) + '</option><option value="button"' + selected(options.urlDisplay, 'button') + '>' + escapeHtml( __( 'Button', 'tabloria-searchable-displays' ) ) + '</option></select></div>',
+			'<div class="tabloria-field"><label for="' + escapeHtml(urlLabelId) + '">' + escapeHtml( __( 'Link/button text', 'tabloria-searchable-displays' ) ) + '</label><input id="' + escapeHtml(urlLabelId) + '" class="tabloria-input" placeholder="' + escapeHtml( __( 'Use column header', 'tabloria-searchable-displays' ) ) + '" value="' + escapeHtml(options.urlLabel || '') + '"></div>',
+			options.urlDisplay === 'button' ? '<div class="tabloria-field"><label for="' + escapeHtml(buttonStyleId) + '">' + escapeHtml( __( 'Button style', 'tabloria-searchable-displays' ) ) + '</label><select id="' + escapeHtml(buttonStyleId) + '" class="tabloria-select">' + cardButtonStyleOptions(options.buttonStyle).join('') + '</select></div>' : '',
 			'</div>',
-			'<p class="tabloria-muted">Applies to URL columns shown as extra fields in card displays.</p>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Applies to URL columns shown as extra fields in card displays.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</section>'
 		].join('');
 	}
 
 	function cardButtonStyleOptions(current) {
 		return [
-			['theme', 'Theme default'],
-			['primary', 'Primary'],
-			['secondary', 'Secondary'],
-			['outline', 'Outline']
+			['theme', __( 'Theme default', 'tabloria-searchable-displays' )],
+			['primary', __( 'Primary', 'tabloria-searchable-displays' )],
+			['secondary', __( 'Secondary', 'tabloria-searchable-displays' )],
+			['outline', __( 'Outline', 'tabloria-searchable-displays' )]
 		].map(function (option) {
 			return '<option value="' + escapeHtml(option[0]) + '"' + selected(current, option[0]) + '>' + escapeHtml(option[1]) + '</option>';
 		});
@@ -1245,10 +1255,10 @@
 				buttonStyle: 'theme'
 			},
 			coupons: {
-				showCouponLabel: 'Show coupon',
-				copyCodeLabel: 'Copy code',
-				dealLabel: 'View deal',
-				copiedLabel: 'Copied!'
+				showCouponLabel: __( 'Show coupon', 'tabloria-searchable-displays' ),
+				copyCodeLabel: __( 'Copy code', 'tabloria-searchable-displays' ),
+				dealLabel: __( 'View deal', 'tabloria-searchable-displays' ),
+				copiedLabel: __( 'Copied!', 'tabloria-searchable-displays' )
 			}
 		};
 	}
@@ -1277,10 +1287,10 @@
 	function normalizeCouponLayoutOptions(options) {
 		options = options || {};
 		return {
-			showCouponLabel: String(options.showCouponLabel || 'Show coupon'),
-			copyCodeLabel: String(options.copyCodeLabel || 'Copy code'),
-			dealLabel: String(options.dealLabel || 'View deal'),
-			copiedLabel: String(options.copiedLabel || 'Copied!')
+			showCouponLabel: String(options.showCouponLabel || __( 'Show coupon', 'tabloria-searchable-displays' )),
+			copyCodeLabel: String(options.copyCodeLabel || __( 'Copy code', 'tabloria-searchable-displays' )),
+			dealLabel: String(options.dealLabel || __( 'View deal', 'tabloria-searchable-displays' )),
+			copiedLabel: String(options.copiedLabel || __( 'Copied!', 'tabloria-searchable-displays' ))
 		};
 	}
 
@@ -1290,11 +1300,11 @@
 		}
 		var options = ensureLayoutOptions(config).coupons;
 		return [
-			'<section class="tabloria-card-field-options"><h3>Coupon actions</h3><div class="tabloria-form-grid tabloria-form-grid--compact">',
-			'<div class="tabloria-field"><label for="' + prefix + '-show-coupon-label">Reveal button text</label><input id="' + prefix + '-show-coupon-label" class="tabloria-input" value="' + escapeHtml(options.showCouponLabel) + '"></div>',
-			'<div class="tabloria-field"><label for="' + prefix + '-copy-code-label">Copy button text</label><input id="' + prefix + '-copy-code-label" class="tabloria-input" value="' + escapeHtml(options.copyCodeLabel) + '"></div>',
-			'<div class="tabloria-field"><label for="' + prefix + '-deal-label">Deal-only button text</label><input id="' + prefix + '-deal-label" class="tabloria-input" value="' + escapeHtml(options.dealLabel) + '" placeholder="View deal or Visit website"></div>',
-			'</div><p class="tabloria-muted">Rows with a coupon reveal and copy the code. Rows without a code use the deal-only button.</p></section>'
+			'<section class="tabloria-card-field-options"><h3>' + escapeHtml( __( 'Coupon actions', 'tabloria-searchable-displays' ) ) + '</h3><div class="tabloria-form-grid tabloria-form-grid--compact">',
+			'<div class="tabloria-field"><label for="' + prefix + '-show-coupon-label">' + escapeHtml( __( 'Reveal button text', 'tabloria-searchable-displays' ) ) + '</label><input id="' + prefix + '-show-coupon-label" class="tabloria-input" value="' + escapeHtml(options.showCouponLabel) + '"></div>',
+			'<div class="tabloria-field"><label for="' + prefix + '-copy-code-label">' + escapeHtml( __( 'Copy button text', 'tabloria-searchable-displays' ) ) + '</label><input id="' + prefix + '-copy-code-label" class="tabloria-input" value="' + escapeHtml(options.copyCodeLabel) + '"></div>',
+			'<div class="tabloria-field"><label for="' + prefix + '-deal-label">' + escapeHtml( __( 'Deal-only button text', 'tabloria-searchable-displays' ) ) + '</label><input id="' + prefix + '-deal-label" class="tabloria-input" value="' + escapeHtml(options.dealLabel) + '" placeholder="' + escapeHtml( __( 'View deal or Visit website', 'tabloria-searchable-displays' ) ) + '"></div>',
+			'</div><p class="tabloria-muted">' + escapeHtml( __( 'Rows with a coupon reveal and copy the code. Rows without a code use the deal-only button.', 'tabloria-searchable-displays' ) ) + '</p></section>'
 		].join('');
 	}
 
@@ -1304,9 +1314,9 @@
 			return;
 		}
 		var options = ensureLayoutOptions(config).coupons;
-		options.showCouponLabel = showCoupon.value.trim() || 'Show coupon';
-		options.copyCodeLabel = valueOf('#' + prefix + '-copy-code-label').trim() || 'Copy code';
-		options.dealLabel = valueOf('#' + prefix + '-deal-label').trim() || 'View deal';
+		options.showCouponLabel = showCoupon.value.trim() || __( 'Show coupon', 'tabloria-searchable-displays' );
+		options.copyCodeLabel = valueOf('#' + prefix + '-copy-code-label').trim() || __( 'Copy code', 'tabloria-searchable-displays' );
+		options.dealLabel = valueOf('#' + prefix + '-deal-label').trim() || __( 'View deal', 'tabloria-searchable-displays' );
 	}
 
 	function cardLayoutOptions(config) {
@@ -1351,8 +1361,8 @@
 		if (search) {
 			state.config.search.enabled = search.checked;
 			state.config.search.hideRowsUntilSearch = root.querySelector('#hide-rows-until-search').checked;
-			state.config.search.placeholder = valueOf('#search-placeholder').trim() || 'Search all fields...';
-			state.config.search.emptyMessage = valueOf('#empty-message').trim() || 'No rows match the current search or filters.';
+			state.config.search.placeholder = valueOf('#search-placeholder').trim() || __( 'Search all fields...', 'tabloria-searchable-displays' );
+			state.config.search.emptyMessage = valueOf('#empty-message').trim() || __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' );
 		}
 		if (filters) {
 			state.config.filters.enabled = filters.checked;
@@ -1411,21 +1421,21 @@
 		var id = state.display ? state.display.id : 0;
 		return [
 			'<section class="tabloria-success">',
-			'<div class="tabloria-success__icon">OK</div>',
+			'<div class="tabloria-success__icon">' + escapeHtml( __( 'OK', 'tabloria-searchable-displays' ) ) + '</div>',
 			'<div>',
-			'<h2>Display saved. Put it on a page.</h2>',
-			'<p class="tabloria-muted">"' + escapeHtml(state.display.name || state.config.title) + '" is saved. Create a draft page with this Display already inserted, then review and publish it in WordPress.</p>',
+			'<h2>' + escapeHtml( __( 'Display saved. Put it on a page.', 'tabloria-searchable-displays' ) ) + '</h2>',
+			'<p class="tabloria-muted">' + escapeHtml( sprintf( /* translators: %s: Display name. */ __( '"%s" is saved. Create a draft page with this Display already inserted, then review and publish it in WordPress.', 'tabloria-searchable-displays' ), state.display.name || state.config.title ) ) + '</p>',
 			'<p><code>[tabloria id="' + escapeHtml(id) + '"]</code></p>',
 			'</div>',
 			'<div class="tabloria-actions" style="margin-top:0;justify-content:flex-end">',
-			'<button class="tabloria-button is-primary" data-create-draft-page>Create draft page</button>',
-			'<button class="tabloria-button" data-copy-shortcode>Copy shortcode</button>',
-			'<button class="tabloria-button" data-edit>Edit Display</button>',
-			'<button class="tabloria-button" data-list>Published Displays</button>',
+			'<button class="tabloria-button is-primary" data-create-draft-page>' + escapeHtml( __( 'Create draft page', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button" data-copy-shortcode>' + escapeHtml( __( 'Copy shortcode', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button" data-edit>' + escapeHtml( __( 'Edit Display', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button" data-list>' + escapeHtml( __( 'Published Displays', 'tabloria-searchable-displays' ) ) + '</button>',
 			'</div>',
 			'</section>',
 			'<section class="tabloria-preview" style="margin-top:28px">',
-			'<div class="tabloria-preview__bar">Saved Display preview</div>',
+			'<div class="tabloria-preview__bar">' + escapeHtml( __( 'Saved Display preview', 'tabloria-searchable-displays' ) ) + '</div>',
 			'<div class="tabloria-preview__body">' + renderMiniPreview(true) + '</div>',
 			'</section>'
 		].join('');
@@ -1463,15 +1473,15 @@
 
 	function renderDisplays() {
 		if (!state.loadedDisplays) {
-			return '<div class="tabloria-loading">Loading Published Displays...</div>';
+			return '<div class="tabloria-loading">' + escapeHtml( __( 'Loading Published Displays...', 'tabloria-searchable-displays' ) ) + '</div>';
 		}
 
 		return [
 			'<section class="tabloria-hero">',
-			'<p class="tabloria-kicker">Reusable Displays</p>',
-			'<h1>Published Displays</h1>',
-			'<p class="tabloria-subtitle">Manage the spreadsheet displays you can insert into WordPress pages.</p>',
-			'<div class="tabloria-actions"><button class="tabloria-button is-primary" data-create>Create Display</button></div>',
+			'<p class="tabloria-kicker">' + escapeHtml( __( 'Reusable Displays', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<h1>' + escapeHtml( __( 'Published Displays', 'tabloria-searchable-displays' ) ) + '</h1>',
+			'<p class="tabloria-subtitle">' + escapeHtml( __( 'Manage the spreadsheet displays you can insert into WordPress pages.', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<div class="tabloria-actions"><button class="tabloria-button is-primary" data-create>' + escapeHtml( __( 'Create Display', 'tabloria-searchable-displays' ) ) + '</button></div>',
 			'</section>',
 			state.displays.length ? '<section class="tabloria-display-cards">' + state.displays.map(renderDisplayCard).join('') + '</section>' : renderEmptyDisplays()
 		].join('');
@@ -1481,26 +1491,26 @@
 		var source = display.source || {};
 		var displayType = display.display_type || (display.config && display.config.displayType) || 'searchable_listings';
 		return [
-			'<article class="tabloria-display-card" data-display-id="' + escapeHtml(display.id) + '" tabindex="0" aria-label="Edit ' + escapeHtml(display.name || 'Published Display') + '">',
+			'<article class="tabloria-display-card" data-display-id="' + escapeHtml(display.id) + '" tabindex="0" aria-label="' + escapeHtml( sprintf( /* translators: %s: Display name. */ __( 'Edit %s', 'tabloria-searchable-displays' ), display.name || __( 'Published Display', 'tabloria-searchable-displays' ) ) ) + '">',
 			'<h3>' + escapeHtml(display.name) + '</h3>',
 			renderTypePreview(displayType),
 			'<div class="tabloria-display-card__meta">',
-			'<span>Type: ' + escapeHtml(labelForType(displayType)) + '</span>',
-			'<span>Rows: ' + escapeHtml(source.row_count || 0) + '</span>',
-			'<span>Source: ' + escapeHtml(source.original_filename || 'Spreadsheet') + '</span>',
-			'<span>Updated: ' + escapeHtml(display.updated_at || '') + '</span>',
+			'<span>' + escapeHtml( sprintf( /* translators: %s: Display type. */ __( 'Type: %s', 'tabloria-searchable-displays' ), labelForType(displayType) ) ) + '</span>',
+			'<span>' + escapeHtml( sprintf( /* translators: %s: Number of rows. */ __( 'Rows: %s', 'tabloria-searchable-displays' ), source.row_count || 0 ) ) + '</span>',
+			'<span>' + escapeHtml( sprintf( /* translators: %s: Source filename. */ __( 'Source: %s', 'tabloria-searchable-displays' ), source.original_filename || __( 'Spreadsheet', 'tabloria-searchable-displays' ) ) ) + '</span>',
+			'<span>' + escapeHtml( sprintf( /* translators: %s: Date and time of the last update. */ __( 'Updated: %s', 'tabloria-searchable-displays' ), display.updated_at || '' ) ) + '</span>',
 			'</div>',
 			'<div class="tabloria-display-card__actions">',
-			'<button class="tabloria-button" data-edit="' + escapeHtml(display.id) + '">Edit</button>',
-			'<button class="tabloria-button" data-copy="' + escapeHtml(display.id) + '">Copy shortcode</button>',
-			'<button class="tabloria-button is-danger" data-delete="' + escapeHtml(display.id) + '">Delete</button>',
+			'<button class="tabloria-button" data-edit="' + escapeHtml(display.id) + '">' + escapeHtml( __( 'Edit', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button" data-copy="' + escapeHtml(display.id) + '">' + escapeHtml( __( 'Copy shortcode', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button is-danger" data-delete="' + escapeHtml(display.id) + '">' + escapeHtml( __( 'Delete', 'tabloria-searchable-displays' ) ) + '</button>',
 			'</div>',
 			'</article>'
 		].join('');
 	}
 
 	function renderEmptyDisplays() {
-		return '<section class="tabloria-empty"><h2>No displays yet.</h2><p class="tabloria-muted">Upload a spreadsheet to create your first searchable page.</p><div class="tabloria-actions" style="justify-content:center"><button class="tabloria-button is-primary" data-create>Create Display</button></div></section>';
+		return '<section class="tabloria-empty"><h2>' + escapeHtml( __( 'No displays yet.', 'tabloria-searchable-displays' ) ) + '</h2><p class="tabloria-muted">' + escapeHtml( __( 'Upload a spreadsheet to create your first searchable page.', 'tabloria-searchable-displays' ) ) + '</p><div class="tabloria-actions" style="justify-content:center"><button class="tabloria-button is-primary" data-create>' + escapeHtml( __( 'Create Display', 'tabloria-searchable-displays' ) ) + '</button></div></section>';
 	}
 
 	function bindDisplays() {
@@ -1544,7 +1554,7 @@
 		});
 		root.querySelectorAll('[data-delete]').forEach(function (button) {
 			button.addEventListener('click', function () {
-				if (!window.confirm('Delete this Published Display? The source spreadsheet data will stay in Tabloria.')) {
+				if (!window.confirm(__( 'Delete this Published Display? The source spreadsheet data will stay in Tabloria.', 'tabloria-searchable-displays' ))) {
 					return;
 				}
 				request('/displays/' + button.dataset.delete, { method: 'DELETE' })
@@ -1642,8 +1652,8 @@
 		config.sort = config.sort || { field: '', direction: 'asc' };
 		config.search = config.search || { enabled: true };
 		config.search.hideRowsUntilSearch = !!config.search.hideRowsUntilSearch;
-		config.search.placeholder = String(config.search.placeholder || 'Search all fields...');
-		config.search.emptyMessage = String(config.search.emptyMessage || 'No rows match the current search or filters.');
+		config.search.placeholder = String(config.search.placeholder || __( 'Search all fields...', 'tabloria-searchable-displays' ));
+		config.search.emptyMessage = String(config.search.emptyMessage || __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ));
 		config.filters = config.filters || { enabled: true };
 		config.filters.showColumnNames = config.filters.showColumnNames !== false;
 		config.filters.hoverColor = String(config.filters.hoverColor || '');
@@ -1665,27 +1675,27 @@
 		var activeTab = state.editorTab || 'preview';
 		var showSidePreview = activeTab !== 'preview';
 		var tabs = [
-			['preview', 'Preview'],
-			['fields', 'Fields'],
-			['filters', 'Search & Filters'],
-			['source', 'Data Source'],
-			['publish', 'Publish']
+			['preview', __( 'Preview', 'tabloria-searchable-displays' )],
+			['fields', __( 'Fields', 'tabloria-searchable-displays' )],
+			['filters', __( 'Search & Filters', 'tabloria-searchable-displays' )],
+			['source', __( 'Data Source', 'tabloria-searchable-displays' )],
+			['publish', __( 'Publish', 'tabloria-searchable-displays' )]
 		];
 
 		return [
 			'<section class="tabloria-editor-header">',
 			'<div>',
-			'<p class="tabloria-kicker">Display Editor</p>',
-			'<h1>Edit Display</h1>',
-			'<p class="tabloria-subtitle">' + escapeHtml(config.title || state.display.name || 'Published Display') + ' from ' + escapeHtml(source.original_filename || 'Spreadsheet') + '</p>',
+			'<p class="tabloria-kicker">' + escapeHtml( __( 'Display Editor', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<h1>' + escapeHtml( __( 'Edit Display', 'tabloria-searchable-displays' ) ) + '</h1>',
+			'<p class="tabloria-subtitle">' + escapeHtml(config.title || state.display.name || __( 'Published Display', 'tabloria-searchable-displays' )) + ' from ' + escapeHtml(source.original_filename || __( 'Spreadsheet', 'tabloria-searchable-displays' )) + '</p>',
 			'</div>',
 			'<div class="tabloria-editor-actions">',
-			'<button class="tabloria-button" data-editor-list>Published Displays</button>',
-			'<button class="tabloria-button is-primary" data-editor-save>Save changes</button>',
+			'<button class="tabloria-button" data-editor-list>' + escapeHtml( __( 'Published Displays', 'tabloria-searchable-displays' ) ) + '</button>',
+			'<button class="tabloria-button is-primary" data-editor-save>' + escapeHtml( __( 'Save changes', 'tabloria-searchable-displays' ) ) + '</button>',
 			'</div>',
 			'</section>',
 			'<div class="tabloria-editor-layout' + (!showSidePreview ? ' is-preview-tab' : '') + '">',
-			'<aside class="tabloria-editor-tabs" aria-label="Display editor sections">',
+			'<aside class="tabloria-editor-tabs" aria-label="' + escapeHtml( __( 'Display editor sections', 'tabloria-searchable-displays' ) ) + '">',
 			tabs.map(function (tab) {
 				var active = activeTab === tab[0] ? ' is-active' : '';
 				return '<button type="button" class="' + active + '" data-editor-tab="' + escapeHtml(tab[0]) + '">' + escapeHtml(tab[1]) + '</button>';
@@ -1697,7 +1707,7 @@
 			showSidePreview ? [
 			'<aside class="tabloria-editor-side">',
 			'<div class="tabloria-preview">',
-			'<div class="tabloria-preview__bar">Live preview</div>',
+			'<div class="tabloria-preview__bar">' + escapeHtml( __( 'Live preview', 'tabloria-searchable-displays' ) ) + '</div>',
 			'<div class="tabloria-preview__body">' + renderMiniPreview(true) + '</div>',
 			'</div>',
 			'</aside>'
@@ -1725,8 +1735,8 @@
 	function renderEditorPreview() {
 		return [
 			'<div class="tabloria-editor-section">',
-			'<h2>Preview</h2>',
-			'<p class="tabloria-muted">This preview uses the first rows from the current source. The saved Display renders the full dataset on the front end.</p>',
+			'<h2>' + escapeHtml( __( 'Preview', 'tabloria-searchable-displays' ) ) + '</h2>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'This preview uses the first rows from the current source. The saved Display renders the full dataset on the front end.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'<div class="tabloria-preview" style="margin-top:18px">',
 			'<div class="tabloria-preview__bar">yourwebsite.com/' + escapeHtml(slugify(state.config.title || 'tabloria-display')) + '</div>',
 			'<div class="tabloria-preview__body">' + renderMiniPreview(true) + '</div>',
@@ -1741,11 +1751,11 @@
 
 		return [
 			'<div class="tabloria-editor-section">',
-			'<h2>Display Content</h2>',
-			'<p class="tabloria-muted">Pick the Display type and columns. The live preview updates from the current spreadsheet sample.</p>',
+			'<h2>' + escapeHtml( __( 'Display Content', 'tabloria-searchable-displays' ) ) + '</h2>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Pick the Display type and columns. The live preview updates from the current spreadsheet sample.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'<div class="tabloria-form-grid tabloria-form-grid--compact" style="margin-top:18px">',
-			'<div class="tabloria-field"><label for="editor-display-name">Display name</label><input id="editor-display-name" class="tabloria-input" value="' + escapeHtml(config.title || '') + '"></div>',
-			'<div class="tabloria-field"><label for="editor-display-type">Display type</label>' + renderDisplayTypeSelect('editor-display-type', currentDisplayType()) + '</div>',
+			'<div class="tabloria-field"><label for="editor-display-name">' + escapeHtml( __( 'Display name', 'tabloria-searchable-displays' ) ) + '</label><input id="editor-display-name" class="tabloria-input" value="' + escapeHtml(config.title || '') + '"></div>',
+			'<div class="tabloria-field"><label for="editor-display-type">' + escapeHtml( __( 'Display type', 'tabloria-searchable-displays' ) ) + '</label>' + renderDisplayTypeSelect('editor-display-type', currentDisplayType()) + '</div>',
 			'</div>',
 			'<div class="tabloria-editor-stack">',
 			renderContentMapper(roles, config, 'editor-role-', 'editor-visible-field', false),
@@ -1772,45 +1782,45 @@
 
 		return [
 			'<div class="tabloria-editor-section">',
-			'<h2>Search & Filters</h2>',
-			'<p class="tabloria-muted">Control what visitors can search, filter, sort, and page through.</p>',
+			'<h2>' + escapeHtml( __( 'Search & Filters', 'tabloria-searchable-displays' ) ) + '</h2>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Control what visitors can search, filter, sort, and page through.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'<div class="tabloria-editor-stack">',
 			'<section class="tabloria-editor-subsection">',
-			'<h3>Components</h3>',
+			'<h3>' + escapeHtml( __( 'Components', 'tabloria-searchable-displays' ) ) + '</h3>',
 			renderDisplayWidthOptions('editor-display-width', config),
-			'<div class="tabloria-field"><label for="editor-card-max-width">Maximum card width</label><select id="editor-card-max-width" class="tabloria-select"><option value="320"' + selected(config.style.cardMaxWidth, 320) + '>320px</option><option value="420"' + selected(config.style.cardMaxWidth || 420, 420) + '>420px</option><option value="520"' + selected(config.style.cardMaxWidth, 520) + '>520px</option><option value="0"' + selected(config.style.cardMaxWidth, 0) + '>No limit</option></select></div>',
-			renderToggle('editor-show-search', 'Show search', config.search.enabled),
-			'<div class="tabloria-field"><label for="editor-search-placeholder">Search placeholder</label><input id="editor-search-placeholder" class="tabloria-input" value="' + escapeHtml(config.search.placeholder || 'Search all fields...') + '" /></div>',
-			'<div class="tabloria-field"><label for="editor-empty-message">No results message</label><input id="editor-empty-message" class="tabloria-input" value="' + escapeHtml(config.search.emptyMessage || 'No rows match the current search or filters.') + '" /></div>',
+			'<div class="tabloria-field"><label for="editor-card-max-width">' + escapeHtml( __( 'Maximum card width', 'tabloria-searchable-displays' ) ) + '</label><select id="editor-card-max-width" class="tabloria-select"><option value="320"' + selected(config.style.cardMaxWidth, 320) + '>320px</option><option value="420"' + selected(config.style.cardMaxWidth || 420, 420) + '>420px</option><option value="520"' + selected(config.style.cardMaxWidth, 520) + '>520px</option><option value="0"' + selected(config.style.cardMaxWidth, 0) + '>' + escapeHtml( __( 'No limit', 'tabloria-searchable-displays' ) ) + '</option></select></div>',
+			renderToggle('editor-show-search', __( 'Show search', 'tabloria-searchable-displays' ), config.search.enabled),
+			'<div class="tabloria-field"><label for="editor-search-placeholder">' + escapeHtml( __( 'Search placeholder', 'tabloria-searchable-displays' ) ) + '</label><input id="editor-search-placeholder" class="tabloria-input" value="' + escapeHtml(config.search.placeholder || __( 'Search all fields...', 'tabloria-searchable-displays' )) + '" /></div>',
+			'<div class="tabloria-field"><label for="editor-empty-message">' + escapeHtml( __( 'No results message', 'tabloria-searchable-displays' ) ) + '</label><input id="editor-empty-message" class="tabloria-input" value="' + escapeHtml(config.search.emptyMessage || __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' )) + '" /></div>',
 			renderCouponOptions('editor-coupon', config),
-			renderToggle('editor-hide-rows-until-search', 'Hide rows until search', config.search.hideRowsUntilSearch),
-			'<p class="tabloria-muted">Do not display table rows until a search query is entered.</p>',
-			renderToggle('editor-show-filters', 'Show filters', config.filters.enabled),
-			renderToggle('editor-show-column-names', 'Show column names in filter values', config.filters.showColumnNames),
-			'<div class="tabloria-field"><label for="editor-dropdown-hover-color">Dropdown hover color</label><input id="editor-dropdown-hover-color" class="tabloria-input" type="color" value="' + escapeHtml(filterHoverColor(config)) + '" /></div>',
-			renderToggle('editor-show-pagination', 'Show pagination', config.pagination.enabled),
-			renderToggle('editor-show-result-count', 'Show result count', config.pagination.showResultCount),
-			'<div class="tabloria-field"><label for="editor-result-label">Result count label</label><input id="editor-result-label" class="tabloria-input" value="' + escapeHtml(config.pagination.resultLabel || 'rows') + '" placeholder="rows, offers, properties" /></div>',
-			'<div class="tabloria-field" style="margin-top:14px"><label for="editor-per-page">Items per page</label><select id="editor-per-page" class="tabloria-select"' + (!config.pagination.enabled ? ' disabled' : '') + '><option value="6"' + selected(config.pagination.perPage, 6) + '>6 items</option><option value="9"' + selected(config.pagination.perPage, 9) + '>9 items</option><option value="12"' + selected(config.pagination.perPage, 12) + '>12 items</option><option value="24"' + selected(config.pagination.perPage, 24) + '>24 items</option></select></div>',
+			renderToggle('editor-hide-rows-until-search', __( 'Hide rows until search', 'tabloria-searchable-displays' ), config.search.hideRowsUntilSearch),
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Do not display table rows until a search query is entered.', 'tabloria-searchable-displays' ) ) + '</p>',
+			renderToggle('editor-show-filters', __( 'Show filters', 'tabloria-searchable-displays' ), config.filters.enabled),
+			renderToggle('editor-show-column-names', __( 'Show column names in filter values', 'tabloria-searchable-displays' ), config.filters.showColumnNames),
+			'<div class="tabloria-field"><label for="editor-dropdown-hover-color">' + escapeHtml( __( 'Dropdown hover color', 'tabloria-searchable-displays' ) ) + '</label><input id="editor-dropdown-hover-color" class="tabloria-input" type="color" value="' + escapeHtml(filterHoverColor(config)) + '" /></div>',
+			renderToggle('editor-show-pagination', __( 'Show pagination', 'tabloria-searchable-displays' ), config.pagination.enabled),
+			renderToggle('editor-show-result-count', __( 'Show result count', 'tabloria-searchable-displays' ), config.pagination.showResultCount),
+			'<div class="tabloria-field"><label for="editor-result-label">' + escapeHtml( __( 'Result count label', 'tabloria-searchable-displays' ) ) + '</label><input id="editor-result-label" class="tabloria-input" value="' + escapeHtml(config.pagination.resultLabel || 'rows') + '" placeholder="' + escapeHtml( __( 'rows, offers, properties', 'tabloria-searchable-displays' ) ) + '" /></div>',
+			'<div class="tabloria-field" style="margin-top:14px"><label for="editor-per-page">' + escapeHtml( __( 'Items per page', 'tabloria-searchable-displays' ) ) + '</label><select id="editor-per-page" class="tabloria-select"' + (!config.pagination.enabled ? ' disabled' : '') + '><option value="6"' + selected(config.pagination.perPage, 6) + '>' + escapeHtml(itemsLabel(6)) + '</option><option value="9"' + selected(config.pagination.perPage, 9) + '>' + escapeHtml(itemsLabel(9)) + '</option><option value="12"' + selected(config.pagination.perPage, 12) + '>' + escapeHtml(itemsLabel(12)) + '</option><option value="24"' + selected(config.pagination.perPage, 24) + '>' + escapeHtml(itemsLabel(24)) + '</option></select></div>',
 			'</section>',
 			'<section class="tabloria-editor-subsection">',
-			'<h3>Default Filter</h3>',
+			'<h3>' + escapeHtml( __( 'Default Filter', 'tabloria-searchable-displays' ) ) + '</h3>',
 			'<div class="tabloria-filter-builder">',
 			renderColumnSelect('editor-default-filter-field', filter.field || '', true),
 			renderFilterOperatorSelect('editor-default-filter-operator', filter.operator || 'equals'),
-			'<input id="editor-default-filter-value" class="tabloria-input" placeholder="Value, for example Available" value="' + escapeHtml(filter.value || '') + '">',
+			'<input id="editor-default-filter-value" class="tabloria-input" placeholder="' + escapeHtml( __( 'Value, for example Available', 'tabloria-searchable-displays' ) ) + '" value="' + escapeHtml(filter.value || '') + '">',
 			'</div>',
 			'</section>',
 			'<section class="tabloria-editor-subsection">',
-			'<h3>Visitor Filters</h3>',
+			'<h3>' + escapeHtml( __( 'Visitor Filters', 'tabloria-searchable-displays' ) ) + '</h3>',
 			columns.map(function (column) {
 				var checked = (config.visitorFilters || []).indexOf(column.key) >= 0 ? ' checked' : '';
 				return '<label class="tabloria-check-row"><input type="checkbox" name="editor-visitor-filter" value="' + escapeHtml(column.key) + '"' + checked + '><span>' + escapeHtml(column.label) + '</span></label>';
-			}).join('') || '<p class="tabloria-muted">No columns found in this source.</p>',
+			}).join('') || '<p class="tabloria-muted">' + escapeHtml( __( 'No columns found in this source.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</section>',
 			'<section class="tabloria-editor-subsection">',
-			'<h3>Default Sort</h3>',
-			'<div class="tabloria-filter-builder">' + renderColumnSelect('editor-sort-field', config.sort.field || '', true) + '<select class="tabloria-select" id="editor-sort-direction"><option value="asc"' + selected(config.sort.direction, 'asc') + '>Low to high</option><option value="desc"' + selected(config.sort.direction, 'desc') + '>High to low</option></select><span></span></div>',
+			'<h3>' + escapeHtml( __( 'Default Sort', 'tabloria-searchable-displays' ) ) + '</h3>',
+			'<div class="tabloria-filter-builder">' + renderColumnSelect('editor-sort-field', config.sort.field || '', true) + '<select class="tabloria-select" id="editor-sort-direction"><option value="asc"' + selected(config.sort.direction, 'asc') + '>' + escapeHtml( __( 'Low to high', 'tabloria-searchable-displays' ) ) + '</option><option value="desc"' + selected(config.sort.direction, 'desc') + '>' + escapeHtml( __( 'High to low', 'tabloria-searchable-displays' ) ) + '</option></select><span></span></div>',
 			'</section>',
 			'</div>',
 			'</div>'
@@ -1822,44 +1832,44 @@
 		var columns = source.columns || [];
 		var summary = state.updateSummary;
 		var sync = state.sync || { path: '', enabled: false, frequency: 'daily', time: '03:00', weekday: 1 };
-		var weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+		var weekdays = [__( 'Monday', 'tabloria-searchable-displays' ), __( 'Tuesday', 'tabloria-searchable-displays' ), __( 'Wednesday', 'tabloria-searchable-displays' ), __( 'Thursday', 'tabloria-searchable-displays' ), __( 'Friday', 'tabloria-searchable-displays' ), __( 'Saturday', 'tabloria-searchable-displays' ), __( 'Sunday', 'tabloria-searchable-displays' )];
 
 		return [
 			'<div class="tabloria-editor-section">',
-			'<h2>Data Source</h2>',
-			'<p class="tabloria-muted">Replace the CSV when the spreadsheet changes. Tabloria keeps the same Display ID and shows how columns matched.</p>',
+			'<h2>' + escapeHtml( __( 'Data Source', 'tabloria-searchable-displays' ) ) + '</h2>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Replace the CSV when the spreadsheet changes. Tabloria keeps the same Display ID and shows how columns matched.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'<div class="tabloria-source-grid">',
-			renderSourceStat('File', source.original_filename || 'Spreadsheet'),
-			renderSourceStat('Rows', source.row_count || 0),
-			renderSourceStat('Columns', columns.length),
-			renderSourceStat('Updated', source.updated_at || source.created_at || ''),
+			renderSourceStat(__( 'File', 'tabloria-searchable-displays' ), source.original_filename || __( 'Spreadsheet', 'tabloria-searchable-displays' )),
+			renderSourceStat(__( 'Rows', 'tabloria-searchable-displays' ), source.row_count || 0),
+			renderSourceStat(__( 'Columns', 'tabloria-searchable-displays' ), columns.length),
+			renderSourceStat(__( 'Updated', 'tabloria-searchable-displays' ), source.updated_at || source.created_at || ''),
 			'</div>',
 			'<div class="tabloria-actions">',
-			'<label class="tabloria-button is-primary">Replace CSV<input type="file" accept=".csv,text/csv" data-editor-update hidden></label>',
+			'<label class="tabloria-button is-primary">' + escapeHtml( __( 'Replace CSV', 'tabloria-searchable-displays' ) ) + '<input type="file" accept=".csv,text/csv" data-editor-update hidden></label>',
 			'</div>',
 			summary ? renderUpdateSummary(summary) : '',
 			'<section class="tabloria-editor-subsection" style="margin-top:24px">',
-			'<h3>CSV file on this server</h3>',
-			'<p class="tabloria-muted">Place the CSV in a private directory using SFTP. A refresh updates every Display using this source. Upload a new file under a temporary name, then rename it into place.</p>',
-			'<p class="tabloria-muted">Private directory: <code>' + escapeHtml(sync.importDirectory || '') + '</code></p>',
-			'<div class="tabloria-field"><label for="tabloria-sync-path">CSV filename in that directory</label><input class="tabloria-input" id="tabloria-sync-path" data-sync-control value="' + escapeHtml(sync.path || '') + '" placeholder="catalog.csv" /></div>',
-			'<label class="tabloria-check-row"><input type="checkbox" id="tabloria-sync-enabled" data-sync-control' + (sync.enabled ? ' checked' : '') + '><span>Refresh automatically</span></label>',
+			'<h3>' + escapeHtml( __( 'CSV file on this server', 'tabloria-searchable-displays' ) ) + '</h3>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Place the CSV in a private directory using SFTP. A refresh updates every Display using this source. Upload a new file under a temporary name, then rename it into place.', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Private directory:', 'tabloria-searchable-displays' ) ) + ' <code>' + escapeHtml(sync.importDirectory || '') + '</code></p>',
+			'<div class="tabloria-field"><label for="tabloria-sync-path">' + escapeHtml( __( 'CSV filename in that directory', 'tabloria-searchable-displays' ) ) + '</label><input class="tabloria-input" id="tabloria-sync-path" data-sync-control value="' + escapeHtml(sync.path || '') + '" placeholder="catalog.csv" /></div>',
+			'<label class="tabloria-check-row"><input type="checkbox" id="tabloria-sync-enabled" data-sync-control' + (sync.enabled ? ' checked' : '') + '><span>' + escapeHtml( __( 'Refresh automatically', 'tabloria-searchable-displays' ) ) + '</span></label>',
 			'<div class="tabloria-source-sync-grid">',
-			'<div class="tabloria-field"><label for="tabloria-sync-frequency">Repeat</label><select class="tabloria-select" id="tabloria-sync-frequency" data-sync-control><option value="six_hours"' + selected(sync.frequency, 'six_hours') + '>Every 6 hours</option><option value="twelve_hours"' + selected(sync.frequency, 'twelve_hours') + '>Every 12 hours</option><option value="daily"' + selected(sync.frequency, 'daily') + '>Every day</option><option value="weekly"' + selected(sync.frequency, 'weekly') + '>Every week</option></select></div>',
-			'<div class="tabloria-field"><label for="tabloria-sync-time">Start time</label><input type="time" class="tabloria-input" id="tabloria-sync-time" data-sync-control value="' + escapeHtml(sync.time || '03:00') + '" /></div>',
-			'<div class="tabloria-field"><label for="tabloria-sync-weekday">Weekday (weekly only)</label><select class="tabloria-select" id="tabloria-sync-weekday" data-sync-control>' + weekdays.map(function (day, index) { return '<option value="' + (index + 1) + '"' + selected(sync.weekday, index + 1) + '>' + day + '</option>'; }).join('') + '</select></div>',
+			'<div class="tabloria-field"><label for="tabloria-sync-frequency">' + escapeHtml( __( 'Repeat', 'tabloria-searchable-displays' ) ) + '</label><select class="tabloria-select" id="tabloria-sync-frequency" data-sync-control><option value="six_hours"' + selected(sync.frequency, 'six_hours') + '>' + escapeHtml( __( 'Every 6 hours', 'tabloria-searchable-displays' ) ) + '</option><option value="twelve_hours"' + selected(sync.frequency, 'twelve_hours') + '>' + escapeHtml( __( 'Every 12 hours', 'tabloria-searchable-displays' ) ) + '</option><option value="daily"' + selected(sync.frequency, 'daily') + '>' + escapeHtml( __( 'Every day', 'tabloria-searchable-displays' ) ) + '</option><option value="weekly"' + selected(sync.frequency, 'weekly') + '>' + escapeHtml( __( 'Every week', 'tabloria-searchable-displays' ) ) + '</option></select></div>',
+			'<div class="tabloria-field"><label for="tabloria-sync-time">' + escapeHtml( __( 'Start time', 'tabloria-searchable-displays' ) ) + '</label><input type="time" class="tabloria-input" id="tabloria-sync-time" data-sync-control value="' + escapeHtml(sync.time || '03:00') + '" /></div>',
+			'<div class="tabloria-field"><label for="tabloria-sync-weekday">' + escapeHtml( __( 'Weekday (weekly only)', 'tabloria-searchable-displays' ) ) + '</label><select class="tabloria-select" id="tabloria-sync-weekday" data-sync-control>' + weekdays.map(function (day, index) { return '<option value="' + (index + 1) + '"' + selected(sync.weekday, index + 1) + '>' + day + '</option>'; }).join('') + '</select></div>',
 			'</div>',
-			'<p class="tabloria-muted">Times use the WordPress site timezone: ' + escapeHtml(sync.timezone || '') + '. WP-Cron runs when the site receives a visit, so an automatic refresh may start later than the selected time.</p>',
-			'<div class="tabloria-actions"><button type="button" class="tabloria-button" data-source-sync-save>Save source settings</button><button type="button" class="tabloria-button is-primary" data-source-sync-refresh>Refresh now</button></div>',
+			'<p class="tabloria-muted">' + escapeHtml( sprintf( /* translators: %s: Timezone name. */ __( 'Times use the WordPress site timezone: %s. WP-Cron runs when the site receives a visit, so an automatic refresh may start later than the selected time.', 'tabloria-searchable-displays' ), sync.timezone || '' ) ) + '</p>',
+			'<div class="tabloria-actions"><button type="button" class="tabloria-button" data-source-sync-save>' + escapeHtml( __( 'Save source settings', 'tabloria-searchable-displays' ) ) + '</button><button type="button" class="tabloria-button is-primary" data-source-sync-refresh>' + escapeHtml( __( 'Refresh now', 'tabloria-searchable-displays' ) ) + '</button></div>',
 			'<div class="tabloria-source-grid">',
-			renderSourceStat('Last check', sync.lastCheck || 'Never'),
-			renderSourceStat('Last success', sync.lastSuccess || 'Never'),
-			renderSourceStat('Next refresh', sync.nextRunLabel || 'Not scheduled'),
+			renderSourceStat(__( 'Last check', 'tabloria-searchable-displays' ), sync.lastCheck || __( 'Never', 'tabloria-searchable-displays' )),
+			renderSourceStat(__( 'Last success', 'tabloria-searchable-displays' ), sync.lastSuccess || __( 'Never', 'tabloria-searchable-displays' )),
+			renderSourceStat(__( 'Next refresh', 'tabloria-searchable-displays' ), sync.nextRunLabel || __( 'Not scheduled', 'tabloria-searchable-displays' )),
 			'</div>',
-			sync.lastError ? '<p class="tabloria-source-sync-error" role="alert">Last error: ' + escapeHtml(sync.lastError) + '</p>' : '',
+			sync.lastError ? '<p class="tabloria-source-sync-error" role="alert">' + escapeHtml( sprintf( /* translators: %s: Error message. */ __( 'Last error: %s', 'tabloria-searchable-displays' ), sync.lastError ) ) + '</p>' : '',
 			'</section>',
 			'<section class="tabloria-editor-subsection" style="margin-top:24px">',
-			'<h3>Current Sample</h3>',
+			'<h3>' + escapeHtml( __( 'Current Sample', 'tabloria-searchable-displays' ) ) + '</h3>',
 			renderTable((state.sample || []).slice(0, 5), columns),
 			'</section>',
 			'</div>'
@@ -1873,11 +1883,11 @@
 	function renderUpdateSummary(summary) {
 		return [
 			'<section class="tabloria-update-summary">',
-			'<h3>Update Summary</h3>',
+			'<h3>' + escapeHtml( __( 'Update Summary', 'tabloria-searchable-displays' ) ) + '</h3>',
 			'<div class="tabloria-match-grid">',
-			renderMatchCard('Matched', summary.matchedCount || 0, (summary.matched || []).map(function (pair) { return pair.old && pair.new ? pair.old.label + ' -> ' + pair.new.label : ''; })),
-			renderMatchCard('New', summary.newCount || 0, (summary.new || []).map(function (column) { return column.label || column.key; })),
-			renderMatchCard('Missing', summary.missingCount || 0, (summary.missing || []).map(function (column) { return column.label || column.key; })),
+			renderMatchCard(__( 'Matched', 'tabloria-searchable-displays' ), summary.matchedCount || 0, (summary.matched || []).map(function (pair) { return pair.old && pair.new ? pair.old.label + ' -> ' + pair.new.label : ''; })),
+			renderMatchCard(__( 'New', 'tabloria-searchable-displays' ), summary.newCount || 0, (summary.new || []).map(function (column) { return column.label || column.key; })),
+			renderMatchCard(__( 'Missing', 'tabloria-searchable-displays' ), summary.missingCount || 0, (summary.missing || []).map(function (column) { return column.label || column.key; })),
 			'</div>',
 			'</section>'
 		].join('');
@@ -1889,7 +1899,7 @@
 			'<article class="tabloria-match-card">',
 			'<span>' + escapeHtml(label) + '</span>',
 			'<strong>' + escapeHtml(count) + '</strong>',
-			items.length ? '<ul>' + items.map(function (item) { return '<li>' + escapeHtml(item) + '</li>'; }).join('') + '</ul>' : '<p class="tabloria-muted">No column changes.</p>',
+			items.length ? '<ul>' + items.map(function (item) { return '<li>' + escapeHtml(item) + '</li>'; }).join('') + '</ul>' : '<p class="tabloria-muted">' + escapeHtml( __( 'No column changes.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</article>'
 		].join('');
 	}
@@ -1900,17 +1910,17 @@
 
 		return [
 			'<div class="tabloria-editor-section">',
-			'<h2>Publish</h2>',
-			'<p class="tabloria-muted">Use the Tabloria Display block in Gutenberg, or paste the shortcode anywhere shortcodes are supported.</p>',
+			'<h2>' + escapeHtml( __( 'Publish', 'tabloria-searchable-displays' ) ) + '</h2>',
+			'<p class="tabloria-muted">' + escapeHtml( __( 'Use the Tabloria Display block in Gutenberg, or paste the shortcode anywhere shortcodes are supported.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'<div class="tabloria-copy-box">',
 			'<code>' + escapeHtml(shortcode) + '</code>',
-			'<button type="button" class="tabloria-button is-primary" data-editor-copy>Copy shortcode</button>',
+			'<button type="button" class="tabloria-button is-primary" data-editor-copy>' + escapeHtml( __( 'Copy shortcode', 'tabloria-searchable-displays' ) ) + '</button>',
 			'</div>',
 			'<div class="tabloria-source-grid" style="margin-top:20px">',
-			renderSourceStat('Display ID', id),
-			renderSourceStat('Status', state.display.status || 'published'),
-			renderSourceStat('Type', labelForType(currentDisplayType())),
-			renderSourceStat('Last saved', state.display.updated_at || ''),
+			renderSourceStat(__( 'Display ID', 'tabloria-searchable-displays' ), id),
+			renderSourceStat(__( 'Status', 'tabloria-searchable-displays' ), state.display.status || 'published'),
+			renderSourceStat(__( 'Type', 'tabloria-searchable-displays' ), labelForType(currentDisplayType())),
+			renderSourceStat(__( 'Last saved', 'tabloria-searchable-displays' ), state.display.updated_at || ''),
 			'</div>',
 			'</div>'
 		].join('');
@@ -1984,7 +1994,7 @@
 		var config = ensureConfig();
 		var displayName = root.querySelector('#editor-display-name');
 		if (displayName) {
-			config.title = displayName.value.trim() || 'Published Display';
+			config.title = displayName.value.trim() || __( 'Published Display', 'tabloria-searchable-displays' );
 		}
 
 		if (root.querySelector('#editor-role-title')) {
@@ -2010,8 +2020,8 @@
 			config.style = config.style || {};
 			config.search.enabled = root.querySelector('#editor-show-search').checked;
 			config.search.hideRowsUntilSearch = root.querySelector('#editor-hide-rows-until-search').checked;
-			config.search.placeholder = valueOf('#editor-search-placeholder').trim() || 'Search all fields...';
-			config.search.emptyMessage = valueOf('#editor-empty-message').trim() || 'No rows match the current search or filters.';
+			config.search.placeholder = valueOf('#editor-search-placeholder').trim() || __( 'Search all fields...', 'tabloria-searchable-displays' );
+			config.search.emptyMessage = valueOf('#editor-empty-message').trim() || __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' );
 			config.filters.enabled = root.querySelector('#editor-show-filters').checked;
 			config.filters.showColumnNames = root.querySelector('#editor-show-column-names').checked;
 			config.filters.hoverColor = valueOf('#editor-dropdown-hover-color');
@@ -2050,7 +2060,7 @@
 		collectEditor();
 		state.displayType = displayType;
 		state.config = rebuildConfigForDisplayType(displayType, cloneConfig(state.config));
-		state.notice = 'Display type changed. Review fields before saving.';
+		state.notice = __( 'Display type changed. Review fields before saving.', 'tabloria-searchable-displays' );
 		render();
 	}
 
@@ -2104,7 +2114,7 @@
 			state.source = display.source || state.source;
 			state.loadedDisplays = false;
 			state.loading = false;
-			state.notice = 'Display changes saved.';
+			state.notice = __( 'Display changes saved.', 'tabloria-searchable-displays' );
 			render();
 		}).catch(function (error) {
 			state.loading = false;
@@ -2131,7 +2141,7 @@
 				state.loadedDisplays = false;
 				state.loading = false;
 				state.editorTab = 'source';
-				state.notice = 'CSV data updated. Review the column summary before saving field changes.';
+				state.notice = __( 'CSV data updated. Review the column summary before saving field changes.', 'tabloria-searchable-displays' );
 				render();
 			})
 			.catch(function (error) {
@@ -2159,7 +2169,7 @@
 			.then(function (sync) {
 				state.sync = sync;
 				state.loading = false;
-				state.notice = 'Source settings saved.';
+				state.notice = __( 'Source settings saved.', 'tabloria-searchable-displays' );
 				render();
 			})
 			.catch(function (error) {
@@ -2185,7 +2195,7 @@
 				state.updateSummary = response.summary || null;
 				state.loadedDisplays = false;
 				state.loading = false;
-				state.notice = 'CSV refreshed from the server file.';
+				state.notice = __( 'CSV refreshed from the server file.', 'tabloria-searchable-displays' );
 				render();
 			})
 			.catch(function (error) {
@@ -2202,17 +2212,17 @@
 		};
 		return [
 			'<section class="tabloria-hero">',
-			'<p class="tabloria-kicker">Defaults</p>',
-			'<h1>Settings</h1>',
-			'<p class="tabloria-subtitle">Keep MVP settings small so Tabloria stays focused on publishing Displays.</p>',
+			'<p class="tabloria-kicker">' + escapeHtml( __( 'Defaults', 'tabloria-searchable-displays' ) ) + '</p>',
+			'<h1>' + escapeHtml( __( 'Settings', 'tabloria-searchable-displays' ) ) + '</h1>',
+			'<p class="tabloria-subtitle">' + escapeHtml( __( 'Keep MVP settings small so Tabloria stays focused on publishing Displays.', 'tabloria-searchable-displays' ) ) + '</p>',
 			'</section>',
 			'<section class="tabloria-panel">',
 			'<div class="tabloria-form-grid">',
-			'<div class="tabloria-field"><label for="setting-accent">Default accent color</label><input id="setting-accent" class="tabloria-input" type="color" value="' + escapeHtml(settings.defaultAccentColor || '#3525cd') + '"></div>',
-			'<div class="tabloria-field"><label for="setting-rows">Default rows per page</label><select id="setting-rows" class="tabloria-select"><option value="12"' + selected(settings.defaultRowsPerPage, 12) + '>12</option><option value="24"' + selected(settings.defaultRowsPerPage, 24) + '>24</option><option value="48"' + selected(settings.defaultRowsPerPage, 48) + '>48</option></select></div>',
+			'<div class="tabloria-field"><label for="setting-accent">' + escapeHtml( __( 'Default accent color', 'tabloria-searchable-displays' ) ) + '</label><input id="setting-accent" class="tabloria-input" type="color" value="' + escapeHtml(settings.defaultAccentColor || '#3525cd') + '"></div>',
+			'<div class="tabloria-field"><label for="setting-rows">' + escapeHtml( __( 'Default rows per page', 'tabloria-searchable-displays' ) ) + '</label><select id="setting-rows" class="tabloria-select"><option value="12"' + selected(settings.defaultRowsPerPage, 12) + '>12</option><option value="24"' + selected(settings.defaultRowsPerPage, 24) + '>24</option><option value="48"' + selected(settings.defaultRowsPerPage, 48) + '>48</option></select></div>',
 			'</div>',
-			'<label class="tabloria-check-row" style="margin-top:18px"><input id="setting-delete" type="checkbox"' + (settings.deleteDataOnUninstall ? ' checked' : '') + '><span>Delete plugin data on uninstall</span></label>',
-			'<div class="tabloria-actions"><button class="tabloria-button is-primary" data-settings-save>Save Settings</button></div>',
+			'<label class="tabloria-check-row" style="margin-top:18px"><input id="setting-delete" type="checkbox"' + (settings.deleteDataOnUninstall ? ' checked' : '') + '><span>' + escapeHtml( __( 'Delete plugin data on uninstall', 'tabloria-searchable-displays' ) ) + '</span></label>',
+			'<div class="tabloria-actions"><button class="tabloria-button is-primary" data-settings-save>' + escapeHtml( __( 'Save Settings', 'tabloria-searchable-displays' ) ) + '</button></div>',
 			'</section>'
 		].join('');
 	}
@@ -2221,7 +2231,7 @@
 		root.querySelector('[data-settings-save]').addEventListener('click', function (event) {
 			var button = event.currentTarget;
 			button.disabled = true;
-			button.textContent = 'Saving...';
+			button.textContent = __( 'Saving...', 'tabloria-searchable-displays' );
 			request('/settings', {
 				method: 'PUT',
 				body: {
@@ -2232,7 +2242,7 @@
 			}).then(function (settings) {
 				state.settings = settings;
 				button.disabled = false;
-				button.textContent = 'Saved';
+				button.textContent = __( 'Saved', 'tabloria-searchable-displays' );
 				window.setTimeout(render, 900);
 			}).catch(function (error) {
 				button.disabled = false;
@@ -2260,7 +2270,7 @@
 		rows = rows || [];
 		columns = columns || [];
 		if (!rows.length) {
-			return '<p class="tabloria-muted">No rows found in this spreadsheet.</p>';
+			return '<p class="tabloria-muted">' + escapeHtml( __( 'No rows found in this spreadsheet.', 'tabloria-searchable-displays' ) ) + '</p>';
 		}
 
 		return [
@@ -2282,7 +2292,7 @@
 		var rawRows = state.sample && state.sample.length ? state.sample : sampleRowsFromConfig();
 		var rows = preparePreviewRows(rawRows);
 		var roles = state.config.fieldRoles || {};
-		var title = state.config.title || 'Available Apartments';
+		var title = state.config.title || __( 'Available Apartments', 'tabloria-searchable-displays' );
 		var accent = state.config.style && state.config.style.accentColor ? state.config.style.accentColor : '#3525cd';
 		var density = state.config.style && state.config.style.density === 'compact' ? 'is-compact' : 'is-comfortable';
 		var imageShape = state.config.style && state.config.style.imageShape === 'square' ? 'is-square' : 'is-rounded';
@@ -2307,7 +2317,7 @@
 
 	function renderMiniRowsByType(displayType, rows, roles, accent) {
 		if (!rows.length) {
-			return '<p class="tabloria-muted tabloria-mini-empty">' + escapeHtml((state.config.search && state.config.search.emptyMessage) || 'No rows match the current search or filters.') + '</p>';
+			return '<p class="tabloria-muted tabloria-mini-empty">' + escapeHtml((state.config.search && state.config.search.emptyMessage) || __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' )) + '</p>';
 		}
 
 		if (displayType === 'event_schedule') {
@@ -2346,7 +2356,7 @@
 	}
 
 	function miniParts(row, roles) {
-		var title = valueForExample(row, roles.title) || bestRowTitle(row) || 'Display item';
+		var title = valueForExample(row, roles.title) || bestRowTitle(row) || __( 'Display item', 'tabloria-searchable-displays' );
 		var fieldParts = miniFieldParts(row, roles);
 		return {
 			title: title,
@@ -2438,7 +2448,7 @@
 		var part = miniParts(row, roles);
 		return [
 			'<article class="tabloria-mini-schedule-item">',
-			'<div class="tabloria-mini-schedule-item__time"><span>Date / time</span><strong>' + escapeHtml(part.highlight || 'Not set') + '</strong></div>',
+			'<div class="tabloria-mini-schedule-item__time"><span>' + escapeHtml( __( 'Date / time', 'tabloria-searchable-displays' ) ) + '</span><strong>' + escapeHtml(part.highlight || __( 'Not set', 'tabloria-searchable-displays' )) + '</strong></div>',
 			'<div class="tabloria-mini-schedule-item__body">',
 			part.badge ? '<span class="tabloria-mini-badge">' + escapeHtml(part.badge) + '</span>' : '',
 			'<h4>' + escapeHtml(part.title) + '</h4>',
@@ -2468,7 +2478,7 @@
 		return [
 			'<div class="tabloria-mini-preview tabloria-mini-preview--simple-data-table">',
 			renderPreviewNote(sourceRows),
-			'<h2>' + escapeHtml(state.config.title || 'Published Table') + '</h2>',
+			'<h2>' + escapeHtml(state.config.title || __( 'Published Table', 'tabloria-searchable-displays' )) + '</h2>',
 			renderMiniControls(),
 			renderMappingTableExample(state.config, rows, previewCount),
 			renderMiniPagination(totalRows, perPage, previewCount),
@@ -2478,13 +2488,13 @@
 
 	function renderPreviewNote(sourceRows) {
 		if (state.config.search && state.config.search.enabled && state.config.search.hideRowsUntilSearch) {
-			return '<p class="tabloria-preview-note">Preview sample. The saved Display will hide rows until a search query is entered.</p>';
+			return '<p class="tabloria-preview-note">' + escapeHtml( __( 'Preview sample. The saved Display will hide rows until a search query is entered.', 'tabloria-searchable-displays' ) ) + '</p>';
 		}
 		if (hasActiveDefaultFilter()) {
-			return '<p class="tabloria-preview-note">Preview sample after the default filter. The saved Display applies this filter to all ' + escapeHtml(sourceRows) + ' source rows.</p>';
+			return '<p class="tabloria-preview-note">' + escapeHtml( sprintf( /* translators: %s: Number of source rows. */ __( 'Preview sample after the default filter. The saved Display applies this filter to all %s source rows.', 'tabloria-searchable-displays' ), sourceRows ) ) + '</p>';
 		}
 
-		return '<p class="tabloria-preview-note">Preview sample. The saved Display will render all ' + escapeHtml(sourceRows) + ' rows.</p>';
+		return '<p class="tabloria-preview-note">' + escapeHtml( sprintf( /* translators: %s: Number of source rows. */ __( 'Preview sample. The saved Display will render all %s rows.', 'tabloria-searchable-displays' ), sourceRows ) ) + '</p>';
 	}
 
 	function preparePreviewRows(rows) {
@@ -2565,11 +2575,11 @@
 	function renderMiniControls() {
 		var parts = [];
 		if (state.config.search && state.config.search.enabled) {
-			parts.push('<input class="tabloria-input" placeholder="' + escapeHtml((state.config.search && state.config.search.placeholder) || 'Search all fields...') + '" />');
+			parts.push('<input class="tabloria-input" placeholder="' + escapeHtml((state.config.search && state.config.search.placeholder) || __( 'Search all fields...', 'tabloria-searchable-displays' )) + '" />');
 		}
 		if (state.config.filters && state.config.filters.enabled && state.config.visitorFilters && state.config.visitorFilters.length) {
 			parts.push('<div class="tabloria-mini-filters">' + state.config.visitorFilters.slice(0, 3).map(function (field) {
-				return '<select class="tabloria-select"><option>All ' + escapeHtml(labelForField(field)) + '</option></select>';
+				return '<select class="tabloria-select"><option>' + escapeHtml( sprintf( /* translators: %s: column label. */ __( 'All %s', 'tabloria-searchable-displays' ), labelForField(field) ) ) + '</option></select>';
 			}).join('') + '</div>');
 		}
 
@@ -2675,10 +2685,13 @@
 		var totalPages = Math.max(1, Math.ceil(totalRows / Math.max(1, perPage)));
 		var visibleEnd = Math.min(previewCount, totalRows);
 		var finalEnd = Math.min(perPage, totalRows);
-		var rowLabel = hasActiveDefaultFilter() ? ' matching sample rows' : ' rows';
+		var previewStart = totalRows ? 1 : 0;
+		var previewText = hasActiveDefaultFilter()
+			? sprintf( /* translators: 1: first row number, 2: last row number, 3: total matching rows. */ __( 'Previewing %1$s to %2$s of %3$s matching sample rows', 'tabloria-searchable-displays' ), previewStart, visibleEnd, totalRows )
+			: sprintf( /* translators: 1: first row number, 2: last row number, 3: total rows. */ __( 'Previewing %1$s to %2$s of %3$s rows', 'tabloria-searchable-displays' ), previewStart, visibleEnd, totalRows );
 		var buttons = '';
 		if (totalPages > 1) {
-			buttons = '<button type="button" disabled>Prev</button><button type="button" class="is-active">1</button>';
+			buttons = '<button type="button" disabled>' + escapeHtml( __( 'Prev', 'tabloria-searchable-displays' ) ) + '</button><button type="button" class="is-active">1</button>';
 			if (totalPages >= 2) {
 				buttons += '<button type="button">2</button>';
 			}
@@ -2688,15 +2701,15 @@
 			if (totalPages > 2) {
 				buttons += '<button type="button">' + totalPages + '</button>';
 			}
-			buttons += '<button type="button">Next</button>';
+			buttons += '<button type="button">' + escapeHtml( __( 'Next', 'tabloria-searchable-displays' ) ) + '</button>';
 		} else {
-			buttons = '<span>Page 1 of 1</span>';
+			buttons = '<span>' + escapeHtml( __( 'Page 1 of 1', 'tabloria-searchable-displays' ) ) + '</span>';
 		}
 
 		return [
 			'<div class="tabloria-mini-pagination">',
-			'<p>Previewing ' + (totalRows ? 1 : 0) + ' to ' + visibleEnd + ' of ' + totalRows + rowLabel + (visibleEnd < finalEnd ? '<br><span>Final Display shows ' + finalEnd + ' per page.</span>' : '') + '</p>',
-			'<nav aria-label="Preview pagination">' + buttons + '</nav>',
+			'<p>' + escapeHtml( previewText ) + (visibleEnd < finalEnd ? '<br><span>' + escapeHtml( sprintf( /* translators: %s: Number of rows shown per page. */ __( 'Final Display shows %s per page.', 'tabloria-searchable-displays' ), finalEnd ) ) + '</span>' : '') + '</p>',
+			'<nav aria-label="' + escapeHtml( __( 'Preview pagination', 'tabloria-searchable-displays' ) ) + '">' + buttons + '</nav>',
 			'</div>'
 		].join('');
 	}
@@ -2745,7 +2758,7 @@
 		var label = labelForField(field);
 		var normalized = label.toLowerCase().trim();
 		if (normalized === 'url' || normalized === 'link') {
-			return 'Open link';
+			return __( 'Open link', 'tabloria-searchable-displays' );
 		}
 		return label;
 	}
@@ -2756,7 +2769,7 @@
 	}
 
 	function humanizeLabel(label) {
-		return String(label || 'Field').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\w\S*/g, function (word) {
+		return String(label || __( 'Field', 'tabloria-searchable-displays' )).replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\w\S*/g, function (word) {
 			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 		});
 	}
@@ -2814,7 +2827,7 @@
 				return ['status', 'number', 'date'].indexOf(column.type) >= 0;
 			}).slice(0, 4).map(function (column) { return column.key; }),
 			sort: { field: sortField, direction: 'asc' },
-			search: { enabled: true, hideRowsUntilSearch: false, placeholder: 'Search all fields...', emptyMessage: 'No rows match the current search or filters.' },
+			search: { enabled: true, hideRowsUntilSearch: false, placeholder: __( 'Search all fields...', 'tabloria-searchable-displays' ), emptyMessage: __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) },
 			filters: { enabled: true, showColumnNames: true, hoverColor: '' },
 			pagination: { enabled: true, perPage: 12, showResultCount: true },
 			style: { accentColor: '#3525cd', density: 'comfortable', imageShape: 'rounded', displayWidth: 'normal' },
@@ -2824,16 +2837,16 @@
 
 	function titleFromSource(source) {
 		if (!source) {
-			return 'Published Display';
+			return __( 'Published Display', 'tabloria-searchable-displays' );
 		}
-		return String(source.name || source.original_filename || 'Published Display').replace(/\.[a-z0-9]+$/i, '');
+		return String(source.name || source.original_filename || __( 'Published Display', 'tabloria-searchable-displays' )).replace(/\.[a-z0-9]+$/i, '');
 	}
 
 	function labelForType(key) {
 		var type = displayTypes.find(function (item) {
 			return item.key === key;
 		});
-		return type ? type.label : 'Published Display';
+		return type ? type.label : __( 'Published Display', 'tabloria-searchable-displays' );
 	}
 
 	function findDisplay(id) {
@@ -2849,7 +2862,7 @@
 	function copyText(text, button) {
 		var done = function () {
 			var original = button.textContent;
-			button.textContent = 'Copied';
+			button.textContent = __( 'Copied', 'tabloria-searchable-displays' );
 			window.setTimeout(function () {
 				button.textContent = original;
 			}, 1600);
@@ -2860,12 +2873,12 @@
 			return;
 		}
 
-		window.prompt('Copy this shortcode:', text);
+		window.prompt(__( 'Copy this shortcode:', 'tabloria-searchable-displays' ), text);
 		done();
 	}
 
 	function renderMissingSource() {
-		return '<section class="tabloria-empty"><h2>No spreadsheet selected.</h2><p class="tabloria-muted">Upload a spreadsheet to continue creating a Display.</p><div class="tabloria-actions" style="justify-content:center"><button class="tabloria-button is-primary" data-action="upload">Upload Spreadsheet</button></div></section>';
+		return '<section class="tabloria-empty"><h2>' + escapeHtml( __( 'No spreadsheet selected.', 'tabloria-searchable-displays' ) ) + '</h2><p class="tabloria-muted">' + escapeHtml( __( 'Upload a spreadsheet to continue creating a Display.', 'tabloria-searchable-displays' ) ) + '</p><div class="tabloria-actions" style="justify-content:center"><button class="tabloria-button is-primary" data-action="upload">' + escapeHtml( __( 'Upload Spreadsheet', 'tabloria-searchable-displays' ) ) + '</button></div></section>';
 	}
 
 	render();
