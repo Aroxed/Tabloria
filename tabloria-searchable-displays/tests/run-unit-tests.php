@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.Security.EscapeOutput -- CLI-only test runner; messages go to the terminal and are never served over HTTP.
 
 use Tabloria\Database;
 use Tabloria\REST\UploadController;
