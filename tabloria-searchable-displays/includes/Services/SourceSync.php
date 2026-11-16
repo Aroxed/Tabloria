@@ -1,4 +1,9 @@
 <?php
+/**
+ * Scheduled and manual refresh of CSV sources from a private server directory
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\Services;
 
@@ -10,34 +15,71 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Connects a source to a private server CSV and refreshes it on demand or on a schedule.
+ */
 class SourceSync {
 	private const HOOK = 'tabloria_sync_csv_source';
 	private const INDEX_OPTION = 'tabloria_source_sync_ids';
 	private const FREQUENCIES = array( 'six_hours', 'twelve_hours', 'daily', 'weekly' );
 
+	/**
+	 * Database access layer.
+	 *
+	 * @var Database
+	 */
 	private Database $database;
+	/**
+	 * Service that replaces source data.
+	 *
+	 * @var DataReplacementService
+	 */
 	private DataReplacementService $replacement;
 
+	/**
+	 * Set up the sync service.
+	 *
+	 * @param Database|null               $database    Optional database access layer.
+	 * @param DataReplacementService|null $replacement Optional data replacement service.
+	 */
 	public function __construct( ?Database $database = null, ?DataReplacementService $replacement = null ) {
 		$this->database    = $database ?: new Database();
 		$this->replacement = $replacement ?: new DataReplacementService( $this->database );
 	}
 
+	/**
+	 * Register the scheduled refresh hooks.
+	 */
 	public function register_hooks(): void {
 		add_action( self::HOOK, array( $this, 'run_scheduled' ) );
 		add_action( 'init', array( $this, 'ensure_schedules' ) );
 	}
 
+	/**
+	 * Clear every scheduled refresh when the plugin is deactivated.
+	 */
 	public static function deactivate(): void {
 		foreach ( (array) get_option( self::INDEX_OPTION, array() ) as $source_id ) {
 			wp_clear_scheduled_hook( self::HOOK, array( absint( $source_id ) ) );
 		}
 	}
 
+	/**
+	 * Get the private directory that holds connectable CSV files.
+	 *
+	 * @return string Directory path.
+	 */
 	public function import_directory(): string {
 		return defined( 'TABLORIA_IMPORT_DIR' ) ? (string) TABLORIA_IMPORT_DIR : dirname( untrailingslashit( ABSPATH ) ) . '/tabloria-imports';
 	}
 
+	/**
+	 * Get the refresh settings of a source.
+	 *
+	 * @param int $source_id Source ID.
+	 *
+	 * @return array Refresh settings with defaults applied.
+	 */
 	public function get_settings( int $source_id ): array {
 		$stored = get_option( $this->option_key( $source_id ), array() );
 		$stored = is_array( $stored ) ? $stored : array();
@@ -58,6 +100,14 @@ class SourceSync {
 		);
 	}
 
+	/**
+	 * Validate and store the refresh settings of a source.
+	 *
+	 * @param int   $source_id Source ID.
+	 * @param array $input     Submitted settings.
+	 *
+	 * @return array|WP_Error Saved settings, or an error.
+	 */
 	public function save_settings( int $source_id, array $input ): array|WP_Error {
 		if ( ! $this->database->get_source( $source_id ) ) {
 			return new WP_Error( 'tabloria_source_not_found', __( 'Source spreadsheet not found.', 'tabloria-searchable-displays' ), array( 'status' => 404 ) );
@@ -113,6 +163,14 @@ class SourceSync {
 		return $this->get_settings( $source_id );
 	}
 
+	/**
+	 * Re-import a source from its connected CSV file.
+	 *
+	 * @param int  $source_id Source ID.
+	 * @param bool $scheduled Whether the refresh was triggered by the schedule.
+	 *
+	 * @return array|WP_Error Refresh result, or an error.
+	 */
 	public function refresh( int $source_id, bool $scheduled = false ): array|WP_Error {
 		$source = $this->database->get_source( $source_id );
 		if ( ! $source ) {
@@ -162,6 +220,11 @@ class SourceSync {
 		return $result;
 	}
 
+	/**
+	 * Run a scheduled refresh and queue the next one.
+	 *
+	 * @param int $source_id Source ID.
+	 */
 	public function run_scheduled( int $source_id ): void {
 		$stored = get_option( $this->option_key( $source_id ), array() );
 		if ( ! is_array( $stored ) || empty( $stored['enabled'] ) ) {
@@ -171,6 +234,9 @@ class SourceSync {
 		$this->schedule_next( $source_id );
 	}
 
+	/**
+	 * Make sure every enabled source has an upcoming refresh scheduled.
+	 */
 	public function ensure_schedules(): void {
 		foreach ( (array) get_option( self::INDEX_OPTION, array() ) as $source_id ) {
 			$source_id = absint( $source_id );
@@ -181,6 +247,14 @@ class SourceSync {
 		}
 	}
 
+	/**
+	 * Work out the next refresh time from the refresh settings.
+	 *
+	 * @param array $settings Refresh settings.
+	 * @param int   $now      Current Unix timestamp.
+	 *
+	 * @return int Unix timestamp of the next run.
+	 */
 	public function calculate_next_run( array $settings, int $now ): int {
 		$zone      = wp_timezone();
 		$current   = ( new DateTimeImmutable( '@' . $now ) )->setTimezone( $zone );
@@ -208,6 +282,13 @@ class SourceSync {
 		return $candidate->getTimestamp();
 	}
 
+	/**
+	 * Schedule the next refresh of a source.
+	 *
+	 * @param int $source_id Source ID.
+	 *
+	 * @return bool True when a refresh is scheduled.
+	 */
 	private function schedule_next( int $source_id ): bool {
 		$stored = get_option( $this->option_key( $source_id ), array() );
 		if ( ! is_array( $stored ) || empty( $stored['enabled'] ) ) {
@@ -223,6 +304,13 @@ class SourceSync {
 		return true === $scheduled && (bool) wp_next_scheduled( self::HOOK, array( $source_id ) );
 	}
 
+	/**
+	 * Resolve a filename inside the private import directory and reject unsafe locations.
+	 *
+	 * @param string $relative Path relative to the import directory.
+	 *
+	 * @return string|WP_Error Absolute path, or an error.
+	 */
 	private function resolve_path( string $relative ): string|WP_Error {
 		if ( '' === $relative ) {
 			return new WP_Error( 'tabloria_sync_path_required', __( 'Enter a CSV filename inside the private import directory.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
@@ -251,12 +339,28 @@ class SourceSync {
 		return $path;
 	}
 
+	/**
+	 * Store the latest refresh error for display in the admin.
+	 *
+	 * @param int      $source_id Source ID.
+	 * @param array    $stored    Stored settings.
+	 * @param WP_Error $error     Error to record.
+	 *
+	 * @return WP_Error The same error.
+	 */
 	private function record_error( int $source_id, array $stored, WP_Error $error ): WP_Error {
 		$stored['lastError'] = substr( $error->get_error_message(), 0, 300 );
 		update_option( $this->option_key( $source_id ), $stored, false );
 		return $error;
 	}
 
+	/**
+	 * Get the option name that stores a source's refresh settings.
+	 *
+	 * @param int $source_id Source ID.
+	 *
+	 * @return string Option name.
+	 */
 	private function option_key( int $source_id ): string {
 		return 'tabloria_source_sync_' . $source_id;
 	}

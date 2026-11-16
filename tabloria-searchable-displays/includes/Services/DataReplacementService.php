@@ -1,4 +1,9 @@
 <?php
+/**
+ * Replaces the data behind an existing source
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\Services;
 
@@ -9,13 +14,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Replaces source data from a new file while keeping the existing displays.
+ */
 class DataReplacementService {
+	/**
+	 * Database access layer.
+	 *
+	 * @var Database
+	 */
 	private Database $database;
 
+	/**
+	 * Set up the service.
+	 *
+	 * @param Database|null $database Optional database access layer.
+	 */
 	public function __construct( ?Database $database = null ) {
 		$this->database = $database ?: new Database();
 	}
 
+	/**
+	 * Replace a source's data from a new CSV while holding a per-source lock.
+	 *
+	 * @param array  $source   Source data.
+	 * @param string $path     Absolute file path.
+	 * @param string $filename Original filename.
+	 *
+	 * @return array|WP_Error Comparison result, or an error.
+	 */
 	public function replace( array $source, string $path, string $filename ): array|WP_Error {
 		$source_id = absint( $source['id'] ?? 0 );
 		$lock_key  = 'tabloria_source_lock_' . $source_id;

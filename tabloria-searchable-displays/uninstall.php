@@ -1,4 +1,9 @@
 <?php
+/**
+ * Removes Tabloria data when the plugin is deleted, if the site owner opted in
+ *
+ * @package Tabloria
+ */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;

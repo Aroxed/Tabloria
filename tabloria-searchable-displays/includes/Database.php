@@ -1,4 +1,9 @@
 <?php
+/**
+ * Database access for sources, spreadsheet rows, and displays
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria;
 
@@ -8,28 +13,59 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Reads and writes Tabloria sources, rows, and displays in custom tables.
+ */
 class Database {
+	/**
+	 * Spreadsheet sanitizer.
+	 *
+	 * @var SpreadsheetSanitizer
+	 */
 	private SpreadsheetSanitizer $sanitizer;
 
+	/**
+	 * Set up the database layer.
+	 *
+	 * @param SpreadsheetSanitizer|null $sanitizer Optional spreadsheet sanitizer.
+	 */
 	public function __construct( ?SpreadsheetSanitizer $sanitizer = null ) {
 		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
+	/**
+	 * Get the sources table name.
+	 *
+	 * @return string Prefixed table name.
+	 */
 	public static function sources_table(): string {
 		global $wpdb;
 		return $wpdb->prefix . 'tabloria_sources';
 	}
 
+	/**
+	 * Get the spreadsheet rows table name.
+	 *
+	 * @return string Prefixed table name.
+	 */
 	public static function rows_table(): string {
 		global $wpdb;
 		return $wpdb->prefix . 'tabloria_rows';
 	}
 
+	/**
+	 * Get the displays table name.
+	 *
+	 * @return string Prefixed table name.
+	 */
 	public static function displays_table(): string {
 		global $wpdb;
 		return $wpdb->prefix . 'tabloria_displays';
 	}
 
+	/**
+	 * Create or update the plugin database tables.
+	 */
 	public static function install(): void {
 		global $wpdb;
 
@@ -82,6 +118,14 @@ CREATE TABLE {$displays} (
 		dbDelta( $sql );
 	}
 
+	/**
+	 * Save a source and its rows in one transaction.
+	 *
+	 * @param array $source Source data.
+	 * @param array $rows   Spreadsheet rows.
+	 *
+	 * @return int New source ID, or 0 on failure.
+	 */
 	public function create_source( array $source, array $rows ): int {
 		global $wpdb;
 
@@ -120,6 +164,17 @@ CREATE TABLE {$displays} (
 		return $source_id;
 	}
 
+	/**
+	 * Replace the rows and metadata of an existing source in one transaction.
+	 *
+	 * @param int    $source_id Source ID.
+	 * @param array  $columns   Column definitions.
+	 * @param array  $rows      Spreadsheet rows.
+	 * @param string $filename  Original filename.
+	 * @param string $file_type File type.
+	 *
+	 * @return bool True when the replacement was committed.
+	 */
 	public function update_source_data( int $source_id, array $columns, array $rows, string $filename, string $file_type ): bool {
 		global $wpdb;
 
@@ -161,6 +216,14 @@ CREATE TABLE {$displays} (
 		return true;
 	}
 
+	/**
+	 * Delete a source's rows and insert the replacement rows.
+	 *
+	 * @param int   $source_id Source ID.
+	 * @param array $rows      Spreadsheet rows.
+	 *
+	 * @return bool True when all rows were written.
+	 */
 	public function replace_rows( int $source_id, array $rows ): bool {
 		global $wpdb;
 
@@ -193,6 +256,13 @@ CREATE TABLE {$displays} (
 		return true;
 	}
 
+	/**
+	 * Get a source by ID.
+	 *
+	 * @param int $source_id Source ID.
+	 *
+	 * @return array|null Source data, or null if it does not exist.
+	 */
 	public function get_source( int $source_id ): ?array {
 		global $wpdb;
 
@@ -205,6 +275,11 @@ CREATE TABLE {$displays} (
 		return $row ? $this->prepare_source( $row ) : null;
 	}
 
+	/**
+	 * List all sources, newest first.
+	 *
+	 * @return array List of sources.
+	 */
 	public function list_sources(): array {
 		global $wpdb;
 
@@ -213,6 +288,14 @@ CREATE TABLE {$displays} (
 		return array_map( array( $this, 'prepare_source' ), $rows ?: array() );
 	}
 
+	/**
+	 * Get the rows of a source in their original order.
+	 *
+	 * @param int $source_id Source ID.
+	 * @param int $limit     Maximum rows to return, or 0 for all.
+	 *
+	 * @return array List of decoded rows.
+	 */
 	public function get_rows( int $source_id, int $limit = 0 ): array {
 		global $wpdb;
 
@@ -244,6 +327,13 @@ CREATE TABLE {$displays} (
 		);
 	}
 
+	/**
+	 * Save a new display.
+	 *
+	 * @param array $display Display data.
+	 *
+	 * @return int New display ID, or 0 on failure.
+	 */
 	public function create_display( array $display ): int {
 		global $wpdb;
 
@@ -267,6 +357,14 @@ CREATE TABLE {$displays} (
 		return absint( $wpdb->insert_id );
 	}
 
+	/**
+	 * Update an existing display.
+	 *
+	 * @param int   $display_id Display ID.
+	 * @param array $display    Display data.
+	 *
+	 * @return bool True when the display was updated.
+	 */
 	public function update_display( int $display_id, array $display ): bool {
 		global $wpdb;
 
@@ -295,6 +393,13 @@ CREATE TABLE {$displays} (
 		return false !== $result;
 	}
 
+	/**
+	 * Delete a display.
+	 *
+	 * @param int $display_id Display ID.
+	 *
+	 * @return bool True when a display was deleted.
+	 */
 	public function delete_display( int $display_id ): bool {
 		global $wpdb;
 
@@ -302,6 +407,13 @@ CREATE TABLE {$displays} (
 		return false !== $wpdb->delete( self::displays_table(), array( 'id' => $display_id ), array( '%d' ) );
 	}
 
+	/**
+	 * Get a display by ID.
+	 *
+	 * @param int $display_id Display ID.
+	 *
+	 * @return array|null Display data, or null if it does not exist.
+	 */
 	public function get_display( int $display_id ): ?array {
 		global $wpdb;
 
@@ -314,6 +426,11 @@ CREATE TABLE {$displays} (
 		return $row ? $this->prepare_display( $row ) : null;
 	}
 
+	/**
+	 * List all displays with their source summaries.
+	 *
+	 * @return array List of displays.
+	 */
 	public function list_displays(): array {
 		global $wpdb;
 
@@ -322,6 +439,13 @@ CREATE TABLE {$displays} (
 		return array_map( array( $this, 'prepare_display' ), $rows ?: array() );
 	}
 
+	/**
+	 * Decode a source database row for API output.
+	 *
+	 * @param array $row A single spreadsheet row.
+	 *
+	 * @return array Prepared source.
+	 */
 	private function prepare_source( array $row ): array {
 		$row['id']          = absint( $row['id'] );
 		$row['row_count']   = absint( $row['row_count'] );
@@ -333,6 +457,13 @@ CREATE TABLE {$displays} (
 		return $row;
 	}
 
+	/**
+	 * Decode a display database row for API output.
+	 *
+	 * @param array $row A single spreadsheet row.
+	 *
+	 * @return array Prepared display.
+	 */
 	private function prepare_display( array $row ): array {
 		$row['id']         = absint( $row['id'] );
 		$row['source_id']  = absint( $row['source_id'] );
@@ -351,6 +482,13 @@ CREATE TABLE {$displays} (
 		return $row;
 	}
 
+	/**
+	 * Limit a display type to the known slugs.
+	 *
+	 * @param mixed $display_type Display type slug.
+	 *
+	 * @return string Valid display type slug.
+	 */
 	private function sanitize_display_type( mixed $display_type ): string {
 		$display_type  = sanitize_key( $display_type );
 		$allowed_types = array( 'searchable_listings', 'product_catalog', 'team_directory', 'event_schedule', 'pricing_table', 'coupon_display', 'simple_data_table' );
@@ -358,6 +496,13 @@ CREATE TABLE {$displays} (
 		return in_array( $display_type, $allowed_types, true ) ? $display_type : 'searchable_listings';
 	}
 
+	/**
+	 * Limit a status to the known values.
+	 *
+	 * @param mixed $status Status value.
+	 *
+	 * @return string Valid status.
+	 */
 	private function sanitize_status( mixed $status ): string {
 		$status = sanitize_key( $status );
 		return in_array( $status, array( 'draft', 'published' ), true ) ? $status : 'published';

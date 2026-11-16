@@ -1,4 +1,9 @@
 <?php
+/**
+ * REST controller for spreadsheet uploads
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\REST;
 
@@ -13,15 +18,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Handles the REST endpoint that accepts a CSV upload.
+ */
 class UploadController {
+	/**
+	 * Database access layer.
+	 *
+	 * @var Database
+	 */
 	private Database $database;
+	/**
+	 * Spreadsheet sanitizer.
+	 *
+	 * @var SpreadsheetSanitizer
+	 */
 	private SpreadsheetSanitizer $sanitizer;
 
+	/**
+	 * Set up the controller.
+	 *
+	 * @param Database|null             $database  Optional database access layer.
+	 * @param SpreadsheetSanitizer|null $sanitizer Optional spreadsheet sanitizer.
+	 */
 	public function __construct( ?Database $database = null, ?SpreadsheetSanitizer $sanitizer = null ) {
 		$this->database  = $database ?: new Database();
 		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
+	/**
+	 * Register the upload route.
+	 */
 	public function register_routes(): void {
 		register_rest_route(
 			'tabloria/v1',
@@ -34,10 +61,22 @@ class UploadController {
 		);
 	}
 
+	/**
+	 * Allow administrators to upload.
+	 *
+	 * @return bool True when the user can manage options.
+	 */
 	public function permissions_check(): bool {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * Validate and parse an uploaded CSV, save it as a source, and return its summary.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error Source summary, or an error.
+	 */
 	public function upload( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$files = $request->get_file_params();
 		if ( empty( $files['file'] ) ) {
@@ -87,6 +126,11 @@ class UploadController {
 		);
 	}
 
+	/**
+	 * Detect uploads that exceeded post_max_size and were dropped by PHP.
+	 *
+	 * @return bool|WP_Error False when fine, otherwise an error.
+	 */
 	private function post_payload_too_large(): bool|WP_Error {
 		$content_length = absint( $_SERVER['CONTENT_LENGTH'] ?? 0 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Used only as a numeric byte count for limit comparison.
 		if ( $content_length <= 0 ) {
