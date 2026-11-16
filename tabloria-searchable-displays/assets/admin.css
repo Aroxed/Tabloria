@@ -555,6 +555,11 @@
 	gap: 16px;
 }
 
+.tabloria-setup-controls [data-detected-columns] .tabloria-columns {
+	grid-template-columns: minmax(0, 1fr);
+	gap: 8px;
+}
+
 .tabloria-column {
 	display: flex;
 	align-items: center;
