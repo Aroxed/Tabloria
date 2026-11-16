@@ -103,6 +103,11 @@
 		}
 	}
 
+	function safeHexColor(value, fallback) {
+		var color = String(value || '').trim();
+		return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
+	}
+
 	function safeUrl(value) {
 		if (!value) {
 			return '';
@@ -2283,7 +2288,7 @@
 		var rows = preparePreviewRows(rawRows);
 		var roles = state.config.fieldRoles || {};
 		var title = state.config.title || 'Available Apartments';
-		var accent = state.config.style && state.config.style.accentColor ? state.config.style.accentColor : '#3525cd';
+		var accent = safeHexColor(state.config.style && state.config.style.accentColor, '#3525cd');
 		var density = state.config.style && state.config.style.density === 'compact' ? 'is-compact' : 'is-comfortable';
 		var imageShape = state.config.style && state.config.style.imageShape === 'square' ? 'is-square' : 'is-rounded';
 		var displayType = currentDisplayType();
