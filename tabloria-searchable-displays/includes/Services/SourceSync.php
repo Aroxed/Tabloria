@@ -231,7 +231,9 @@ class SourceSync {
 		if ( false === $root || ! is_dir( $root ) ) {
 			return new WP_Error( 'tabloria_sync_directory_missing', __( 'Create the private import directory on your server before connecting a CSV file.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
 		}
-		$public_roots = array( ABSPATH, $_SERVER['DOCUMENT_ROOT'] ?? '' );
+		// DOCUMENT_ROOT is a server-controlled path used only for realpath() comparison, so unslash it but do not alter its characters.
+		$document_root = isset( $_SERVER['DOCUMENT_ROOT'] ) ? wp_unslash( (string) $_SERVER['DOCUMENT_ROOT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Server path compared with realpath(), never output or stored.
+		$public_roots  = array( ABSPATH, $document_root );
 		foreach ( $public_roots as $public_root ) {
 			$public_root = $public_root ? realpath( $public_root ) : false;
 			if ( $public_root && ( $root === $public_root || str_starts_with( $root, $public_root . DIRECTORY_SEPARATOR ) ) ) {
