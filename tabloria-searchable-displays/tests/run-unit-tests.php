@@ -10,7 +10,7 @@ use Tabloria\Services\SpreadsheetSanitizer;
 
 $wp_load = getenv( 'TABLORIA_WP_LOAD' ) ?: dirname( __DIR__, 4 ) . '/wp-load.php';
 if ( ! file_exists( $wp_load ) ) {
-	fwrite( STDERR, "Unable to find wp-load.php. Set TABLORIA_WP_LOAD.\n" );
+	fwrite( STDERR, "Unable to find wp-load.php. Set TABLORIA_WP_LOAD.\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- WordPress is not loaded yet, so write to the CLI error stream.
 	exit( 1 );
 }
 
@@ -176,11 +176,11 @@ function tabloria_test_assert_no_match( string $pattern, string $haystack, strin
 
 function tabloria_test_csv_file( array $rows ): string {
 	$path   = tempnam( sys_get_temp_dir(), 'tabloria-csv-' );
-	$handle = fopen( $path, 'wb' );
+	$handle = fopen( $path, 'wb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Test fixture written with fputcsv().
 	foreach ( $rows as $row ) {
 		fputcsv( $handle, $row );
 	}
-	fclose( $handle );
+	fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closes the fixture handle opened above.
 
 	return $path;
 }
@@ -207,7 +207,7 @@ $tests = array(
 		);
 
 		$result = ( new CsvParser() )->parse( $path );
-		unlink( $path );
+		wp_delete_file( $path );
 
 		tabloria_test_assert_true( ! is_wp_error( $result ), 'Parser should accept a valid CSV shape.' );
 
@@ -233,7 +233,7 @@ $tests = array(
 
 		$wide_path = tabloria_test_csv_file( array( $headers ) );
 		$result    = ( new CsvParser() )->parse( $wide_path );
-		unlink( $wide_path );
+		wp_delete_file( $wide_path );
 
 		tabloria_test_assert_true( is_wp_error( $result ), 'Too-wide CSV should be rejected.' );
 		tabloria_test_assert_same( 'tabloria_csv_too_many_columns', $result->get_error_code(), 'Too-wide CSV should return the expected error code.' );
@@ -241,7 +241,7 @@ $tests = array(
 		$binary_path = tempnam( sys_get_temp_dir(), 'tabloria-bin-' );
 		file_put_contents( $binary_path, "Name\0Value\nA,B\n" );
 		$binary = ( new CsvParser() )->parse( $binary_path );
-		unlink( $binary_path );
+		wp_delete_file( $binary_path );
 
 		tabloria_test_assert_true( is_wp_error( $binary ), 'Binary-looking CSV should be rejected.' );
 		tabloria_test_assert_same( 'tabloria_csv_binary', $binary->get_error_code(), 'Binary-looking CSV should return the expected error code.' );
@@ -566,12 +566,12 @@ $tests['coupon display supports coupon and deal-only rows'] = static function ()
 $tests['csv parser accepts common delimiters and UTF-16 exports'] = static function (): void {
 	foreach ( array( ',', ';', "\t" ) as $delimiter ) {
 		$path = tempnam( sys_get_temp_dir(), 'tabloria-format-' );
-		$handle = fopen( $path, 'wb' );
+		$handle = fopen( $path, 'wb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Test fixture written with fputcsv(). // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Test fixture written with fputcsv().
 		fputcsv( $handle, array( 'Name', 'Notes' ), $delimiter, '"', '' );
 		fputcsv( $handle, array( 'Mug', "Quoted, semicolon; and\nnewline" ), $delimiter, '"', '' );
-		fclose( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closes the fixture handle opened above. // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closes the fixture handle opened above.
 		$result = ( new CsvParser() )->parse( $path );
-		unlink( $path );
+		wp_delete_file( $path );
 		tabloria_test_assert_true( ! is_wp_error( $result ), 'Common CSV delimiters should parse.' );
 		tabloria_test_assert_same( 2, count( $result['columns'] ), 'Delimiter detection should produce two columns.' );
 		tabloria_test_assert_same( 'Mug', $result['rows'][0]['name'], 'The first value should survive.' );
@@ -581,7 +581,7 @@ $tests['csv parser accepts common delimiters and UTF-16 exports'] = static funct
 	$path = tempnam( sys_get_temp_dir(), 'tabloria-utf16-' );
 	file_put_contents( $path, "\xFF\xFE" . iconv( 'UTF-8', 'UTF-16LE', "Name;Price\r\nCafé;€12\r\n" ) );
 	$result = ( new CsvParser() )->parse( $path );
-	unlink( $path );
+	wp_delete_file( $path );
 	tabloria_test_assert_true( ! is_wp_error( $result ), 'UTF-16 CSV with BOM should parse.' );
 	tabloria_test_assert_same( 'Café', $result['rows'][0]['name'], 'Unicode text should survive conversion.' );
 };
@@ -590,7 +590,7 @@ $tests['csv parser rejects malformed widths instead of dropping values'] = stati
 	$path = tempnam( sys_get_temp_dir(), 'tabloria-mismatch-' );
 	file_put_contents( $path, "Name,Price\nMug,12,extra\n" );
 	$result = ( new CsvParser() )->parse( $path );
-	unlink( $path );
+	wp_delete_file( $path );
 	tabloria_test_assert_true( is_wp_error( $result ), 'A row with extra columns should fail.' );
 	tabloria_test_assert_same( 'tabloria_csv_column_mismatch', $result->get_error_code(), 'A width error should be actionable.' );
 };
@@ -656,7 +656,7 @@ $tests['upload parses the temporary CSV without publishing a raw file'] = static
 		tabloria_test_assert_true( $source_id > 0, 'The parsed source should be stored.' );
 		tabloria_test_assert_true( ! file_exists( wp_upload_dir()['path'] . '/' . $name ), 'Raw CSV must not be copied to public uploads.' );
 	} finally {
-		unlink( $path );
+		wp_delete_file( $path );
 		if ( isset( $source_id ) ) {
 			global $wpdb;
 			$wpdb->delete( Database::rows_table(), array( 'source_id' => $source_id ), array( '%d' ) );

@@ -5,7 +5,7 @@ use Tabloria\Services\DisplayGenerator;
 
 $wp_load = getenv( 'TABLORIA_WP_LOAD' ) ?: dirname( __DIR__, 4 ) . '/wp-load.php';
 if ( ! file_exists( $wp_load ) ) {
-	fwrite( STDERR, "Unable to find wp-load.php. Set TABLORIA_WP_LOAD.\n" );
+	fwrite( STDERR, "Unable to find wp-load.php. Set TABLORIA_WP_LOAD.\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- WordPress is not loaded yet, so write to the CLI error stream.
 	exit( 1 );
 }
 
