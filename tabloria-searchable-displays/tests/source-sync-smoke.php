@@ -1,4 +1,8 @@
 <?php
+// These scripts are test runners for the command line only.
+if ( 'cli' !== PHP_SAPI ) {
+	exit;
+}
 
 use Tabloria\Database;
 use Tabloria\Services\CsvParser;
@@ -12,6 +16,10 @@ define( 'TABLORIA_IMPORT_DIR', $import_dir );
 
 $wp_load = getenv( 'TABLORIA_WP_LOAD' ) ?: dirname( __DIR__, 4 ) . '/wp-load.php';
 require_once $wp_load;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 function sync_assert( bool $condition, string $message ): void {
 	if ( ! $condition ) {
