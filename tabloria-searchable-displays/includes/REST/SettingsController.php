@@ -38,9 +38,12 @@ class SettingsController {
 	}
 
 	public function update( WP_REST_Request $request ): WP_REST_Response {
-		$accent = sanitize_hex_color( $request->get_param( 'defaultAccentColor' ) ?: '#3525cd' ) ?: '#3525cd';
-		$rows   = max( 1, min( 100, absint( $request->get_param( 'defaultRowsPerPage' ) ?: 12 ) ) );
-		$delete = rest_sanitize_boolean( $request->get_param( 'deleteDataOnUninstall' ) );
+		$accent_param = $request->get_param( 'defaultAccentColor' );
+		$accent       = sanitize_hex_color( empty( $accent_param ) ? '#3525cd' : $accent_param );
+		$accent       = empty( $accent ) ? '#3525cd' : $accent;
+		$rows_param   = $request->get_param( 'defaultRowsPerPage' );
+		$rows         = max( 1, min( 100, absint( empty( $rows_param ) ? 12 : $rows_param ) ) );
+		$delete       = rest_sanitize_boolean( $request->get_param( 'deleteDataOnUninstall' ) );
 
 		update_option( 'tabloria_default_accent_color', $accent );
 		update_option( 'tabloria_default_rows_per_page', $rows );

@@ -18,8 +18,8 @@ class UploadController {
 	private SpreadsheetSanitizer $sanitizer;
 
 	public function __construct( ?Database $database = null, ?SpreadsheetSanitizer $sanitizer = null ) {
-		$this->database  = $database ?: new Database();
-		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
+		$this->database  = $database ?? new Database();
+		$this->sanitizer = $sanitizer ?? new SpreadsheetSanitizer();
 	}
 
 	public function register_routes(): void {
@@ -63,9 +63,10 @@ class UploadController {
 			return $parsed;
 		}
 
-		$source_id = $this->database->create_source(
+		$name_param = $request->get_param( 'name' );
+		$source_id  = $this->database->create_source(
 			array(
-				'name'              => sanitize_text_field( $request->get_param( 'name' ) ?: $meta['filename'] ),
+				'name'              => sanitize_text_field( empty( $name_param ) ? $meta['filename'] : $name_param ),
 				'original_filename' => $meta['filename'],
 				'file_type'         => 'csv',
 				'columns'           => $parsed['columns'],

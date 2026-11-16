@@ -144,24 +144,24 @@ class DisplayGenerator {
 		$config['search'] = array(
 			'enabled'             => ! empty( $search['enabled'] ),
 			'hideRowsUntilSearch' => ! empty( $search['hideRowsUntilSearch'] ),
-			'placeholder'         => sanitize_text_field( $search['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...',
-			'emptyMessage'        => sanitize_text_field( $search['emptyMessage'] ?? 'No rows match the current search or filters.' ) ?: 'No rows match the current search or filters.',
+			'placeholder'         => $this->text_or_default( $search['placeholder'] ?? 'Search all fields...', 'Search all fields...' ),
+			'emptyMessage'        => $this->text_or_default( $search['emptyMessage'] ?? 'No rows match the current search or filters.', 'No rows match the current search or filters.' ),
 		);
 		$config['filters'] = array(
 			'enabled'         => ! empty( $filters['enabled'] ),
 			'showColumnNames' => ! array_key_exists( 'showColumnNames', $filters ) || ! empty( $filters['showColumnNames'] ),
-			'hoverColor'      => sanitize_hex_color( $filters['hoverColor'] ?? '' ) ?: '',
+			'hoverColor'      => $this->color_or_default( $filters['hoverColor'] ?? '', '' ),
 		);
 		$config['pagination'] = array(
 			'enabled'         => ! empty( $pagination['enabled'] ),
 			'perPage'         => max( 1, min( 100, absint( $pagination['perPage'] ?? 12 ) ) ),
 			'showResultCount' => ! array_key_exists( 'showResultCount', $pagination ) || ! empty( $pagination['showResultCount'] ),
-			'resultLabel'     => sanitize_text_field( $pagination['resultLabel'] ?? 'rows' ) ?: 'rows',
+			'resultLabel'     => $this->text_or_default( $pagination['resultLabel'] ?? 'rows', 'rows' ),
 		);
 		$display_width = sanitize_key( $style['displayWidth'] ?? 'normal' );
 		$card_max_width = absint( $style['cardMaxWidth'] ?? 420 );
 		$config['style'] = array(
-			'accentColor'  => sanitize_hex_color( $style['accentColor'] ?? '#3525cd' ) ?: '#3525cd',
+			'accentColor'  => $this->color_or_default( $style['accentColor'] ?? '#3525cd', '#3525cd' ),
 			'density'      => 'compact' === ( $style['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
 			'imageShape'   => 'square' === ( $style['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
 			'displayWidth' => in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal',
@@ -180,10 +180,10 @@ class DisplayGenerator {
 				'buttonStyle' => in_array( $button_style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $button_style : 'theme',
 			),
 			'coupons' => array(
-				'showCouponLabel' => sanitize_text_field( $coupon_options['showCouponLabel'] ?? 'Show coupon' ) ?: 'Show coupon',
-				'copyCodeLabel'   => sanitize_text_field( $coupon_options['copyCodeLabel'] ?? 'Copy code' ) ?: 'Copy code',
-				'dealLabel'       => sanitize_text_field( $coupon_options['dealLabel'] ?? 'View deal' ) ?: 'View deal',
-				'copiedLabel'     => sanitize_text_field( $coupon_options['copiedLabel'] ?? 'Copied!' ) ?: 'Copied!',
+				'showCouponLabel' => $this->text_or_default( $coupon_options['showCouponLabel'] ?? 'Show coupon', 'Show coupon' ),
+				'copyCodeLabel'   => $this->text_or_default( $coupon_options['copyCodeLabel'] ?? 'Copy code', 'Copy code' ),
+				'dealLabel'       => $this->text_or_default( $coupon_options['dealLabel'] ?? 'View deal', 'View deal' ),
+				'copiedLabel'     => $this->text_or_default( $coupon_options['copiedLabel'] ?? 'Copied!', 'Copied!' ),
 			),
 		);
 
@@ -255,7 +255,7 @@ class DisplayGenerator {
 		$clean_name = preg_replace( '/\.[a-z0-9]+$/i', '', $name );
 		$fallback   = self::TYPES[ $display_type ] ?? 'Published Display';
 
-		return sanitize_text_field( $clean_name ?: $fallback );
+		return sanitize_text_field( empty( $clean_name ) ? $fallback : $clean_name );
 	}
 
 	private function columns_by_type( array $columns ): array {
@@ -319,5 +319,33 @@ class DisplayGenerator {
 		}
 
 		return $config;
+	}
+
+	/**
+	 * Sanitize text and fall back to a default when nothing is left.
+	 *
+	 * @param mixed  $value    Value to sanitize.
+	 * @param string $fallback Text to use when the sanitized value is empty.
+	 *
+	 * @return string Sanitized text or the fallback.
+	 */
+	private function text_or_default( mixed $value, string $fallback ): string {
+		$text = sanitize_text_field( $value );
+
+		return empty( $text ) ? $fallback : $text;
+	}
+
+	/**
+	 * Sanitize a hex color and fall back to a default when it is not valid.
+	 *
+	 * @param mixed  $value    Value to sanitize.
+	 * @param string $fallback Color to use when the value is not a valid hex color.
+	 *
+	 * @return string Hex color or the fallback.
+	 */
+	private function color_or_default( mixed $value, string $fallback ): string {
+		$color = sanitize_hex_color( $value );
+
+		return empty( $color ) ? $fallback : $color;
 	}
 }

@@ -19,8 +19,8 @@ class SourceSync {
 	private DataReplacementService $replacement;
 
 	public function __construct( ?Database $database = null, ?DataReplacementService $replacement = null ) {
-		$this->database    = $database ?: new Database();
-		$this->replacement = $replacement ?: new DataReplacementService( $this->database );
+		$this->database    = $database ?? new Database();
+		$this->replacement = $replacement ?? new DataReplacementService( $this->database );
 	}
 
 	public function register_hooks(): void {
@@ -41,7 +41,7 @@ class SourceSync {
 	public function get_settings( int $source_id ): array {
 		$stored = get_option( $this->option_key( $source_id ), array() );
 		$stored = is_array( $stored ) ? $stored : array();
-		$next_run = wp_next_scheduled( self::HOOK, array( $source_id ) ) ?: 0;
+		$next_run = (int) wp_next_scheduled( self::HOOK, array( $source_id ) );
 		return array(
 			'path'            => (string) ( $stored['path'] ?? '' ),
 			'enabled'         => ! empty( $stored['enabled'] ),
@@ -86,7 +86,7 @@ class SourceSync {
 
 		$previous = get_option( $this->option_key( $source_id ), null );
 		$stored   = is_array( $previous ) ? $previous : array();
-		if ( $path !== ( $stored['path'] ?? '' ) ) {
+		if ( ( $stored['path'] ?? '' ) !== $path ) {
 			unset( $stored['lastHash'] );
 		}
 		$stored['path']      = $path;
@@ -129,7 +129,7 @@ class SourceSync {
 		if ( false === $hash ) {
 			return $this->record_error( $source_id, $stored, new WP_Error( 'tabloria_sync_read_failed', __( 'The server CSV file could not be read.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) ) );
 		}
-		if ( $scheduled && $hash === ( $stored['lastHash'] ?? '' ) ) {
+		if ( $scheduled && ( $stored['lastHash'] ?? '' ) === $hash ) {
 			$stored['lastError'] = '';
 			update_option( $this->option_key( $source_id ), $stored, false );
 			return array( 'unchanged' => true, 'source' => $source, 'sync' => $this->get_settings( $source_id ) );
@@ -144,7 +144,7 @@ class SourceSync {
 			return $this->record_error( $source_id, $stored, new WP_Error( 'tabloria_sync_snapshot_failed', __( 'A private temporary copy of the CSV could not be created.', 'tabloria-searchable-displays' ), array( 'status' => 500 ) ) );
 		}
 		try {
-			if ( ! copy( $path, $snapshot ) || $hash !== hash_file( 'sha256', $snapshot ) || $hash !== hash_file( 'sha256', $path ) ) {
+			if ( ! copy( $path, $snapshot ) || hash_file( 'sha256', $snapshot ) !== $hash || hash_file( 'sha256', $path ) !== $hash ) {
 				return $this->record_error( $source_id, $stored, new WP_Error( 'tabloria_sync_file_changed', __( 'The CSV changed while it was being read. Upload the new file under a temporary name, then rename it into place.', 'tabloria-searchable-displays' ), array( 'status' => 409 ) ) );
 			}
 			$result = $this->replacement->replace( $source, $snapshot, basename( $path ) );

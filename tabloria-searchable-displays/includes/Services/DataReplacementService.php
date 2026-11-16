@@ -13,7 +13,7 @@ class DataReplacementService {
 	private Database $database;
 
 	public function __construct( ?Database $database = null ) {
-		$this->database = $database ?: new Database();
+		$this->database = $database ?? new Database();
 	}
 
 	public function replace( array $source, string $path, string $filename ): array|WP_Error {

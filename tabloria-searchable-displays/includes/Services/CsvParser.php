@@ -13,8 +13,8 @@ class CsvParser {
 	private SpreadsheetSanitizer $sanitizer;
 
 	public function __construct( ?ColumnDetector $detector = null, ?SpreadsheetSanitizer $sanitizer = null ) {
-		$this->detector  = $detector ?: new ColumnDetector();
-		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
+		$this->detector  = $detector ?? new ColumnDetector();
+		$this->sanitizer = $sanitizer ?? new SpreadsheetSanitizer();
 	}
 
 	public function parse( string $path ): array|WP_Error {
