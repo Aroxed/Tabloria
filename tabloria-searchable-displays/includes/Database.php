@@ -88,7 +88,7 @@ CREATE TABLE {$displays} (
 		$columns = $this->sanitizer->sanitize_columns( (array) ( $source['columns'] ?? array() ) );
 		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
 		$now = current_time( 'mysql' );
-		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Keep source metadata and rows together.
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Keep source metadata and rows together.
 			return 0;
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Tabloria stores imported spreadsheets in plugin-owned custom tables.
@@ -109,11 +109,11 @@ CREATE TABLE {$displays} (
 
 		$source_id = absint( $wpdb->insert_id );
 		if ( false === $inserted || ! $source_id || ! $this->replace_rows( $source_id, $rows ) ) {
-			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Undo an incomplete source import.
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Undo an incomplete source import.
 			return 0;
 		}
-		if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Commit a complete source import.
-			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Best effort after failed commit.
+		if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Commit a complete source import.
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Best effort after failed commit.
 			return 0;
 		}
 
@@ -125,7 +125,7 @@ CREATE TABLE {$displays} (
 
 		$columns = $this->sanitizer->sanitize_columns( $columns );
 		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
-		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Keep old data until the whole replacement is ready.
+		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Keep old data until the whole replacement is ready.
 			return false;
 		}
 
@@ -145,17 +145,17 @@ CREATE TABLE {$displays} (
 		);
 
 		if ( false === $updated ) {
-			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Preserve previous source data.
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Preserve previous source data.
 			return false;
 		}
 
 		if ( ! $this->replace_rows( $source_id, $rows ) ) {
-			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Preserve previous source data.
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Preserve previous source data.
 			return false;
 		}
 
-		if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Commit the complete replacement.
-			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Best effort after failed commit.
+		if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Commit the complete replacement.
+			$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Best effort after failed commit.
 			return false;
 		}
 		return true;
