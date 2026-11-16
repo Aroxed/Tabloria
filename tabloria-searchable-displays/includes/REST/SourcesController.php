@@ -18,7 +18,7 @@ class SourcesController {
 
 	public function __construct( ?Database $database = null, ?SourceSync $sync = null ) {
 		$this->database = $database ?: new Database();
-		$this->sync = $sync ?: new SourceSync( $this->database );
+		$this->sync     = $sync ?: new SourceSync( $this->database );
 	}
 
 	public function register_routes(): void {

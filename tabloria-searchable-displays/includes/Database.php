@@ -87,7 +87,7 @@ CREATE TABLE {$displays} (
 
 		$columns = $this->sanitizer->sanitize_columns( (array) ( $source['columns'] ?? array() ) );
 		$rows    = $this->sanitizer->sanitize_rows( $rows, $columns );
-		$now = current_time( 'mysql' );
+		$now     = current_time( 'mysql' );
 		if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Keep source metadata and rows together.
 			return 0;
 		}
@@ -252,14 +252,14 @@ CREATE TABLE {$displays} (
 		$wpdb->insert(
 			self::displays_table(),
 			array(
-				'source_id'     => absint( $display['source_id'] ?? 0 ),
-				'name'          => sanitize_text_field( $display['name'] ?? __( 'Untitled Display', 'tabloria-searchable-displays' ) ),
-				'display_type'  => $this->sanitize_display_type( $display['display_type'] ?? 'searchable_listings' ),
-				'config_json'   => wp_json_encode( $display['config'] ?? array() ),
-				'status'        => $this->sanitize_status( $display['status'] ?? 'published' ),
-				'created_by'    => get_current_user_id(),
-				'created_at'    => $now,
-				'updated_at'    => $now,
+				'source_id'    => absint( $display['source_id'] ?? 0 ),
+				'name'         => sanitize_text_field( $display['name'] ?? __( 'Untitled Display', 'tabloria-searchable-displays' ) ),
+				'display_type' => $this->sanitize_display_type( $display['display_type'] ?? 'searchable_listings' ),
+				'config_json'  => wp_json_encode( $display['config'] ?? array() ),
+				'status'       => $this->sanitize_status( $display['status'] ?? 'published' ),
+				'created_by'   => get_current_user_id(),
+				'created_at'   => $now,
+				'updated_at'   => $now,
 			),
 			array( '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s' )
 		);
@@ -323,24 +323,24 @@ CREATE TABLE {$displays} (
 	}
 
 	private function prepare_source( array $row ): array {
-		$row['id']          = absint( $row['id'] );
-		$row['row_count']   = absint( $row['row_count'] );
-		$row['created_by']  = absint( $row['created_by'] );
-		$row['columns']     = json_decode( $row['columns_json'] ?? '[]', true );
-		$row['columns']     = is_array( $row['columns'] ) ? $this->sanitizer->sanitize_columns( $row['columns'] ) : array();
+		$row['id']         = absint( $row['id'] );
+		$row['row_count']  = absint( $row['row_count'] );
+		$row['created_by'] = absint( $row['created_by'] );
+		$row['columns']    = json_decode( $row['columns_json'] ?? '[]', true );
+		$row['columns']    = is_array( $row['columns'] ) ? $this->sanitizer->sanitize_columns( $row['columns'] ) : array();
 		unset( $row['columns_json'] );
 
 		return $row;
 	}
 
 	private function prepare_display( array $row ): array {
-		$row['id']         = absint( $row['id'] );
-		$row['source_id']  = absint( $row['source_id'] );
-		$row['created_by'] = absint( $row['created_by'] );
+		$row['id']           = absint( $row['id'] );
+		$row['source_id']    = absint( $row['source_id'] );
+		$row['created_by']   = absint( $row['created_by'] );
 		$row['display_type'] = $this->sanitize_display_type( $row['display_type'] ?? 'searchable_listings' );
-		$row['status'] = $this->sanitize_status( $row['status'] ?? 'draft' );
-		$row['config']     = json_decode( $row['config_json'] ?? '{}', true );
-		$row['config']     = is_array( $row['config'] ) ? $row['config'] : array();
+		$row['status']       = $this->sanitize_status( $row['status'] ?? 'draft' );
+		$row['config']       = json_decode( $row['config_json'] ?? '{}', true );
+		$row['config']       = is_array( $row['config'] ) ? $row['config'] : array();
 		unset( $row['config_json'] );
 
 		$source = $this->get_source( $row['source_id'] );

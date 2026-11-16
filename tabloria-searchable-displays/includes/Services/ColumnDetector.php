@@ -97,25 +97,25 @@ class ColumnDetector {
 			$distinct[ strtolower( $value ) ] = true;
 
 			if ( preg_match( '/(?:[$€£¥]|\b(?:usd|eur|gbp|uah)\b|\/\s?(?:mo|month|yr|year|day|hr|hour)\b)/i', $value ) && preg_match( '/\d/', $value ) ) {
-				$hits['price']++;
+				++$hits['price'];
 			}
 			if ( strtotime( $value ) && preg_match( '/\d{1,4}[-\/.]\d{1,2}[-\/.]\d{1,4}/', $value ) ) {
-				$hits['date']++;
+				++$hits['date'];
 			}
 			if ( is_numeric( str_replace( array( ',', '$' ), '', $value ) ) ) {
-				$hits['number']++;
+				++$hits['number'];
 			}
 			if ( preg_match( '/\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i', $value ) ) {
-				$hits['image']++;
+				++$hits['image'];
 			}
 			if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
-				$hits['url']++;
+				++$hits['url'];
 			}
 			if ( is_email( $value ) ) {
-				$hits['email']++;
+				++$hits['email'];
 			}
 			if ( ! preg_match( '/^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/', $value ) && preg_match( '/^\+?[0-9\s().-]{7,}$/', $value ) ) {
-				$hits['phone']++;
+				++$hits['phone'];
 			}
 		}
 
@@ -186,7 +186,7 @@ class ColumnDetector {
 		foreach ( $distinct_values as $value ) {
 			$value = strtolower( trim( (string) $value ) );
 			if ( in_array( $value, $status_words, true ) || preg_match( '/^(yes|no|true|false|on|off)$/', $value ) ) {
-				$matched++;
+				++$matched;
 			}
 		}
 

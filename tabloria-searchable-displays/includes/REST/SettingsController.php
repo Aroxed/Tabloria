@@ -51,9 +51,9 @@ class SettingsController {
 
 	private function settings(): array {
 		return array(
-			'defaultAccentColor'      => get_option( 'tabloria_default_accent_color', '#3525cd' ),
-			'defaultRowsPerPage'      => absint( get_option( 'tabloria_default_rows_per_page', 12 ) ),
-			'deleteDataOnUninstall'   => (bool) get_option( 'tabloria_delete_data_on_uninstall', false ),
+			'defaultAccentColor'    => get_option( 'tabloria_default_accent_color', '#3525cd' ),
+			'defaultRowsPerPage'    => absint( get_option( 'tabloria_default_rows_per_page', 12 ) ),
+			'deleteDataOnUninstall' => (bool) get_option( 'tabloria_delete_data_on_uninstall', false ),
 		);
 	}
 }

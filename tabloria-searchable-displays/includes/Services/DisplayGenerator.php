@@ -19,8 +19,8 @@ class DisplayGenerator {
 
 	public function generate( array $source, string $display_type = 'searchable_listings', array $overrides = array() ): array {
 		$display_type = $this->sanitize_display_type( $display_type );
-		$columns = $source['columns'] ?? array();
-		$roles   = $this->guess_roles( $columns, $display_type );
+		$columns      = $source['columns'] ?? array();
+		$roles        = $this->guess_roles( $columns, $display_type );
 
 		$config = array(
 			'displayType'    => $display_type,
@@ -37,7 +37,11 @@ class DisplayGenerator {
 				'placeholder'         => 'Search all fields...',
 				'emptyMessage'        => 'No rows match the current search or filters.',
 			),
-			'filters'        => array( 'enabled' => true, 'showColumnNames' => true, 'hoverColor' => '' ),
+			'filters'        => array(
+				'enabled'         => true,
+				'showColumnNames' => true,
+				'hoverColor'      => '',
+			),
 			'pagination'     => array(
 				'enabled'         => true,
 				'perPage'         => 12,
@@ -51,7 +55,7 @@ class DisplayGenerator {
 				'displayWidth' => 'normal',
 			),
 			'layoutOptions'  => array(
-				'cards' => array(
+				'cards'   => array(
 					'urlDisplay'  => 'link',
 					'urlLabel'    => '',
 					'buttonStyle' => 'theme',
@@ -76,14 +80,14 @@ class DisplayGenerator {
 		$config['title']       = sanitize_text_field( $config['title'] ?? __( 'Published Display', 'tabloria-searchable-displays' ) );
 		$config['sourceId']    = absint( $source['id'] ?? ( $config['sourceId'] ?? 0 ) );
 
-		$field_roles = array();
+		$field_roles   = array();
 		$allowed_roles = array( 'title', 'subtitle', 'image', 'price', 'badge', 'coupon_code', 'affiliate_url' );
 		foreach ( (array) ( $config['fieldRoles'] ?? array() ) as $role => $field ) {
 			$role = sanitize_key( $role );
 			if ( ! in_array( $role, $allowed_roles, true ) ) {
 				continue;
 			}
-			$field = sanitize_key( $field );
+			$field                = sanitize_key( $field );
 			$field_roles[ $role ] = in_array( $field, $allowed_keys, true ) ? $field : '';
 		}
 		$config['fieldRoles'] = $field_roles;
@@ -130,24 +134,24 @@ class DisplayGenerator {
 		}
 		$config['defaultFilters'] = $default_filters;
 
-		$sort = is_array( $config['sort'] ?? null ) ? $config['sort'] : array();
+		$sort           = is_array( $config['sort'] ?? null ) ? $config['sort'] : array();
 		$config['sort'] = array(
 			'field'     => in_array( $sort['field'] ?? '', $allowed_keys, true ) ? sanitize_key( $sort['field'] ) : '',
 			'direction' => 'desc' === ( $sort['direction'] ?? 'asc' ) ? 'desc' : 'asc',
 		);
 
-		$search = is_array( $config['search'] ?? null ) ? $config['search'] : array();
-		$filters = is_array( $config['filters'] ?? null ) ? $config['filters'] : array();
+		$search     = is_array( $config['search'] ?? null ) ? $config['search'] : array();
+		$filters    = is_array( $config['filters'] ?? null ) ? $config['filters'] : array();
 		$pagination = is_array( $config['pagination'] ?? null ) ? $config['pagination'] : array();
-		$style = is_array( $config['style'] ?? null ) ? $config['style'] : array();
+		$style      = is_array( $config['style'] ?? null ) ? $config['style'] : array();
 
-		$config['search'] = array(
+		$config['search']     = array(
 			'enabled'             => ! empty( $search['enabled'] ),
 			'hideRowsUntilSearch' => ! empty( $search['hideRowsUntilSearch'] ),
 			'placeholder'         => sanitize_text_field( $search['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...',
 			'emptyMessage'        => sanitize_text_field( $search['emptyMessage'] ?? 'No rows match the current search or filters.' ) ?: 'No rows match the current search or filters.',
 		);
-		$config['filters'] = array(
+		$config['filters']    = array(
 			'enabled'         => ! empty( $filters['enabled'] ),
 			'showColumnNames' => ! array_key_exists( 'showColumnNames', $filters ) || ! empty( $filters['showColumnNames'] ),
 			'hoverColor'      => sanitize_hex_color( $filters['hoverColor'] ?? '' ) ?: '',
@@ -158,9 +162,9 @@ class DisplayGenerator {
 			'showResultCount' => ! array_key_exists( 'showResultCount', $pagination ) || ! empty( $pagination['showResultCount'] ),
 			'resultLabel'     => sanitize_text_field( $pagination['resultLabel'] ?? 'rows' ) ?: 'rows',
 		);
-		$display_width = sanitize_key( $style['displayWidth'] ?? 'normal' );
-		$card_max_width = absint( $style['cardMaxWidth'] ?? 420 );
-		$config['style'] = array(
+		$display_width        = sanitize_key( $style['displayWidth'] ?? 'normal' );
+		$card_max_width       = absint( $style['cardMaxWidth'] ?? 420 );
+		$config['style']      = array(
 			'accentColor'  => sanitize_hex_color( $style['accentColor'] ?? '#3525cd' ) ?: '#3525cd',
 			'density'      => 'compact' === ( $style['density'] ?? 'comfortable' ) ? 'compact' : 'comfortable',
 			'imageShape'   => 'square' === ( $style['imageShape'] ?? 'rounded' ) ? 'square' : 'rounded',
@@ -168,13 +172,13 @@ class DisplayGenerator {
 			'cardMaxWidth' => in_array( $card_max_width, array( 320, 420, 520, 0 ), true ) ? $card_max_width : 420,
 		);
 
-		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
-		$card_options   = is_array( $layout_options['cards'] ?? null ) ? $layout_options['cards'] : array();
-		$coupon_options = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
-		$url_display    = sanitize_key( $card_options['urlDisplay'] ?? 'link' );
-		$button_style   = sanitize_key( $card_options['buttonStyle'] ?? 'theme' );
+		$layout_options          = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
+		$card_options            = is_array( $layout_options['cards'] ?? null ) ? $layout_options['cards'] : array();
+		$coupon_options          = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
+		$url_display             = sanitize_key( $card_options['urlDisplay'] ?? 'link' );
+		$button_style            = sanitize_key( $card_options['buttonStyle'] ?? 'theme' );
 		$config['layoutOptions'] = array(
-			'cards' => array(
+			'cards'   => array(
 				'urlDisplay'  => in_array( $url_display, array( 'link', 'button' ), true ) ? $url_display : 'link',
 				'urlLabel'    => sanitize_text_field( $card_options['urlLabel'] ?? '' ),
 				'buttonStyle' => in_array( $button_style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $button_style : 'theme',
@@ -213,10 +217,10 @@ class DisplayGenerator {
 		);
 
 		if ( 'coupon_display' === $display_type ) {
-			$roles['title'] = $by_label['offer'] ?? $by_label['deal'] ?? $by_label['name'] ?? $by_label['title'] ?? $this->first_public_key( $columns );
-			$roles['subtitle'] = $by_label['store'] ?? $by_label['merchant'] ?? $by_label['brand'] ?? $by_label['category'] ?? '';
-			$roles['badge'] = $by_label['discount'] ?? $by_label['saving'] ?? $by_label['status'] ?? '';
-			$roles['coupon_code'] = $by_label['coupon_code'] ?? $by_label['promo_code'] ?? $by_label['coupon'] ?? $by_label['code'] ?? '';
+			$roles['title']         = $by_label['offer'] ?? $by_label['deal'] ?? $by_label['name'] ?? $by_label['title'] ?? $this->first_public_key( $columns );
+			$roles['subtitle']      = $by_label['store'] ?? $by_label['merchant'] ?? $by_label['brand'] ?? $by_label['category'] ?? '';
+			$roles['badge']         = $by_label['discount'] ?? $by_label['saving'] ?? $by_label['status'] ?? '';
+			$roles['coupon_code']   = $by_label['coupon_code'] ?? $by_label['promo_code'] ?? $by_label['coupon'] ?? $by_label['code'] ?? '';
 			$roles['affiliate_url'] = $by_label['affiliate_url'] ?? $by_label['deal_url'] ?? $by_label['website'] ?? $by_label['url'] ?? $by_label['link'] ?? ( $by_type['url'] ?? '' );
 		}
 
@@ -251,7 +255,7 @@ class DisplayGenerator {
 	}
 
 	private function default_title( array $source, string $display_type ): string {
-		$name = $source['name'] ?? __( 'Published Display', 'tabloria-searchable-displays' );
+		$name       = $source['name'] ?? __( 'Published Display', 'tabloria-searchable-displays' );
 		$clean_name = preg_replace( '/\.[a-z0-9]+$/i', '', $name );
 		$fallback   = self::TYPES[ $display_type ] ?? 'Published Display';
 

@@ -11,9 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class SourceSync {
-	private const HOOK = 'tabloria_sync_csv_source';
+	private const HOOK         = 'tabloria_sync_csv_source';
 	private const INDEX_OPTION = 'tabloria_source_sync_ids';
-	private const FREQUENCIES = array( 'six_hours', 'twelve_hours', 'daily', 'weekly' );
+	private const FREQUENCIES  = array( 'six_hours', 'twelve_hours', 'daily', 'weekly' );
 
 	private Database $database;
 	private DataReplacementService $replacement;
@@ -39,8 +39,8 @@ class SourceSync {
 	}
 
 	public function get_settings( int $source_id ): array {
-		$stored = get_option( $this->option_key( $source_id ), array() );
-		$stored = is_array( $stored ) ? $stored : array();
+		$stored   = get_option( $this->option_key( $source_id ), array() );
+		$stored   = is_array( $stored ) ? $stored : array();
 		$next_run = wp_next_scheduled( self::HOOK, array( $source_id ) ) ?: 0;
 		return array(
 			'path'            => (string) ( $stored['path'] ?? '' ),
@@ -118,10 +118,10 @@ class SourceSync {
 		if ( ! $source ) {
 			return new WP_Error( 'tabloria_source_not_found', __( 'Source spreadsheet not found.', 'tabloria-searchable-displays' ), array( 'status' => 404 ) );
 		}
-		$stored = get_option( $this->option_key( $source_id ), array() );
-		$stored = is_array( $stored ) ? $stored : array();
+		$stored              = get_option( $this->option_key( $source_id ), array() );
+		$stored              = is_array( $stored ) ? $stored : array();
 		$stored['lastCheck'] = current_time( 'mysql' );
-		$path = $this->resolve_path( (string) ( $stored['path'] ?? '' ) );
+		$path                = $this->resolve_path( (string) ( $stored['path'] ?? '' ) );
 		if ( is_wp_error( $path ) ) {
 			return $this->record_error( $source_id, $stored, $path );
 		}
@@ -132,7 +132,11 @@ class SourceSync {
 		if ( $scheduled && $hash === ( $stored['lastHash'] ?? '' ) ) {
 			$stored['lastError'] = '';
 			update_option( $this->option_key( $source_id ), $stored, false );
-			return array( 'unchanged' => true, 'source' => $source, 'sync' => $this->get_settings( $source_id ) );
+			return array(
+				'unchanged' => true,
+				'source'    => $source,
+				'sync'      => $this->get_settings( $source_id ),
+			);
 		}
 
 		$validated = ( new SpreadsheetSanitizer() )->validate_csv_file_path( $path );
@@ -190,7 +194,7 @@ class SourceSync {
 		$candidate = $current->setTime( $hour, $minute, 0 );
 		$frequency = (string) ( $settings['frequency'] ?? 'daily' );
 		if ( 'weekly' === $frequency ) {
-			$days = ( (int) ( $settings['weekday'] ?? 1 ) - (int) $candidate->format( 'N' ) + 7 ) % 7;
+			$days      = ( (int) ( $settings['weekday'] ?? 1 ) - (int) $candidate->format( 'N' ) + 7 ) % 7;
 			$candidate = $candidate->modify( '+' . $days . ' days' );
 			if ( $candidate->getTimestamp() <= $now ) {
 				$candidate = $candidate->modify( '+7 days' );

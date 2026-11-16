@@ -88,7 +88,7 @@ class CsvParser {
 			}
 
 			$rows[ $row_index ] = $row;
-			$row_index++;
+			++$row_index;
 		}
 
 		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing the fgetcsv() stream opened above.
@@ -111,7 +111,7 @@ class CsvParser {
 	}
 
 	private function detect_delimiter( $handle ): string {
-		$best = ',';
+		$best       = ',';
 		$best_score = -1;
 		foreach ( array( ',', ';', "\t" ) as $candidate ) {
 			rewind( $handle );
@@ -125,11 +125,11 @@ class CsvParser {
 				continue;
 			}
 			$header_width = $widths[0];
-			$matching = count( array_filter( $widths, static fn( int $width ): bool => $width === $header_width ) );
-			$score = $header_width > 1 ? ( $matching * 100 + $header_width ) : 0;
+			$matching     = count( array_filter( $widths, static fn( int $width ): bool => $width === $header_width ) );
+			$score        = $header_width > 1 ? ( $matching * 100 + $header_width ) : 0;
 			if ( $score > $best_score ) {
 				$best_score = $score;
-				$best = $candidate;
+				$best       = $candidate;
 			}
 		}
 		return $best;
@@ -146,7 +146,7 @@ class CsvParser {
 
 			while ( isset( $seen[ $key ] ) ) {
 				$key = $base . '_' . $i;
-				$i++;
+				++$i;
 			}
 
 			$seen[ $key ] = true;
