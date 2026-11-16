@@ -1,4 +1,9 @@
 <?php
+/**
+ * Main plugin controller that wires WordPress hooks
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria;
 
@@ -13,13 +18,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Registers assets, the block, shortcode, admin screen, and REST routes.
+ */
 class Plugin {
+	/**
+	 * Database access layer.
+	 *
+	 * @var Database
+	 */
 	private Database $database;
 
+	/**
+	 * Set up the database access layer.
+	 */
 	public function __construct() {
 		$this->database = new Database();
 	}
 
+	/**
+	 * Register the plugin hooks.
+	 */
 	public function init(): void {
 		( new SourceSync( $this->database ) )->register_hooks();
 		add_action( 'init', array( $this, 'register_assets' ) );
@@ -31,6 +50,9 @@ class Plugin {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 	}
 
+	/**
+	 * Register the admin, block, and front end scripts and styles.
+	 */
 	public function register_assets(): void {
 		wp_register_style(
 			'tabloria-admin',
@@ -81,6 +103,9 @@ class Plugin {
 		);
 	}
 
+	/**
+	 * Register the Display and Display Grid blocks.
+	 */
 	public function register_block(): void {
 		register_block_type(
 			'tabloria/display',
@@ -145,11 +170,17 @@ class Plugin {
 		);
 	}
 
+	/**
+	 * Register the [tabloria] shortcode.
+	 */
 	public function register_shortcodes(): void {
 		add_shortcode( 'tabloria', array( $this, 'render_shortcode' ) );
 		add_shortcode( 'tabloria_display', array( $this, 'render_shortcode' ) );
 	}
 
+	/**
+	 * Add the Tabloria top-level admin menu.
+	 */
 	public function register_admin_menu(): void {
 		add_menu_page(
 			__( 'Tabloria', 'tabloria-searchable-displays' ),
@@ -189,6 +220,11 @@ class Plugin {
 		);
 	}
 
+	/**
+	 * Load the admin app assets on Tabloria screens only.
+	 *
+	 * @param string $hook Current admin page hook suffix.
+	 */
 	public function enqueue_admin_assets( string $hook ): void {
 		if ( ! str_contains( $hook, 'tabloria' ) ) {
 			return;
@@ -209,6 +245,9 @@ class Plugin {
 		);
 	}
 
+	/**
+	 * Load the front end assets when the current post contains a Tabloria display.
+	 */
 	public function maybe_enqueue_frontend_assets(): void {
 		if ( ! is_singular() ) {
 			return;
@@ -231,6 +270,9 @@ class Plugin {
 		}
 	}
 
+	/**
+	 * Register the REST routes for sources, uploads, displays, and settings.
+	 */
 	public function register_rest_routes(): void {
 		( new SourcesController( $this->database ) )->register_routes();
 		( new UploadController( $this->database ) )->register_routes();
@@ -238,10 +280,20 @@ class Plugin {
 		( new SettingsController() )->register_routes();
 	}
 
+	/**
+	 * Output the mount point for the admin app.
+	 */
 	public function render_admin_app(): void {
 		echo '<div class="wrap tabloria-admin-wrap"><div id="tabloria-admin-root"></div></div>';
 	}
 
+	/**
+	 * Render the Display block on the front end.
+	 *
+	 * @param array $attributes Render attributes.
+	 *
+	 * @return string Display HTML.
+	 */
 	public function render_display_block( array $attributes ): string {
 		$display_id = absint( $attributes['displayId'] ?? 0 );
 		if ( ! $display_id ) {
@@ -251,10 +303,24 @@ class Plugin {
 		return ( new FrontendRenderer( $this->database ) )->render( $display_id, $attributes );
 	}
 
+	/**
+	 * Render the Display Grid block on the front end.
+	 *
+	 * @param array $attributes Render attributes.
+	 *
+	 * @return string Display grid HTML.
+	 */
 	public function render_display_grid_block( array $attributes ): string {
 		return ( new FrontendRenderer( $this->database ) )->render_grid( $attributes );
 	}
 
+	/**
+	 * Render the [tabloria] shortcode.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 *
+	 * @return string Display HTML.
+	 */
 	public function render_shortcode( array $atts ): string {
 		$atts = shortcode_atts(
 			array(

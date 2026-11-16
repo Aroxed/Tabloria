@@ -1,4 +1,9 @@
 <?php
+/**
+ * Default display configuration generator
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\Services;
 
@@ -6,6 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Builds and sanitizes display configuration from a source.
+ */
 class DisplayGenerator {
 	public const TYPES = array(
 		'searchable_listings' => 'Searchable Listings',
@@ -17,6 +25,15 @@ class DisplayGenerator {
 		'simple_data_table'   => 'Simple Data Table',
 	);
 
+	/**
+	 * Build the default display configuration for a source.
+	 *
+	 * @param array  $source       Source data.
+	 * @param string $display_type Display type slug.
+	 * @param array  $overrides    Configuration values that replace the defaults.
+	 *
+	 * @return array Display configuration.
+	 */
 	public function generate( array $source, string $display_type = 'searchable_listings', array $overrides = array() ): array {
 		$display_type = $this->sanitize_display_type( $display_type );
 		$columns = $source['columns'] ?? array();
@@ -68,6 +85,14 @@ class DisplayGenerator {
 		return $this->merge_config( $config, $overrides );
 	}
 
+	/**
+	 * Sanitize a display configuration against its source columns.
+	 *
+	 * @param array $config Display configuration.
+	 * @param array $source Source data.
+	 *
+	 * @return array Sanitized configuration.
+	 */
 	public function sanitize_config( array $config, array $source ): array {
 		$columns      = $source['columns'] ?? array();
 		$allowed_keys = array_values( array_filter( array_map( 'sanitize_key', wp_list_pluck( $columns, 'key' ) ) ) );
@@ -190,11 +215,26 @@ class DisplayGenerator {
 		return $config;
 	}
 
+	/**
+	 * Limit a display type to the known slugs.
+	 *
+	 * @param mixed $display_type Display type slug.
+	 *
+	 * @return string Valid display type slug.
+	 */
 	public function sanitize_display_type( mixed $display_type ): string {
 		$display_type = sanitize_key( $display_type );
 		return isset( self::TYPES[ $display_type ] ) ? $display_type : 'searchable_listings';
 	}
 
+	/**
+	 * Guess which column fills each field role.
+	 *
+	 * @param array  $columns      Column definitions.
+	 * @param string $display_type Display type slug.
+	 *
+	 * @return array Map of role to column key.
+	 */
 	private function guess_roles( array $columns, string $display_type ): array {
 		$by_type  = $this->columns_by_type( $columns );
 		$by_label = $this->columns_by_label( $columns );
@@ -223,6 +263,13 @@ class DisplayGenerator {
 		return $roles;
 	}
 
+	/**
+	 * Choose the columns visitors can filter by.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Column keys.
+	 */
 	private function guess_visitor_filters( array $columns ): array {
 		$filters = array();
 		foreach ( $columns as $column ) {
@@ -234,6 +281,13 @@ class DisplayGenerator {
 		return array_slice( $filters, 0, 4 );
 	}
 
+	/**
+	 * Choose the default sort column and direction.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Sort settings.
+	 */
 	private function guess_sort( array $columns ): array {
 		foreach ( $columns as $column ) {
 			if ( in_array( $column['type'] ?? '', array( 'price', 'number', 'date' ), true ) ) {
@@ -250,6 +304,14 @@ class DisplayGenerator {
 		);
 	}
 
+	/**
+	 * Build a default display title from the source name.
+	 *
+	 * @param array  $source       Source data.
+	 * @param string $display_type Display type slug.
+	 *
+	 * @return string Display title.
+	 */
 	private function default_title( array $source, string $display_type ): string {
 		$name = $source['name'] ?? __( 'Published Display', 'tabloria-searchable-displays' );
 		$clean_name = preg_replace( '/\.[a-z0-9]+$/i', '', $name );
@@ -258,6 +320,13 @@ class DisplayGenerator {
 		return sanitize_text_field( $clean_name ?: $fallback );
 	}
 
+	/**
+	 * Group column keys by detected type.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Map of type to column keys.
+	 */
 	private function columns_by_type( array $columns ): array {
 		$map = array();
 		foreach ( $columns as $column ) {
@@ -269,6 +338,13 @@ class DisplayGenerator {
 		return $map;
 	}
 
+	/**
+	 * Index columns by their normalized label.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Map of label to column key.
+	 */
 	private function columns_by_label( array $columns ): array {
 		$map = array();
 		foreach ( $columns as $column ) {
@@ -287,15 +363,36 @@ class DisplayGenerator {
 		return $map;
 	}
 
+	/**
+	 * Get the first column key.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return string Column key, or an empty string.
+	 */
 	private function first_key( array $columns ): string {
 		return sanitize_key( $columns[0]['key'] ?? '' );
 	}
 
+	/**
+	 * Get the first column that is safe to show visitors.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return string Column key, or an empty string.
+	 */
 	private function first_public_key( array $columns ): string {
 		$keys = $this->public_field_keys( $columns );
 		return sanitize_key( $keys[0] ?? $this->first_key( $columns ) );
 	}
 
+	/**
+	 * List the columns that are safe to show visitors.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Column keys.
+	 */
 	private function public_field_keys( array $columns ): array {
 		$keys = array();
 		foreach ( $columns as $column ) {
@@ -309,6 +406,14 @@ class DisplayGenerator {
 		return $keys;
 	}
 
+	/**
+	 * Merge configuration overrides into the defaults.
+	 *
+	 * @param array $config    Display configuration.
+	 * @param array $overrides Configuration values that replace the defaults.
+	 *
+	 * @return array Merged configuration.
+	 */
 	private function merge_config( array $config, array $overrides ): array {
 		foreach ( $overrides as $key => $value ) {
 			if ( is_array( $value ) && isset( $config[ $key ] ) && is_array( $config[ $key ] ) ) {

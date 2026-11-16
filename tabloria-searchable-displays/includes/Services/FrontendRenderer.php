@@ -1,4 +1,9 @@
 <?php
+/**
+ * Front end renderer for published displays
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\Services;
 
@@ -8,15 +13,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Renders published displays as HTML for the shortcode and block.
+ */
 class FrontendRenderer {
+	/**
+	 * Database access layer.
+	 *
+	 * @var Database
+	 */
 	private Database $database;
+	/**
+	 * Spreadsheet sanitizer.
+	 *
+	 * @var SpreadsheetSanitizer
+	 */
 	private SpreadsheetSanitizer $sanitizer;
 
+	/**
+	 * Set up the renderer.
+	 *
+	 * @param Database|null             $database  Optional database access layer.
+	 * @param SpreadsheetSanitizer|null $sanitizer Optional spreadsheet sanitizer.
+	 */
 	public function __construct( ?Database $database = null, ?SpreadsheetSanitizer $sanitizer = null ) {
 		$this->database  = $database ?: new Database();
 		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
+	/**
+	 * Render a published display.
+	 *
+	 * @param int   $display_id Display ID.
+	 * @param array $attributes Render attributes.
+	 *
+	 * @return string Display HTML.
+	 */
 	public function render( int $display_id, array $attributes = array() ): string {
 		$display = $this->database->get_display( $display_id );
 		if ( ! $display || 'published' !== ( $display['status'] ?? 'draft' ) ) {
@@ -91,6 +123,13 @@ class FrontendRenderer {
 		return (string) ob_get_clean();
 	}
 
+	/**
+	 * Render a grid of displays chosen by block attributes.
+	 *
+	 * @param array $attributes Render attributes.
+	 *
+	 * @return string Grid HTML.
+	 */
 	public function render_grid( array $attributes = array() ): string {
 		$display_ids = array_values(
 			array_unique(
@@ -140,6 +179,14 @@ class FrontendRenderer {
 		return (string) ob_get_clean();
 	}
 
+	/**
+	 * Prepare the display, source, and first rows for the editor preview.
+	 *
+	 * @param int   $display_id Display ID.
+	 * @param array $attributes Render attributes.
+	 *
+	 * @return array Preview data.
+	 */
 	public function render_preview_data( int $display_id, array $attributes = array() ): array {
 		$display = $this->database->get_display( $display_id );
 		if ( ! $display ) {
@@ -163,6 +210,13 @@ class FrontendRenderer {
 		);
 	}
 
+	/**
+	 * Output the search box, filters, and reset button.
+	 *
+	 * @param array $rows   Spreadsheet rows.
+	 * @param array $config Display configuration.
+	 * @param array $source Source data.
+	 */
 	private function render_controls( array $rows, array $config, array $source ): void {
 		$search_enabled  = ! empty( $config['search']['enabled'] );
 		$filters_enabled = ! empty( $config['filters']['enabled'] ) && ! empty( $config['visitorFilters'] );
@@ -229,6 +283,14 @@ class FrontendRenderer {
 		<?php
 	}
 
+	/**
+	 * Output the rows in the layout for the display type.
+	 *
+	 * @param array  $rows         Spreadsheet rows.
+	 * @param array  $config       Display configuration.
+	 * @param array  $source       Source data.
+	 * @param string $display_type Display type slug.
+	 */
 	private function render_rows( array $rows, array $config, array $source, string $display_type ): void {
 		if ( 'simple_data_table' === $display_type ) {
 			$this->render_data_table( $rows, $config, $source );
@@ -244,6 +306,13 @@ class FrontendRenderer {
 		<?php
 	}
 
+	/**
+	 * Output the rows as a responsive table.
+	 *
+	 * @param array $rows   Spreadsheet rows.
+	 * @param array $config Display configuration.
+	 * @param array $source Source data.
+	 */
 	private function render_data_table( array $rows, array $config, array $source ): void {
 		$fields = $this->table_fields( $config, $source );
 		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
@@ -277,6 +346,14 @@ class FrontendRenderer {
 		<?php
 	}
 
+	/**
+	 * Output one row as a card.
+	 *
+	 * @param array  $row          A single spreadsheet row.
+	 * @param array  $config       Display configuration.
+	 * @param array  $source       Source data.
+	 * @param string $display_type Display type slug.
+	 */
 	private function render_card( array $row, array $config, array $source, string $display_type ): void {
 		if ( 'coupon_display' === $display_type ) {
 			$this->render_coupon_card( $row, $config, $source );
@@ -364,6 +441,13 @@ class FrontendRenderer {
 		<?php
 	}
 
+	/**
+	 * Output one row as a coupon card.
+	 *
+	 * @param array $row    A single spreadsheet row.
+	 * @param array $config Display configuration.
+	 * @param array $source Source data.
+	 */
 	private function render_coupon_card( array $row, array $config, array $source ): void {
 		$roles = is_array( $config['fieldRoles'] ?? null ) ? $config['fieldRoles'] : array();
 		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
@@ -426,6 +510,13 @@ class FrontendRenderer {
 		<?php
 	}
 
+	/**
+	 * Read the coupon button options.
+	 *
+	 * @param array $config Display configuration.
+	 *
+	 * @return array Coupon options.
+	 */
 	private function coupon_options( array $config ): array {
 		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
 		$options = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
@@ -438,6 +529,15 @@ class FrontendRenderer {
 		);
 	}
 
+	/**
+	 * Apply a block placement filter to the display configuration.
+	 *
+	 * @param array $config     Display configuration.
+	 * @param array $attributes Render attributes.
+	 * @param array $source     Source data.
+	 *
+	 * @return array Updated configuration.
+	 */
 	private function apply_placement_filter( array $config, array $attributes, array $source ): array {
 		$field = sanitize_key( $attributes['filterField'] ?? '' );
 		$value = sanitize_text_field( $attributes['filterValue'] ?? '' );
@@ -460,6 +560,15 @@ class FrontendRenderer {
 		return $config;
 	}
 
+	/**
+	 * Build the data attributes used by front end search and filters.
+	 *
+	 * @param array $row    A single spreadsheet row.
+	 * @param array $config Display configuration.
+	 * @param array $source Source data.
+	 *
+	 * @return string HTML attribute string.
+	 */
 	private function item_data_attributes( array $row, array $config, array $source ): string {
 		$fields = $this->public_fields( $config, $source );
 		if ( ! empty( $config['filters']['enabled'] ) ) {
@@ -492,15 +601,36 @@ class FrontendRenderer {
 		return $attributes;
 	}
 
+	/**
+	 * Check whether rows stay hidden until the visitor searches.
+	 *
+	 * @param array $config Display configuration.
+	 *
+	 * @return bool True when rows are hidden first.
+	 */
 	private function hide_rows_until_search( array $config ): bool {
 		return ! empty( $config['search']['enabled'] ) && ! empty( $config['search']['hideRowsUntilSearch'] );
 	}
 
+	/**
+	 * Check whether the result count is shown.
+	 *
+	 * @param array $config Display configuration.
+	 *
+	 * @return bool True when the count is shown.
+	 */
 	private function show_result_count( array $config ): bool {
 		$pagination = is_array( $config['pagination'] ?? null ) ? $config['pagination'] : array();
 		return ! array_key_exists( 'showResultCount', $pagination ) || ! empty( $pagination['showResultCount'] );
 	}
 
+	/**
+	 * Strip tags, collapse whitespace, and lowercase text for loose search matching.
+	 *
+	 * @param string $value Value to process.
+	 *
+	 * @return string Normalized text.
+	 */
 	private function normalize_search_text( string $value ): string {
 		$value = preg_replace( '/\s+/u', ' ', wp_strip_all_tags( $value ) );
 		$value = is_string( $value ) ? trim( $value ) : '';
@@ -512,6 +642,14 @@ class FrontendRenderer {
 		return strtolower( $value );
 	}
 
+	/**
+	 * Choose the columns shown in a table.
+	 *
+	 * @param array $config Display configuration.
+	 * @param array $source Source data.
+	 *
+	 * @return array Column keys.
+	 */
 	private function table_fields( array $config, array $source ): array {
 		$fields = array_values(
 			array_filter(
@@ -535,6 +673,14 @@ class FrontendRenderer {
 		);
 	}
 
+	/**
+	 * Choose the columns that are safe and enabled for visitors.
+	 *
+	 * @param array $config Display configuration.
+	 * @param array $source Source data.
+	 *
+	 * @return array Column keys.
+	 */
 	private function public_fields( array $config, array $source ): array {
 		$display_type = sanitize_key( $config['displayType'] ?? '' );
 		if ( 'simple_data_table' === $display_type ) {
@@ -547,6 +693,14 @@ class FrontendRenderer {
 		return array_values( array_unique( array_filter( $fields, fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field ) && $this->source_has_field( $source, $field ) ) ) );
 	}
 
+	/**
+	 * Check whether a source has a column.
+	 *
+	 * @param array  $source Source data.
+	 * @param string $field  Column key.
+	 *
+	 * @return bool True when the column exists.
+	 */
 	private function source_has_field( array $source, string $field ): bool {
 		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
 			if ( $field === sanitize_key( $column['key'] ?? '' ) ) {
@@ -556,6 +710,14 @@ class FrontendRenderer {
 		return false;
 	}
 
+	/**
+	 * Filter and sort the rows for output.
+	 *
+	 * @param array $rows   Spreadsheet rows.
+	 * @param array $config Display configuration.
+	 *
+	 * @return array Rows to render.
+	 */
 	private function prepare_rows( array $rows, array $config ): array {
 		$rows = array_values(
 			array_filter(
@@ -595,6 +757,14 @@ class FrontendRenderer {
 		return $rows;
 	}
 
+	/**
+	 * Check a row against a default filter.
+	 *
+	 * @param array $row    A single spreadsheet row.
+	 * @param array $filter Filter definition.
+	 *
+	 * @return bool True when the row matches.
+	 */
 	private function row_matches_default_filter( array $row, array $filter ): bool {
 		$field = sanitize_key( $filter['field'] ?? '' );
 		$value = (string) ( $filter['value'] ?? '' );
@@ -629,6 +799,13 @@ class FrontendRenderer {
 		return $row_lower === $value_lower;
 	}
 
+	/**
+	 * Read a number from a filter value.
+	 *
+	 * @param string $value Value to process.
+	 *
+	 * @return float|null Number, or null if none.
+	 */
 	private function numeric_filter_value( string $value ): ?float {
 		$raw = preg_replace( '/[^0-9.-]/', '', $value );
 		if ( ! is_string( $raw ) || '' === $raw || '-' === $raw || '.' === $raw || '-.' === $raw || ! is_numeric( $raw ) ) {
@@ -638,10 +815,27 @@ class FrontendRenderer {
 		return (float) $raw;
 	}
 
+	/**
+	 * Get a row value by column key.
+	 *
+	 * @param array  $row   A single spreadsheet row.
+	 * @param string $field Column key.
+	 *
+	 * @return string Value, or an empty string.
+	 */
 	private function field_value( array $row, string $field ): string {
 		return sanitize_text_field( (string) ( $row[ $field ] ?? '' ) );
 	}
 
+	/**
+	 * Get a row value only when the column exists in the source.
+	 *
+	 * @param array  $row    A single spreadsheet row.
+	 * @param string $field  Column key.
+	 * @param array  $source Source data.
+	 *
+	 * @return string Value, or an empty string.
+	 */
 	private function typed_field_value( array $row, string $field, array $source ): string {
 		$field = sanitize_key( $field );
 		if ( '' === $field ) {
@@ -651,6 +845,15 @@ class FrontendRenderer {
 		return $this->sanitizer->sanitize_value( $row[ $field ] ?? '', $this->column_type( $source, $field ) );
 	}
 
+	/**
+	 * Render one table cell value, linking URLs.
+	 *
+	 * @param array  $row    A single spreadsheet row.
+	 * @param string $field  Column key.
+	 * @param array  $source Source data.
+	 *
+	 * @return string Escaped cell HTML.
+	 */
 	private function render_table_field_value( array $row, string $field, array $source ): string {
 		$field = sanitize_key( $field );
 		$value = $this->typed_field_value( $row, $field, $source );
@@ -670,6 +873,16 @@ class FrontendRenderer {
 		return esc_html( $value );
 	}
 
+	/**
+	 * Render a link with safe attributes.
+	 *
+	 * @param string $url        URL.
+	 * @param string $label      Column label.
+	 * @param string $class_name CSS class name.
+	 * @param string $aria_label Accessible label.
+	 *
+	 * @return string Link HTML, or an empty string.
+	 */
 	private function render_url_link( string $url, string $label, string $class_name, string $aria_label = '' ): string {
 		$url = $this->sanitizer->sanitize_url_value( $url );
 		if ( '' === $url ) {
@@ -687,6 +900,13 @@ class FrontendRenderer {
 		);
 	}
 
+	/**
+	 * Read the card link options.
+	 *
+	 * @param array $config Display configuration.
+	 *
+	 * @return array Link options.
+	 */
 	private function card_url_options( array $config ): array {
 		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
 		$card_options   = is_array( $layout_options['cards'] ?? null ) ? $layout_options['cards'] : array();
@@ -700,12 +920,28 @@ class FrontendRenderer {
 		);
 	}
 
+	/**
+	 * Get the text of a card link.
+	 *
+	 * @param array  $source  Source data.
+	 * @param string $field   Column key.
+	 * @param array  $options Display options.
+	 *
+	 * @return string Link text.
+	 */
 	private function card_url_label( array $source, string $field, array $options ): string {
 		$custom_label = sanitize_text_field( $options['urlLabel'] ?? '' );
 
 		return '' !== $custom_label ? $custom_label : $this->url_button_label( $source, $field );
 	}
 
+	/**
+	 * Get the CSS class of a card link.
+	 *
+	 * @param array $options Display options.
+	 *
+	 * @return string CSS class names.
+	 */
 	private function card_url_class( array $options ): string {
 		if ( 'button' !== ( $options['urlDisplay'] ?? 'link' ) ) {
 			return 'tabloria-card__link';
@@ -725,6 +961,14 @@ class FrontendRenderer {
 		return implode( ' ', $classes );
 	}
 
+	/**
+	 * Get a button label for a URL column.
+	 *
+	 * @param array  $source Source data.
+	 * @param string $field  Column key.
+	 *
+	 * @return string Button text.
+	 */
 	private function url_button_label( array $source, string $field ): string {
 		$label = $this->column_label( $source, $field );
 		$normalized_label = strtolower( trim( $label ) );
@@ -736,6 +980,15 @@ class FrontendRenderer {
 		return $label;
 	}
 
+	/**
+	 * Build an accessible label for a URL column.
+	 *
+	 * @param array  $source Source data.
+	 * @param string $field  Column key.
+	 * @param string $title  Display title.
+	 *
+	 * @return string Accessible label.
+	 */
 	private function url_aria_label( array $source, string $field, string $title = '' ): string {
 		$label = $this->column_label( $source, $field );
 
@@ -755,6 +1008,14 @@ class FrontendRenderer {
 		);
 	}
 
+	/**
+	 * Get the detected type of a column.
+	 *
+	 * @param array  $source Source data.
+	 * @param string $field  Column key.
+	 *
+	 * @return string Column type.
+	 */
 	private function column_type( array $source, string $field ): string {
 		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
 			if ( $field === ( $column['key'] ?? '' ) ) {
@@ -765,6 +1026,14 @@ class FrontendRenderer {
 		return 'text';
 	}
 
+	/**
+	 * Get the label of a column.
+	 *
+	 * @param array  $source Source data.
+	 * @param string $field  Column key.
+	 *
+	 * @return string Column label.
+	 */
 	private function column_label( array $source, string $field ): string {
 		foreach ( (array) ( $source['columns'] ?? array() ) as $column ) {
 			if ( $field === ( $column['key'] ?? '' ) ) {
@@ -775,6 +1044,13 @@ class FrontendRenderer {
 		return $this->humanize_label( $field );
 	}
 
+	/**
+	 * Turn a key-like label into readable text.
+	 *
+	 * @param string $label Column label.
+	 *
+	 * @return string Readable label.
+	 */
 	private function humanize_label( string $label ): string {
 		$label = trim( str_replace( array( '_', '-' ), ' ', $label ) );
 		$label = preg_replace( '/\s+/', ' ', $label );
@@ -782,6 +1058,15 @@ class FrontendRenderer {
 		return sanitize_text_field( ucwords( strtolower( $label ?: __( 'Field', 'tabloria-searchable-displays' ) ) ) );
 	}
 
+	/**
+	 * Pick the best value for a card title.
+	 *
+	 * @param array $row    A single spreadsheet row.
+	 * @param array $source Source data.
+	 * @param array $fields Column keys.
+	 *
+	 * @return string Title text.
+	 */
 	private function best_title_value( array $row, array $source, array $fields ): string {
 		foreach ( $fields as $field ) {
 			$field = sanitize_key( $field );
@@ -805,6 +1090,16 @@ class FrontendRenderer {
 		return '';
 	}
 
+	/**
+	 * Pick the best value for a card subtitle.
+	 *
+	 * @param array  $row    A single spreadsheet row.
+	 * @param string $title  Display title.
+	 * @param array  $source Source data.
+	 * @param array  $fields Column keys.
+	 *
+	 * @return string Subtitle text.
+	 */
 	private function best_subtitle_value( array $row, string $title, array $source, array $fields ): string {
 		foreach ( $fields as $field ) {
 			$field = sanitize_key( $field );
@@ -820,10 +1115,26 @@ class FrontendRenderer {
 		return '';
 	}
 
+	/**
+	 * Check whether a column is an internal or technical field.
+	 *
+	 * @param string $field Column key.
+	 *
+	 * @return bool True for technical fields.
+	 */
 	private function is_technical_field( string $field ): bool {
 		return in_array( sanitize_key( $field ), array( 'entity', 'object_type', 'row_type', 'record_type' ), true );
 	}
 
+	/**
+	 * List the distinct values of a column for a filter dropdown.
+	 *
+	 * @param array  $rows   Spreadsheet rows.
+	 * @param string $field  Column key.
+	 * @param array  $source Source data.
+	 *
+	 * @return array Sorted distinct values.
+	 */
 	private function distinct_values( array $rows, string $field, array $source ): array {
 		$values = array();
 		foreach ( $rows as $row ) {

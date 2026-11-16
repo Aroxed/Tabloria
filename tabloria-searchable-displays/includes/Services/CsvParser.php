@@ -1,4 +1,9 @@
 <?php
+/**
+ * CSV file parser
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\Services;
 
@@ -8,15 +13,41 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Parses CSV files into columns and rows.
+ */
 class CsvParser {
+	/**
+	 * Column type detector.
+	 *
+	 * @var ColumnDetector
+	 */
 	private ColumnDetector $detector;
+	/**
+	 * Spreadsheet sanitizer.
+	 *
+	 * @var SpreadsheetSanitizer
+	 */
 	private SpreadsheetSanitizer $sanitizer;
 
+	/**
+	 * Set up the parser.
+	 *
+	 * @param ColumnDetector|null       $detector  Optional column detector.
+	 * @param SpreadsheetSanitizer|null $sanitizer Optional spreadsheet sanitizer.
+	 */
 	public function __construct( ?ColumnDetector $detector = null, ?SpreadsheetSanitizer $sanitizer = null ) {
 		$this->detector  = $detector ?: new ColumnDetector();
 		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
+	/**
+	 * Parse a CSV file into columns and rows.
+	 *
+	 * @param string $path Absolute file path.
+	 *
+	 * @return array|WP_Error Parsed columns and rows, or an error.
+	 */
 	public function parse( string $path ): array|WP_Error {
 		$file_error = $this->sanitizer->validate_csv_file_path( $path );
 		if ( is_wp_error( $file_error ) ) {
@@ -110,6 +141,13 @@ class CsvParser {
 		);
 	}
 
+	/**
+	 * Guess the field delimiter from the first line.
+	 *
+	 * @param mixed $handle Open file handle.
+	 *
+	 * @return string Delimiter character.
+	 */
 	private function detect_delimiter( $handle ): string {
 		$best = ',';
 		$best_score = -1;
@@ -135,6 +173,13 @@ class CsvParser {
 		return $best;
 	}
 
+	/**
+	 * Turn header labels into unique column keys.
+	 *
+	 * @param array $headers Header labels.
+	 *
+	 * @return array Column keys.
+	 */
 	private function unique_keys( array $headers ): array {
 		$seen = array();
 		$keys = array();
@@ -156,6 +201,13 @@ class CsvParser {
 		return $keys;
 	}
 
+	/**
+	 * Check whether every cell in a row is empty.
+	 *
+	 * @param array $row A single spreadsheet row.
+	 *
+	 * @return bool True when the row is blank.
+	 */
 	private function is_blank_row( array $row ): bool {
 		foreach ( $row as $value ) {
 			if ( '' !== trim( (string) $value ) ) {

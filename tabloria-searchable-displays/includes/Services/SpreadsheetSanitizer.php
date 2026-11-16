@@ -1,4 +1,9 @@
 <?php
+/**
+ * Validation and sanitization of uploaded spreadsheet data
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\Services;
 
@@ -8,6 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Validates uploads and sanitizes spreadsheet headers, columns, and values.
+ */
 class SpreadsheetSanitizer {
 	public const MAX_FILE_SIZE    = 5242880;
 	public const MAX_COLUMNS      = 80;
@@ -17,6 +25,13 @@ class SpreadsheetSanitizer {
 
 	private const TYPES = array( 'text', 'email', 'url', 'image', 'date', 'phone', 'price', 'number', 'status' );
 
+	/**
+	 * Check an uploaded file is a real, reasonably sized CSV.
+	 *
+	 * @param array $file Uploaded file data from $_FILES.
+	 *
+	 * @return array|WP_Error Validated file details, or an error.
+	 */
 	public function validate_uploaded_csv( array $file ): array|WP_Error {
 		if ( ! empty( $file['error'] ) ) {
 			return new WP_Error(
@@ -57,6 +72,13 @@ class SpreadsheetSanitizer {
 		);
 	}
 
+	/**
+	 * Check a file on disk is a readable CSV within the size limit.
+	 *
+	 * @param string $path Absolute file path.
+	 *
+	 * @return bool|WP_Error True when valid, otherwise an error.
+	 */
 	public function validate_csv_file_path( string $path ): bool|WP_Error {
 		if ( ! is_readable( $path ) ) {
 			return new WP_Error( 'tabloria_csv_unreadable', __( 'The uploaded CSV file could not be read.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
@@ -87,6 +109,13 @@ class SpreadsheetSanitizer {
 		return true;
 	}
 
+	/**
+	 * Sanitize the header row and reject empty or excessive headers.
+	 *
+	 * @param array $headers Header labels.
+	 *
+	 * @return array|WP_Error Sanitized headers, or an error.
+	 */
 	public function sanitize_headers( array $headers ): array|WP_Error {
 		if ( count( $headers ) > self::MAX_COLUMNS ) {
 			return new WP_Error( 'tabloria_csv_too_many_columns', __( 'The CSV file has too many columns for this MVP release.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
@@ -104,6 +133,14 @@ class SpreadsheetSanitizer {
 		return $clean;
 	}
 
+	/**
+	 * Sanitize a single header label.
+	 *
+	 * @param mixed $value Value to process.
+	 * @param int   $index Zero-based column position.
+	 *
+	 * @return string Sanitized label.
+	 */
 	public function sanitize_header( mixed $value, int $index = 0 ): string {
 		$value = preg_replace( '/^\xEF\xBB\xBF/', '', $this->normalize_scalar( $value, self::MAX_HEADER_BYTES ) );
 		$value = sanitize_text_field( $value );
@@ -115,6 +152,13 @@ class SpreadsheetSanitizer {
 		);
 	}
 
+	/**
+	 * Sanitize column definitions.
+	 *
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Sanitized columns.
+	 */
 	public function sanitize_columns( array $columns ): array {
 		$clean = array();
 		$seen  = array();
@@ -147,6 +191,14 @@ class SpreadsheetSanitizer {
 		return $clean;
 	}
 
+	/**
+	 * Sanitize every row against the column definitions.
+	 *
+	 * @param array $rows    Spreadsheet rows.
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Sanitized rows.
+	 */
 	public function sanitize_rows( array $rows, array $columns ): array {
 		$clean = array();
 		foreach ( array_slice( $rows, 0, self::MAX_ROWS, true ) as $row ) {
@@ -160,6 +212,14 @@ class SpreadsheetSanitizer {
 		return $clean;
 	}
 
+	/**
+	 * Sanitize one row using the type of each column.
+	 *
+	 * @param array $row     A single spreadsheet row.
+	 * @param array $columns Column definitions.
+	 *
+	 * @return array Sanitized row.
+	 */
 	public function sanitize_row( array $row, array $columns ): array {
 		$clean = array();
 		foreach ( $columns as $column ) {
@@ -175,6 +235,13 @@ class SpreadsheetSanitizer {
 		return $clean;
 	}
 
+	/**
+	 * Sanitize a row that has no column definitions.
+	 *
+	 * @param array $row A single spreadsheet row.
+	 *
+	 * @return array Sanitized row.
+	 */
 	public function sanitize_untyped_row( array $row ): array {
 		$clean = array();
 		foreach ( array_slice( $row, 0, self::MAX_COLUMNS, true ) as $key => $value ) {
@@ -188,6 +255,14 @@ class SpreadsheetSanitizer {
 		return $clean;
 	}
 
+	/**
+	 * Sanitize a cell value for its column type.
+	 *
+	 * @param mixed  $value Value to process.
+	 * @param string $type  Column type.
+	 *
+	 * @return string Sanitized value.
+	 */
 	public function sanitize_value( mixed $value, string $type = 'text' ): string {
 		$type = sanitize_key( $type );
 
@@ -204,6 +279,13 @@ class SpreadsheetSanitizer {
 		};
 	}
 
+	/**
+	 * Sanitize a link value and keep only http and https URLs.
+	 *
+	 * @param mixed $value Value to process.
+	 *
+	 * @return string Sanitized URL, or an empty string.
+	 */
 	public function sanitize_url_value( mixed $value ): string {
 		$value = $this->normalize_scalar( $value, self::MAX_CELL_BYTES );
 		$value = wp_strip_all_tags( $value );
@@ -216,6 +298,13 @@ class SpreadsheetSanitizer {
 		return sanitize_url( $value, array( 'http', 'https' ) );
 	}
 
+	/**
+	 * Sanitize an image URL and keep only http and https URLs.
+	 *
+	 * @param mixed $value Value to process.
+	 *
+	 * @return string Sanitized URL, or an empty string.
+	 */
 	public function sanitize_image_url( mixed $value ): string {
 		$url = $this->sanitize_url_value( $value );
 		if ( '' === $url ) {
@@ -230,6 +319,13 @@ class SpreadsheetSanitizer {
 		return $url;
 	}
 
+	/**
+	 * Sanitize an email address.
+	 *
+	 * @param mixed $value Value to process.
+	 *
+	 * @return string Sanitized email, or an empty string.
+	 */
 	private function sanitize_email_value( mixed $value ): string {
 		$value = $this->normalize_scalar( $value, 320 );
 		$value = sanitize_email( $value );
@@ -237,16 +333,39 @@ class SpreadsheetSanitizer {
 		return is_email( $value ) ? $value : '';
 	}
 
+	/**
+	 * Sanitize long text.
+	 *
+	 * @param mixed $value Value to process.
+	 *
+	 * @return string Sanitized text.
+	 */
 	private function sanitize_text_value( mixed $value ): string {
 		$value = sanitize_text_field( $this->normalize_scalar( $value, self::MAX_CELL_BYTES ) );
 		return $this->neutralize_formula_value( $value );
 	}
 
+	/**
+	 * Sanitize short text and cap its length.
+	 *
+	 * @param mixed $value     Value to process.
+	 * @param int   $max_bytes Maximum length in bytes.
+	 *
+	 * @return string Sanitized text.
+	 */
 	private function sanitize_short_text( mixed $value, int $max_bytes ): string {
 		$value = sanitize_text_field( $this->normalize_scalar( $value, $max_bytes ) );
 		return $this->neutralize_formula_value( $value );
 	}
 
+	/**
+	 * Convert a value to a trimmed string and cap its length.
+	 *
+	 * @param mixed $value     Value to process.
+	 * @param int   $max_bytes Maximum length in bytes.
+	 *
+	 * @return string Normalized string.
+	 */
 	private function normalize_scalar( mixed $value, int $max_bytes ): string {
 		if ( is_array( $value ) || is_object( $value ) || is_resource( $value ) ) {
 			return '';
@@ -261,6 +380,13 @@ class SpreadsheetSanitizer {
 		return $this->limit_bytes( $value, $max_bytes );
 	}
 
+	/**
+	 * Prefix values that start with a formula character so spreadsheet apps do not run them.
+	 *
+	 * @param string $value Value to process.
+	 *
+	 * @return string Safe value.
+	 */
 	private function neutralize_formula_value( string $value ): string {
 		if ( preg_match( '/^\s*(?:=|@|\+|-(?!\d))/', $value ) ) {
 			return "'" . $value;
@@ -269,6 +395,13 @@ class SpreadsheetSanitizer {
 		return $value;
 	}
 
+	/**
+	 * Translate a PHP upload error code into a message.
+	 *
+	 * @param int $code Upload error code.
+	 *
+	 * @return string Error message.
+	 */
 	private function upload_error_message( int $code ): string {
 		return match ( $code ) {
 			UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => sprintf(
@@ -286,6 +419,14 @@ class SpreadsheetSanitizer {
 		};
 	}
 
+	/**
+	 * Cut a string to a byte limit without splitting a character.
+	 *
+	 * @param string $value     Value to process.
+	 * @param int    $max_bytes Maximum length in bytes.
+	 *
+	 * @return string Shortened string.
+	 */
 	private function limit_bytes( string $value, int $max_bytes ): string {
 		if ( strlen( $value ) <= $max_bytes ) {
 			return $value;

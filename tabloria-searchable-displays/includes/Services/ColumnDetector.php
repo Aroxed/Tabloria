@@ -1,4 +1,9 @@
 <?php
+/**
+ * Column type detection for imported spreadsheets
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\Services;
 
@@ -6,7 +11,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Detects the type of each spreadsheet column from its label and values.
+ */
 class ColumnDetector {
+	/**
+	 * Detect the label, key, and type of every column.
+	 *
+	 * @param array $headers Header labels.
+	 * @param array $rows    Spreadsheet rows.
+	 *
+	 * @return array Column definitions.
+	 */
 	public function detect_columns( array $headers, array $rows ): array {
 		$columns = array();
 
@@ -30,6 +46,13 @@ class ColumnDetector {
 		return $columns;
 	}
 
+	/**
+	 * Turn a header label into a lowercase key of letters, digits, and underscores.
+	 *
+	 * @param string $label Column label.
+	 *
+	 * @return string Normalized key.
+	 */
 	public function normalize_key( string $label ): string {
 		$key = remove_accents( strtolower( trim( $label ) ) );
 		$key = preg_replace( '/[^a-z0-9]+/', '_', $key );
@@ -38,6 +61,14 @@ class ColumnDetector {
 		return $key ?: 'field';
 	}
 
+	/**
+	 * Guess a column type from its label and sample values.
+	 *
+	 * @param array  $values Values to inspect.
+	 * @param string $label  Column label.
+	 *
+	 * @return string Column type.
+	 */
 	private function detect_type( array $values, string $label ): string {
 		$label_key = $this->normalize_key( $label );
 
@@ -132,6 +163,14 @@ class ColumnDetector {
 		return 'text';
 	}
 
+	/**
+	 * Check whether a normalized label contains any of the tokens.
+	 *
+	 * @param string $label_key Normalized label.
+	 * @param array  $tokens    Tokens to look for.
+	 *
+	 * @return bool True when a token matches.
+	 */
 	private function label_has_token( string $label_key, array $tokens ): bool {
 		foreach ( $tokens as $token ) {
 			$token = preg_quote( $token, '/' );
@@ -143,6 +182,13 @@ class ColumnDetector {
 		return false;
 	}
 
+	/**
+	 * Check whether a label looks like an ID or a name.
+	 *
+	 * @param string $label_key Normalized label.
+	 *
+	 * @return bool True for identifier or name labels.
+	 */
 	private function is_identifier_or_name_label( string $label_key ): bool {
 		if ( $this->label_has_token( $label_key, array( 'sku', 'code', 'id', 'uuid', 'slug', 'name', 'title', 'manufacturer', 'supplier', 'vendor' ) ) ) {
 			return true;
@@ -151,6 +197,14 @@ class ColumnDetector {
 		return (bool) preg_match( '/(^|_)(order|work_order|invoice|reference|ref)_?number($|_)/', $label_key );
 	}
 
+	/**
+	 * Check whether the values look like a small set of statuses.
+	 *
+	 * @param array $distinct_values Distinct values found in the column.
+	 * @param int   $total           Total number of values.
+	 *
+	 * @return bool True when the values look like statuses.
+	 */
 	private function looks_like_status_values( array $distinct_values, int $total ): bool {
 		if ( $total < 5 || empty( $distinct_values ) ) {
 			return false;

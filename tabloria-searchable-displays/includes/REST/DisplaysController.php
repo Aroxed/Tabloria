@@ -1,4 +1,9 @@
 <?php
+/**
+ * REST controller for displays
+ *
+ * @package Tabloria
+ */
 
 namespace Tabloria\REST;
 
@@ -15,17 +20,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Handles REST endpoints for creating, editing, and rendering displays.
+ */
 class DisplaysController {
+	/**
+	 * Database access layer.
+	 *
+	 * @var Database
+	 */
 	private Database $database;
+	/**
+	 * Display configuration generator.
+	 *
+	 * @var DisplayGenerator
+	 */
 	private DisplayGenerator $generator;
+	/**
+	 * Spreadsheet sanitizer.
+	 *
+	 * @var SpreadsheetSanitizer
+	 */
 	private SpreadsheetSanitizer $sanitizer;
 
+	/**
+	 * Set up the controller.
+	 *
+	 * @param Database|null             $database  Optional database access layer.
+	 * @param DisplayGenerator|null     $generator Optional display generator.
+	 * @param SpreadsheetSanitizer|null $sanitizer Optional spreadsheet sanitizer.
+	 */
 	public function __construct( ?Database $database = null, ?DisplayGenerator $generator = null, ?SpreadsheetSanitizer $sanitizer = null ) {
 		$this->database  = $database ?: new Database();
 		$this->generator = $generator ?: new DisplayGenerator();
 		$this->sanitizer = $sanitizer ?: new SpreadsheetSanitizer();
 	}
 
+	/**
+	 * Register the display routes.
+	 */
 	public function register_routes(): void {
 		register_rest_route(
 			'tabloria/v1',
@@ -97,22 +130,49 @@ class DisplaysController {
 		);
 	}
 
+	/**
+	 * Allow administrators to read displays.
+	 *
+	 * @return bool True when the user can manage options.
+	 */
 	public function read_permissions_check(): bool {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * Allow administrators to change displays.
+	 *
+	 * @return bool True when the user can manage options.
+	 */
 	public function manage_permissions_check(): bool {
 		return current_user_can( 'manage_options' );
 	}
 
+	/**
+	 * Allow administrators who can edit pages to create a draft page.
+	 *
+	 * @return bool True when the user may create the page.
+	 */
 	public function create_page_permissions_check(): bool {
 		return current_user_can( 'manage_options' ) && current_user_can( 'edit_pages' );
 	}
 
+	/**
+	 * List displays.
+	 *
+	 * @return WP_REST_Response List of displays.
+	 */
 	public function index(): WP_REST_Response {
 		return new WP_REST_Response( $this->database->list_displays() );
 	}
 
+	/**
+	 * Get one display.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error Display, or an error if not found.
+	 */
 	public function show( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$display = $this->database->get_display( absint( $request['id'] ) );
 		if ( ! $display ) {
@@ -122,6 +182,13 @@ class DisplaysController {
 		return new WP_REST_Response( $display );
 	}
 
+	/**
+	 * Create a display from a source.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error Created display, or an error.
+	 */
 	public function create( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$source_id = absint( $request->get_param( 'sourceId' ) ?: $request->get_param( 'source_id' ) );
 		$source    = $this->database->get_source( $source_id );
@@ -153,6 +220,13 @@ class DisplaysController {
 		return new WP_REST_Response( $this->database->get_display( $display_id ), 201 );
 	}
 
+	/**
+	 * Update a display.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error Updated display, or an error.
+	 */
 	public function update( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$display = $this->database->get_display( absint( $request['id'] ) );
 		if ( ! $display ) {
@@ -188,6 +262,13 @@ class DisplaysController {
 		return new WP_REST_Response( $this->database->get_display( absint( $display['id'] ) ) );
 	}
 
+	/**
+	 * Delete a display.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error Deletion result, or an error.
+	 */
 	public function delete( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$display = $this->database->get_display( absint( $request['id'] ) );
 		if ( ! $display ) {
@@ -198,6 +279,13 @@ class DisplaysController {
 		return new WP_REST_Response( array( 'deleted' => true ) );
 	}
 
+	/**
+	 * Create a draft page that contains the display shortcode.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error Draft page details, or an error.
+	 */
 	public function create_draft_page( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$display_id = absint( $request['id'] );
 		$display    = $this->database->get_display( $display_id );
@@ -236,6 +324,13 @@ class DisplaysController {
 		);
 	}
 
+	/**
+	 * Return the rendered preview data for a display.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response Preview data.
+	 */
 	public function render_data( WP_REST_Request $request ): WP_REST_Response {
 		$renderer = new FrontendRenderer( $this->database );
 		return new WP_REST_Response(
@@ -249,6 +344,13 @@ class DisplaysController {
 		);
 	}
 
+	/**
+	 * Replace a display's source data from a new CSV.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 *
+	 * @return WP_REST_Response|WP_Error Comparison and updated display, or an error.
+	 */
 	public function update_data( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$display = $this->database->get_display( absint( $request['id'] ) );
 		if ( ! $display ) {
