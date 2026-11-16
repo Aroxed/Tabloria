@@ -79,7 +79,15 @@ class CsvParser {
 			}
 			if ( count( $data ) !== count( $headers ) ) {
 				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Close the temporary stream.
-				return new WP_Error( 'tabloria_csv_column_mismatch', sprintf( __( 'CSV row %d has a different number of columns than the header. Check the delimiter and quoted values.', 'tabloria-searchable-displays' ), $row_index + 2 ), array( 'status' => 400 ) );
+				return new WP_Error(
+					'tabloria_csv_column_mismatch',
+					sprintf(
+						/* translators: %d: CSV row number, counting the header as row 1. */
+						__( 'CSV row %d has a different number of columns than the header. Check the delimiter and quoted values.', 'tabloria-searchable-displays' ),
+						$row_index + 2
+					),
+					array( 'status' => 400 )
+				);
 			}
 
 			$row = array();
