@@ -35,22 +35,22 @@ class FrontendRenderer {
 		wp_enqueue_style( 'tabloria-frontend' );
 		wp_enqueue_script( 'tabloria-frontend' );
 
-		$accent = sanitize_hex_color( $config['style']['accentColor'] ?? '#3525cd' ) ?: '#3525cd';
+		$accent               = sanitize_hex_color( $config['style']['accentColor'] ?? '#3525cd' ) ?: '#3525cd';
 		$dropdown_hover_color = sanitize_hex_color( $config['filters']['hoverColor'] ?? '' ) ?: $accent;
-		$card_max_width = absint( $config['style']['cardMaxWidth'] ?? 420 );
-		$card_width_class = in_array( $card_max_width, array( 320, 420, 520 ), true ) ? 'is-card-width-' . $card_max_width : 'is-card-width-unlimited';
-		$density = 'compact' === ( $config['style']['density'] ?? '' ) ? 'is-compact' : 'is-comfortable';
-		$shape = 'square' === ( $config['style']['imageShape'] ?? '' ) ? 'is-square' : 'is-rounded';
-		$per_page = max( 1, absint( $config['pagination']['perPage'] ?? 12 ) );
-		$display_type = sanitize_key( $display['display_type'] ?? ( $config['displayType'] ?? 'searchable_listings' ) );
-		$type_class = 'tabloria-display--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
-		$is_contained = ! empty( $attributes['contained'] );
-		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
-		$display_width = in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal';
+		$card_max_width       = absint( $config['style']['cardMaxWidth'] ?? 420 );
+		$card_width_class     = in_array( $card_max_width, array( 320, 420, 520 ), true ) ? 'is-card-width-' . $card_max_width : 'is-card-width-unlimited';
+		$density              = 'compact' === ( $config['style']['density'] ?? '' ) ? 'is-compact' : 'is-comfortable';
+		$shape                = 'square' === ( $config['style']['imageShape'] ?? '' ) ? 'is-square' : 'is-rounded';
+		$per_page             = max( 1, absint( $config['pagination']['perPage'] ?? 12 ) );
+		$display_type         = sanitize_key( $display['display_type'] ?? ( $config['displayType'] ?? 'searchable_listings' ) );
+		$type_class           = 'tabloria-display--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
+		$is_contained         = ! empty( $attributes['contained'] );
+		$display_width        = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
+		$display_width        = in_array( $display_width, array( 'normal', 'wide', 'full' ), true ) ? $display_width : 'normal';
 		if ( $is_contained ) {
 			$display_width = 'normal';
 		}
-		$width_class = 'simple_data_table' === $display_type ? 'is-width-' . $display_width : '';
+		$width_class     = 'simple_data_table' === $display_type ? 'is-width-' . $display_width : '';
 		$contained_class = $is_contained ? 'is-contained' : '';
 
 		ob_start();
@@ -107,9 +107,9 @@ class FrontendRenderer {
 		wp_enqueue_style( 'tabloria-frontend' );
 		wp_enqueue_script( 'tabloria-frontend' );
 
-		$columns = min( 4, max( 1, absint( $attributes['columns'] ?? 2 ) ) );
-		$gap = sanitize_key( $attributes['gap'] ?? 'normal' );
-		$gap = in_array( $gap, array( 'compact', 'normal', 'spacious' ), true ) ? $gap : 'normal';
+		$columns     = min( 4, max( 1, absint( $attributes['columns'] ?? 2 ) ) );
+		$gap         = sanitize_key( $attributes['gap'] ?? 'normal' );
+		$gap         = in_array( $gap, array( 'compact', 'normal', 'spacious' ), true ) ? $gap : 'normal';
 		$show_titles = ! isset( $attributes['showTitles'] ) || (bool) $attributes['showTitles'];
 
 		ob_start();
@@ -151,22 +151,22 @@ class FrontendRenderer {
 			return array();
 		}
 
-		$config = $this->apply_placement_filter( $display['config'] ?? array(), $attributes, $source );
+		$config            = $this->apply_placement_filter( $display['config'] ?? array(), $attributes, $source );
 		$display['config'] = $config;
-		$prepared_rows = $this->prepare_rows( $this->database->get_rows( absint( $source['id'] ) ), $config );
+		$prepared_rows     = $this->prepare_rows( $this->database->get_rows( absint( $source['id'] ) ), $config );
 
 		return array(
-			'display' => $display,
-			'source'  => $source,
-			'rows'    => array_slice( $prepared_rows, 0, 12 ),
+			'display'  => $display,
+			'source'   => $source,
+			'rows'     => array_slice( $prepared_rows, 0, 12 ),
 			'rowCount' => count( $prepared_rows ),
 		);
 	}
 
 	private function render_controls( array $rows, array $config, array $source ): void {
-		$search_enabled  = ! empty( $config['search']['enabled'] );
-		$filters_enabled = ! empty( $config['filters']['enabled'] ) && ! empty( $config['visitorFilters'] );
-		$show_column_names = ! array_key_exists( 'showColumnNames', $config['filters'] ?? array() ) || ! empty( $config['filters']['showColumnNames'] );
+		$search_enabled     = ! empty( $config['search']['enabled'] );
+		$filters_enabled    = ! empty( $config['filters']['enabled'] ) && ! empty( $config['visitorFilters'] );
+		$show_column_names  = ! array_key_exists( 'showColumnNames', $config['filters'] ?? array() ) || ! empty( $config['filters']['showColumnNames'] );
 		$search_placeholder = sanitize_text_field( $config['search']['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...';
 
 		if ( ! $search_enabled && ! $filters_enabled ) {
@@ -209,13 +209,13 @@ class FrontendRenderer {
 								<?php foreach ( $values as $value ) : ?>
 									<?php
 									$value_label = $show_column_names
-						? sprintf(
-							/* translators: 1: column label, 2: filter value. */
-							__( '%1$s: %2$s', 'tabloria-searchable-displays' ),
-							$label,
-							$value
-						)
-						: $value;
+									? sprintf(
+									/* translators: 1: column label, 2: filter value. */
+										__( '%1$s: %2$s', 'tabloria-searchable-displays' ),
+										$label,
+										$value
+									)
+									: $value;
 									?>
 									<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $value_label ); ?></option>
 								<?php endforeach; ?>
@@ -245,9 +245,9 @@ class FrontendRenderer {
 	}
 
 	private function render_data_table( array $rows, array $config, array $source ): void {
-		$fields = $this->table_fields( $config, $source );
+		$fields        = $this->table_fields( $config, $source );
 		$display_width = sanitize_key( $config['style']['displayWidth'] ?? 'normal' );
-		$column_width = match ( $display_width ) {
+		$column_width  = match ( $display_width ) {
 			'full' => 96,
 			'wide' => 120,
 			default => 160,
@@ -283,18 +283,18 @@ class FrontendRenderer {
 			return;
 		}
 
-		$roles = $config['fieldRoles'] ?? array();
-		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
-		$title = '' !== $title ? $title : $this->best_title_value( $row, $source, $this->public_fields( $config, $source ) );
-		$subtitle = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
-		$subtitle = '' !== $subtitle ? $subtitle : $this->best_subtitle_value( $row, $title, $source, $this->public_fields( $config, $source ) );
-		$image = $this->typed_field_value( $row, $roles['image'] ?? '', $source );
-		$image_url = $this->sanitizer->sanitize_image_url( $image );
-		$price = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
-		$badge = $this->typed_field_value( $row, $roles['badge'] ?? '', $source );
-		$card_class = 'tabloria-card tabloria-card--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
-		$field_rows = array();
-		$url_actions = array();
+		$roles            = $config['fieldRoles'] ?? array();
+		$title            = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
+		$title            = '' !== $title ? $title : $this->best_title_value( $row, $source, $this->public_fields( $config, $source ) );
+		$subtitle         = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
+		$subtitle         = '' !== $subtitle ? $subtitle : $this->best_subtitle_value( $row, $title, $source, $this->public_fields( $config, $source ) );
+		$image            = $this->typed_field_value( $row, $roles['image'] ?? '', $source );
+		$image_url        = $this->sanitizer->sanitize_image_url( $image );
+		$price            = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
+		$badge            = $this->typed_field_value( $row, $roles['badge'] ?? '', $source );
+		$card_class       = 'tabloria-card tabloria-card--' . sanitize_html_class( str_replace( '_', '-', $display_type ) );
+		$field_rows       = array();
+		$url_actions      = array();
 		$card_url_options = $this->card_url_options( $config );
 
 		foreach ( (array) ( $config['visibleFields'] ?? array() ) as $field ) {
@@ -365,17 +365,17 @@ class FrontendRenderer {
 	}
 
 	private function render_coupon_card( array $row, array $config, array $source ): void {
-		$roles = is_array( $config['fieldRoles'] ?? null ) ? $config['fieldRoles'] : array();
-		$title = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
-		$title = '' !== $title ? $title : $this->best_title_value( $row, $source, $this->public_fields( $config, $source ) );
-		$subtitle = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
-		$image_url = $this->sanitizer->sanitize_image_url( $this->typed_field_value( $row, $roles['image'] ?? '', $source ) );
-		$price = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
-		$badge = $this->typed_field_value( $row, $roles['badge'] ?? '', $source );
-		$coupon_code = $this->typed_field_value( $row, $roles['coupon_code'] ?? '', $source );
+		$roles         = is_array( $config['fieldRoles'] ?? null ) ? $config['fieldRoles'] : array();
+		$title         = $this->typed_field_value( $row, $roles['title'] ?? '', $source );
+		$title         = '' !== $title ? $title : $this->best_title_value( $row, $source, $this->public_fields( $config, $source ) );
+		$subtitle      = $this->typed_field_value( $row, $roles['subtitle'] ?? '', $source );
+		$image_url     = $this->sanitizer->sanitize_image_url( $this->typed_field_value( $row, $roles['image'] ?? '', $source ) );
+		$price         = $this->typed_field_value( $row, $roles['price'] ?? '', $source );
+		$badge         = $this->typed_field_value( $row, $roles['badge'] ?? '', $source );
+		$coupon_code   = $this->typed_field_value( $row, $roles['coupon_code'] ?? '', $source );
 		$affiliate_url = $this->sanitizer->sanitize_url_value( $this->typed_field_value( $row, $roles['affiliate_url'] ?? '', $source ) );
-		$options = $this->coupon_options( $config );
-		$field_rows = array();
+		$options       = $this->coupon_options( $config );
+		$field_rows    = array();
 
 		foreach ( (array) ( $config['visibleFields'] ?? array() ) as $field ) {
 			$field = sanitize_key( $field );
@@ -394,10 +394,22 @@ class FrontendRenderer {
 				<div class="tabloria-card__image"><img src="<?php echo esc_url( $image_url ); ?>" alt="" loading="lazy" /></div>
 			<?php endif; ?>
 			<div class="tabloria-card__body">
-				<?php if ( $badge ) : ?><span class="tabloria-card__badge tabloria-card__badge--plain"><?php echo esc_html( $badge ); ?></span><?php endif; ?>
-				<?php if ( $title ) : ?><h3><?php echo esc_html( $title ); ?></h3><?php endif; ?>
-				<?php if ( $subtitle ) : ?><p class="tabloria-card__subtitle"><?php echo esc_html( $subtitle ); ?></p><?php endif; ?>
-				<?php if ( $price ) : ?><p class="tabloria-card__price"><?php echo esc_html( $price ); ?></p><?php endif; ?>
+				<?php
+				if ( $badge ) :
+					?>
+					<span class="tabloria-card__badge tabloria-card__badge--plain"><?php echo esc_html( $badge ); ?></span><?php endif; ?>
+				<?php
+				if ( $title ) :
+					?>
+					<h3><?php echo esc_html( $title ); ?></h3><?php endif; ?>
+				<?php
+				if ( $subtitle ) :
+					?>
+					<p class="tabloria-card__subtitle"><?php echo esc_html( $subtitle ); ?></p><?php endif; ?>
+				<?php
+				if ( $price ) :
+					?>
+					<p class="tabloria-card__price"><?php echo esc_html( $price ); ?></p><?php endif; ?>
 				<?php if ( $field_rows ) : ?>
 					<dl class="tabloria-card__fields">
 						<?php foreach ( $field_rows as $field_row ) : ?>
@@ -428,7 +440,7 @@ class FrontendRenderer {
 
 	private function coupon_options( array $config ): array {
 		$layout_options = is_array( $config['layoutOptions'] ?? null ) ? $config['layoutOptions'] : array();
-		$options = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
+		$options        = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
 
 		return array(
 			'showCouponLabel' => sanitize_text_field( $options['showCouponLabel'] ?? 'Show coupon' ) ?: 'Show coupon',
@@ -439,8 +451,8 @@ class FrontendRenderer {
 	}
 
 	private function apply_placement_filter( array $config, array $attributes, array $source ): array {
-		$field = sanitize_key( $attributes['filterField'] ?? '' );
-		$value = sanitize_text_field( $attributes['filterValue'] ?? '' );
+		$field          = sanitize_key( $attributes['filterField'] ?? '' );
+		$value          = sanitize_text_field( $attributes['filterValue'] ?? '' );
 		$allowed_fields = array_map(
 			static fn( array $column ): string => sanitize_key( $column['key'] ?? '' ),
 			(array) ( $source['columns'] ?? array() )
@@ -450,7 +462,7 @@ class FrontendRenderer {
 			return $config;
 		}
 
-		$config['defaultFilters'] = (array) ( $config['defaultFilters'] ?? array() );
+		$config['defaultFilters']   = (array) ( $config['defaultFilters'] ?? array() );
 		$config['defaultFilters'][] = array(
 			'field'    => $field,
 			'operator' => 'equals',
@@ -476,7 +488,7 @@ class FrontendRenderer {
 				)
 			)
 		);
-		$attributes = ' data-tabloria-item data-search="' . esc_attr( $search_text ) . '"';
+		$attributes  = ' data-tabloria-item data-search="' . esc_attr( $search_text ) . '"';
 
 		if ( $this->hide_rows_until_search( $config ) ) {
 			$attributes .= ' hidden';
@@ -541,9 +553,9 @@ class FrontendRenderer {
 			return $this->table_fields( $config, $source );
 		}
 
-		$roles = is_array( $config['fieldRoles'] ?? null ) ? array_values( $config['fieldRoles'] ) : array();
+		$roles   = is_array( $config['fieldRoles'] ?? null ) ? array_values( $config['fieldRoles'] ) : array();
 		$visible = is_array( $config['visibleFields'] ?? null ) ? $config['visibleFields'] : array();
-		$fields = array_map( 'sanitize_key', array_merge( $roles, $visible ) );
+		$fields  = array_map( 'sanitize_key', array_merge( $roles, $visible ) );
 		return array_values( array_unique( array_filter( $fields, fn( string $field ): bool => '' !== $field && ! $this->is_technical_field( $field ) && $this->source_has_field( $source, $field ) ) ) );
 	}
 
@@ -580,8 +592,8 @@ class FrontendRenderer {
 				static function ( array $a, array $b ) use ( $sort_field, $direction ): int {
 					$a_value = (string) ( $a[ $sort_field ] ?? '' );
 					$b_value = (string) ( $b[ $sort_field ] ?? '' );
-					$a_raw = preg_replace( '/[^0-9.-]/', '', $a_value );
-					$b_raw = preg_replace( '/[^0-9.-]/', '', $b_value );
+					$a_raw   = preg_replace( '/[^0-9.-]/', '', $a_value );
+					$b_raw   = preg_replace( '/[^0-9.-]/', '', $b_value );
 
 					if ( '' !== $a_raw && '' !== $b_raw && is_numeric( $a_raw ) && is_numeric( $b_raw ) ) {
 						return $direction * ( (float) $a_raw <=> (float) $b_raw );
@@ -711,8 +723,8 @@ class FrontendRenderer {
 			return 'tabloria-card__link';
 		}
 
-		$style = sanitize_key( $options['buttonStyle'] ?? 'theme' );
-		$style = in_array( $style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $style : 'theme';
+		$style   = sanitize_key( $options['buttonStyle'] ?? 'theme' );
+		$style   = in_array( $style, array( 'theme', 'primary', 'secondary', 'outline' ), true ) ? $style : 'theme';
 		$classes = array(
 			'tabloria-card__button',
 			'tabloria-card__button--' . sanitize_html_class( $style ),
@@ -726,7 +738,7 @@ class FrontendRenderer {
 	}
 
 	private function url_button_label( array $source, string $field ): string {
-		$label = $this->column_label( $source, $field );
+		$label            = $this->column_label( $source, $field );
 		$normalized_label = strtolower( trim( $label ) );
 
 		if ( in_array( $normalized_label, array( 'url', 'link' ), true ) ) {

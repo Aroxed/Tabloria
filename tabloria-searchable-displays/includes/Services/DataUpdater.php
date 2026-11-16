@@ -27,7 +27,7 @@ class DataUpdater {
 
 		$matched = array();
 		$missing = array();
-		$new = array();
+		$new     = array();
 
 		foreach ( $old_by_key as $key => $old_column ) {
 			if ( isset( $new_by_key[ $key ] ) ) {
@@ -61,5 +61,4 @@ class DataUpdater {
 			'missingCount' => count( $missing ),
 		);
 	}
-
 }

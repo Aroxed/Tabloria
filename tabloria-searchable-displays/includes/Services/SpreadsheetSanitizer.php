@@ -129,7 +129,7 @@ class SpreadsheetSanitizer {
 			$i    = 2;
 			while ( isset( $seen[ $key ] ) ) {
 				$key = $base . '_' . $i;
-				$i++;
+				++$i;
 			}
 			$seen[ $key ] = true;
 

@@ -265,7 +265,7 @@ class DisplaysController {
 			return new WP_Error( 'tabloria_missing_file', __( 'Please choose a replacement CSV file.', 'tabloria-searchable-displays' ), array( 'status' => 400 ) );
 		}
 
-		$file     = $files['file'];
+		$file = $files['file'];
 		$meta = $this->sanitizer->validate_uploaded_csv( $file );
 		if ( is_wp_error( $meta ) ) {
 			return $meta;
