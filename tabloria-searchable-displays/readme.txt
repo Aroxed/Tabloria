@@ -1,5 +1,5 @@
 === Tabloria - CSV Product Catalog & Searchable Displays ===
-Contributors: publishly
+Contributors: publishly, alkesh7
 Tags: csv, searchable table, product catalog, directory, data table
 Requires at least: 6.3
 Tested up to: 7.1
