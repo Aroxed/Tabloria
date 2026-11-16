@@ -17,18 +17,18 @@ if ( ! file_exists( $wp_load ) ) {
 require_once $wp_load;
 
 if ( ! class_exists( SpreadsheetSanitizer::class ) ) {
-	require_once dirname( __DIR__ ) . '/includes/Services/SpreadsheetSanitizer.php';
+	require_once dirname( __DIR__ ) . '/includes/Services/class-spreadsheetsanitizer.php';
 }
 if ( ! class_exists( CsvParser::class ) ) {
-	require_once dirname( __DIR__ ) . '/includes/Services/ColumnDetector.php';
-	require_once dirname( __DIR__ ) . '/includes/Services/CsvParser.php';
+	require_once dirname( __DIR__ ) . '/includes/Services/class-columndetector.php';
+	require_once dirname( __DIR__ ) . '/includes/Services/class-csvparser.php';
 }
 if ( ! class_exists( DisplayGenerator::class ) ) {
-	require_once dirname( __DIR__ ) . '/includes/Services/DisplayGenerator.php';
+	require_once dirname( __DIR__ ) . '/includes/Services/class-displaygenerator.php';
 }
 if ( ! class_exists( FrontendRenderer::class ) ) {
-	require_once dirname( __DIR__ ) . '/includes/Database.php';
-	require_once dirname( __DIR__ ) . '/includes/Services/FrontendRenderer.php';
+	require_once dirname( __DIR__ ) . '/includes/class-database.php';
+	require_once dirname( __DIR__ ) . '/includes/Services/class-frontendrenderer.php';
 }
 
 class Tabloria_Test_Database extends Database {
