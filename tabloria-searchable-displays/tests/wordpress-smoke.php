@@ -1,4 +1,8 @@
 <?php
+// These scripts are test runners for the command line only.
+if ( 'cli' !== PHP_SAPI ) {
+	exit;
+}
 
 use Tabloria\Database;
 use Tabloria\Services\DisplayGenerator;
@@ -10,6 +14,10 @@ if ( ! file_exists( $wp_load ) ) {
 }
 
 require_once $wp_load;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 function tabloria_smoke_assert_contains( string $needle, string $haystack, string $message ): void {
 	if ( ! str_contains( $haystack, $needle ) ) {

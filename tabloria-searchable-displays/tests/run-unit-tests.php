@@ -1,4 +1,8 @@
 <?php
+// These scripts are test runners for the command line only.
+if ( 'cli' !== PHP_SAPI ) {
+	exit;
+}
 
 use Tabloria\Database;
 use Tabloria\REST\UploadController;
@@ -15,6 +19,10 @@ if ( ! file_exists( $wp_load ) ) {
 }
 
 require_once $wp_load;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 if ( ! class_exists( SpreadsheetSanitizer::class ) ) {
 	require_once dirname( __DIR__ ) . '/includes/Services/SpreadsheetSanitizer.php';
