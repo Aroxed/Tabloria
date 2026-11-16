@@ -63,9 +63,10 @@ class FrontendRenderer {
 			data-hide-rows-until-search="<?php echo $this->hide_rows_until_search( $config ) ? 'true' : 'false'; ?>"
 			data-pagination="<?php echo ! empty( $config['pagination']['enabled'] ) ? 'true' : 'false'; ?>"
 			data-show-result-count="<?php echo $this->show_result_count( $config ) ? 'true' : 'false'; ?>"
-			data-result-label="<?php echo esc_attr( sanitize_text_field( $config['pagination']['resultLabel'] ?? 'rows' ) ?: 'rows' ); ?>"
+			data-result-label="<?php echo esc_attr( sanitize_text_field( $config['pagination']['resultLabel'] ?? _x( 'rows', 'default label for a count of rows', 'tabloria-searchable-displays' ) ) ?: _x( 'rows', 'default label for a count of rows', 'tabloria-searchable-displays' ) ); ?>"
 			data-display-type="<?php echo esc_attr( $display_type ); ?>"
 			data-contained="<?php echo esc_attr( $is_contained ? 'true' : 'false' ); ?>"
+			data-i18n="<?php echo esc_attr( wp_json_encode( $this->frontend_strings() ) ); ?>"
 		>
 			<?php if ( ! isset( $attributes['showTitle'] ) || $attributes['showTitle'] ) : ?>
 				<header class="tabloria-display__header">
@@ -78,7 +79,7 @@ class FrontendRenderer {
 			<?php $this->render_rows( $rows, $config, $source, $display_type ); ?>
 
 			<div class="tabloria-display__empty" hidden>
-				<?php echo esc_html( sanitize_text_field( $config['search']['emptyMessage'] ?? 'No rows match the current search or filters.' ) ?: __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) ); ?>
+				<?php echo esc_html( sanitize_text_field( $config['search']['emptyMessage'] ?? __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) ) ?: __( 'No rows match the current search or filters.', 'tabloria-searchable-displays' ) ); ?>
 			</div>
 
 			<footer class="tabloria-display__footer">
@@ -167,7 +168,7 @@ class FrontendRenderer {
 		$search_enabled  = ! empty( $config['search']['enabled'] );
 		$filters_enabled = ! empty( $config['filters']['enabled'] ) && ! empty( $config['visitorFilters'] );
 		$show_column_names = ! array_key_exists( 'showColumnNames', $config['filters'] ?? array() ) || ! empty( $config['filters']['showColumnNames'] );
-		$search_placeholder = sanitize_text_field( $config['search']['placeholder'] ?? 'Search all fields...' ) ?: 'Search all fields...';
+		$search_placeholder = sanitize_text_field( $config['search']['placeholder'] ?? __( 'Search all fields...', 'tabloria-searchable-displays' ) ) ?: __( 'Search all fields...', 'tabloria-searchable-displays' );
 
 		if ( ! $search_enabled && ! $filters_enabled ) {
 			return;
@@ -431,10 +432,10 @@ class FrontendRenderer {
 		$options = is_array( $layout_options['coupons'] ?? null ) ? $layout_options['coupons'] : array();
 
 		return array(
-			'showCouponLabel' => sanitize_text_field( $options['showCouponLabel'] ?? 'Show coupon' ) ?: 'Show coupon',
-			'copyCodeLabel'   => sanitize_text_field( $options['copyCodeLabel'] ?? 'Copy code' ) ?: 'Copy code',
-			'dealLabel'       => sanitize_text_field( $options['dealLabel'] ?? 'View deal' ) ?: 'View deal',
-			'copiedLabel'     => sanitize_text_field( $options['copiedLabel'] ?? 'Copied!' ) ?: 'Copied!',
+			'showCouponLabel' => sanitize_text_field( $options['showCouponLabel'] ?? __( 'Show coupon', 'tabloria-searchable-displays' ) ) ?: __( 'Show coupon', 'tabloria-searchable-displays' ),
+			'copyCodeLabel'   => sanitize_text_field( $options['copyCodeLabel'] ?? __( 'Copy code', 'tabloria-searchable-displays' ) ) ?: __( 'Copy code', 'tabloria-searchable-displays' ),
+			'dealLabel'       => sanitize_text_field( $options['dealLabel'] ?? __( 'View deal', 'tabloria-searchable-displays' ) ) ?: __( 'View deal', 'tabloria-searchable-displays' ),
+			'copiedLabel'     => sanitize_text_field( $options['copiedLabel'] ?? __( 'Copied!', 'tabloria-searchable-displays' ) ) ?: __( 'Copied!', 'tabloria-searchable-displays' ),
 		);
 	}
 
@@ -837,5 +838,25 @@ class FrontendRenderer {
 		natcasesort( $values );
 
 		return array_values( array_slice( $values, 0, 50 ) );
+	}
+
+	/**
+	 * Get the translated strings that the front end script shows to visitors.
+	 *
+	 * @return array<string,string> Strings keyed by the names frontend.js reads.
+	 */
+	private function frontend_strings(): array {
+		return array(
+			/* translators: 1: first row number, 2: last row number, 3: total rows, 4: row label, for example "rows". */
+			'showing'         => __( 'Showing %1$s to %2$s of %3$s %4$s', 'tabloria-searchable-displays' ),
+			/* translators: %s: row label, for example "rows". */
+			'showingNone'     => __( 'Showing 0 %s', 'tabloria-searchable-displays' ),
+			'pageNote'        => __( 'Page 1 of 1', 'tabloria-searchable-displays' ),
+			'prev'            => __( 'Prev', 'tabloria-searchable-displays' ),
+			'next'            => __( 'Next', 'tabloria-searchable-displays' ),
+			'copyFailed'      => __( 'Copy failed. Select the code and copy it manually.', 'tabloria-searchable-displays' ),
+			'tableWarning'    => __( 'Tabloria Display is inside a table. Use Columns, Group, or Tabloria Display Grid instead.', 'tabloria-searchable-displays' ),
+			'semanticWarning' => __( 'Tabloria Display is inside a semantic block. Use Group, Columns, or Tabloria Display Grid instead.', 'tabloria-searchable-displays' ),
+		);
 	}
 }

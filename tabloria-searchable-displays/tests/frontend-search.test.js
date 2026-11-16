@@ -4,7 +4,7 @@ const { readFileSync } = require('node:fs');
 const vm = require('node:vm');
 
 // Run the shipped frontend script through its DOM events, without a build step.
-function mount({ hide, pagination = false, searchEnabled = true, showResultCount = true, resultLabel = 'rows' } = {}) {
+function mount({ hide, pagination = false, searchEnabled = true, showResultCount = true, resultLabel = 'rows', i18n } = {}) {
 	const classes = { contains: () => false, add() {}, remove() {} };
 	const element = () => ({
 		dataset: {}, hidden: false, value: '', innerHTML: '', textContent: '',
@@ -28,7 +28,7 @@ function mount({ hide, pagination = false, searchEnabled = true, showResultCount
 	const status = element();
 	const empty = element();
 	const display = {
-		dataset: { hideRowsUntilSearch: hide, pagination: String(pagination), showResultCount: String(showResultCount), resultLabel, perPage: '1' },
+		dataset: { hideRowsUntilSearch: hide, pagination: String(pagination), showResultCount: String(showResultCount), resultLabel, perPage: '1', ...(i18n === undefined ? {} : { i18n }) },
 		classList: classes, closest: () => null,
 		getBoundingClientRect: () => ({ width: 800 }),
 		querySelector(selector) { return ({
@@ -190,4 +190,25 @@ test('coupon reveal opens normally and copy writes the coupon code', async () =>
 	await Promise.resolve();
 	assert.equal(copied, 'SAVE20');
 	assert.equal(status.textContent, 'Copied now');
+});
+
+test('status and pager use translated strings sent by the server', () => {
+	const table = mount({
+		pagination: true,
+		i18n: JSON.stringify({ showing: '%3$s Ergebnisse, %1$s bis %2$s (%4$s)', prev: 'Zurück', next: 'Weiter <b>' }),
+	});
+	table.query('123');
+	assert.equal(table.status.textContent, '2 Ergebnisse, 1 bis 1 (rows)');
+	assert.match(table.pager.innerHTML, />Zurück<\/button>/);
+	assert.match(table.pager.innerHTML, />Weiter &lt;b&gt;<\/button>/, 'translated labels are escaped before they reach innerHTML');
+});
+
+test('missing or invalid translation data falls back to English', () => {
+	for (const i18n of [undefined, 'not json', '{"showing": 5}']) {
+		const table = mount({ pagination: true, i18n });
+		table.query('123');
+		assert.equal(table.status.textContent, 'Showing 1 to 1 of 2 rows');
+		assert.match(table.pager.innerHTML, />Prev<\/button>/);
+		assert.match(table.pager.innerHTML, />Next<\/button>/);
+	}
 });
