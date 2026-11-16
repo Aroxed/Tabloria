@@ -78,6 +78,16 @@ class DisplaysController {
 
 		register_rest_route(
 			'tabloria/v1',
+			'/displays/(?P<id>\d+)/draft-page',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'create_draft_page' ),
+				'permission_callback' => array( $this, 'create_page_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			'tabloria/v1',
 			'/displays/(?P<id>\d+)/update-data',
 			array(
 				'methods'             => 'POST',
@@ -93,6 +103,10 @@ class DisplaysController {
 
 	public function manage_permissions_check(): bool {
 		return current_user_can( 'manage_options' );
+	}
+
+	public function create_page_permissions_check(): bool {
+		return current_user_can( 'manage_options' ) && current_user_can( 'edit_pages' );
 	}
 
 	public function index(): WP_REST_Response {
@@ -182,6 +196,44 @@ class DisplaysController {
 
 		$this->database->delete_display( absint( $display['id'] ) );
 		return new WP_REST_Response( array( 'deleted' => true ) );
+	}
+
+	public function create_draft_page( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$display_id = absint( $request['id'] );
+		$display    = $this->database->get_display( $display_id );
+		if ( ! $display ) {
+			return new WP_Error( 'tabloria_display_not_found', __( 'Published Display not found.', 'tabloria-searchable-displays' ), array( 'status' => 404 ) );
+		}
+
+		$content = serialize_block(
+			array(
+				'blockName'    => 'tabloria/display',
+				'attrs'        => array( 'displayId' => $display_id ),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '',
+				'innerContent' => array(),
+			)
+		);
+		$page_id = wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'draft',
+				'post_title'   => $display['name'],
+				'post_content' => $content,
+			),
+			true
+		);
+		if ( is_wp_error( $page_id ) || ! $page_id ) {
+			return new WP_Error( 'tabloria_draft_page_failed', __( 'The draft page could not be created. Your Display is still saved.', 'tabloria-searchable-displays' ), array( 'status' => 500 ) );
+		}
+
+		return new WP_REST_Response(
+			array(
+				'pageId'  => $page_id,
+				'editUrl' => get_edit_post_link( $page_id, '' ),
+			),
+			201
+		);
 	}
 
 	public function render_data( WP_REST_Request $request ): WP_REST_Response {

@@ -61,7 +61,8 @@
 		loading: false,
 		error: '',
 		notice: '',
-		setupAccordions: null
+		setupAccordions: null,
+		detectedColumnsOpen: false
 	};
 
 	function initialScreen() {
@@ -221,7 +222,7 @@
 
 	function navIsActive(screen) {
 		if (screen === 'welcome') {
-			return ['welcome', 'upload', 'detection', 'outcome', 'setup', 'success'].indexOf(state.screen) >= 0;
+			return ['welcome', 'upload', 'outcome', 'setup', 'success'].indexOf(state.screen) >= 0;
 		}
 		if (screen === 'displays') {
 			return ['displays', 'editor'].indexOf(state.screen) >= 0;
@@ -245,8 +246,6 @@
 		switch (state.screen) {
 			case 'upload':
 				return renderUpload();
-			case 'detection':
-				return renderDetection();
 			case 'outcome':
 				return renderOutcome();
 			case 'setup':
@@ -280,8 +279,6 @@
 			bindWelcome();
 		} else if (state.screen === 'upload') {
 			bindUpload();
-		} else if (state.screen === 'detection') {
-			bindDetection();
 		} else if (state.screen === 'outcome') {
 			bindOutcome();
 		} else if (state.screen === 'setup') {
@@ -335,6 +332,7 @@
 			state.sample = [];
 			state.config = null;
 			state.setupAccordions = null;
+			state.detectedColumnsOpen = false;
 			setScreen('upload');
 		});
 		var displaysButton = root.querySelector('[data-action="displays"]');
@@ -398,55 +396,13 @@
 					state.sample = response.sample || [];
 					state.config = generateConfig(state.source, state.displayType);
 					state.loading = false;
-					setScreen('detection');
+					state.detectedColumnsOpen = false;
+					setScreen('setup');
 				})
 				.catch(function (error) {
 					state.loading = false;
 					setError(error);
 				});
-		});
-	}
-
-	function renderDetection() {
-		if (!state.source) {
-			return renderMissingSource();
-		}
-
-		return [
-			'<section class="tabloria-hero">',
-			'<p class="tabloria-kicker">Smart Detection</p>',
-			'<h1>Review detected columns.</h1>',
-			'<p class="tabloria-subtitle">' + escapeHtml(state.source.original_filename) + ' - ' + escapeHtml(state.source.row_count) + ' rows detected. You can adjust field mapping on the next step.</p>',
-			'</section>',
-			'<section class="tabloria-panel">',
-			'<h2>Detected Columns</h2>',
-			'<p class="tabloria-muted">Tabloria uses these column types to suggest a starting Display. If something looks off, continue and correct the mapping before saving.</p>',
-			'<div class="tabloria-columns">',
-			(state.source.columns || []).map(function (column) {
-				return '<div class="tabloria-column"><div><strong>' + escapeHtml(column.label) + '</strong><span class="tabloria-muted">' + escapeHtml(column.key) + '</span></div><span class="tabloria-type">' + escapeHtml(column.type) + '</span></div>';
-			}).join(''),
-			'</div>',
-			'</section>',
-			'<section class="tabloria-panel">',
-			'<h2>First Rows Preview</h2>',
-			renderTable(state.sample, state.source.columns),
-			'</section>',
-			'<div class="tabloria-actions">',
-			'<button class="tabloria-button" data-back>Upload different CSV</button>',
-			'<button class="tabloria-button is-primary" data-continue>Continue with detected columns</button>',
-			'</div>'
-		].join('');
-	}
-
-	function bindDetection() {
-		if (!root.querySelector('[data-back]') || !root.querySelector('[data-continue]')) {
-			return;
-		}
-		root.querySelector('[data-back]').addEventListener('click', function () {
-			setScreen('upload');
-		});
-		root.querySelector('[data-continue]').addEventListener('click', function () {
-			setScreen('setup');
 		});
 	}
 
@@ -503,7 +459,7 @@
 			});
 		});
 		root.querySelector('[data-back]').addEventListener('click', function () {
-			setScreen('detection');
+			setScreen('upload');
 		});
 		root.querySelector('[data-continue]').addEventListener('click', function () {
 			setScreen('setup');
@@ -527,6 +483,7 @@
 			'</section>',
 			'<div class="tabloria-setup-layout">',
 			'<aside class="tabloria-setup-controls">',
+			renderImportedSource(),
 			'<section class="tabloria-panel tabloria-panel--compact">',
 			'<div class="tabloria-form-grid tabloria-form-grid--compact">',
 			'<div class="tabloria-field"><label for="display-name">Display name</label><input id="display-name" class="tabloria-input" value="' + escapeHtml(state.config.title || '') + '" /></div>',
@@ -564,7 +521,7 @@
 				'<div class="tabloria-field" style="margin-top:14px"><label for="per-page">Items per page</label><select id="per-page" class="tabloria-select"' + (!state.config.pagination.enabled ? ' disabled' : '') + '><option value="6"' + selected(state.config.pagination.perPage, 6) + '>6 items</option><option value="9"' + selected(state.config.pagination.perPage, 9) + '>9 items</option><option value="12"' + selected(state.config.pagination.perPage, 12) + '>12 items</option><option value="24"' + selected(state.config.pagination.perPage, 24) + '>24 items</option></select></div>'
 			].join(''), false),
 			'<div class="tabloria-actions tabloria-setup-actions">',
-			'<button class="tabloria-button" data-back>Back</button>',
+			'<button class="tabloria-button" data-back>Upload different CSV</button>',
 			'<button class="tabloria-button is-primary" data-continue>Save Display</button>',
 			'</div>',
 			'</aside>',
@@ -573,6 +530,21 @@
 			'<div class="tabloria-preview__body">' + renderMiniPreview(true) + '</div>',
 			'</section>',
 			'</div>'
+		].join('');
+	}
+
+	function renderImportedSource() {
+		var source = state.source || {};
+		var columns = source.columns || [];
+		return [
+			'<details class="tabloria-panel tabloria-panel--compact tabloria-accordion" data-detected-columns' + (state.detectedColumnsOpen ? ' open' : '') + '>',
+			'<summary class="tabloria-accordion__summary"><span><strong>CSV imported: ' + escapeHtml(source.original_filename || 'spreadsheet.csv') + '</strong><small>' + escapeHtml(source.row_count || 0) + ' rows and ' + escapeHtml(columns.length) + ' columns detected. Review the mapping below.</small></span></summary>',
+			'<div class="tabloria-accordion__body"><div class="tabloria-columns">',
+			columns.map(function (column) {
+				return '<div class="tabloria-column"><div><strong>' + escapeHtml(column.label) + '</strong><span class="tabloria-muted">' + escapeHtml(column.key) + '</span></div><span class="tabloria-type">' + escapeHtml(column.type) + '</span></div>';
+			}).join(''),
+			'</div></div>',
+			'</details>'
 		].join('');
 	}
 
@@ -1098,6 +1070,12 @@
 			return;
 		}
 		var typeSelect = root.querySelector('#setup-display-type');
+		var detectedColumns = root.querySelector('[data-detected-columns]');
+		if (detectedColumns) {
+			detectedColumns.addEventListener('toggle', function () {
+				state.detectedColumnsOpen = detectedColumns.open;
+			});
+		}
 		if (typeSelect) {
 			typeSelect.addEventListener('change', function () {
 				switchSetupDisplayType(typeSelect.value);
@@ -1132,7 +1110,7 @@
 			});
 		});
 		root.querySelector('[data-back]').addEventListener('click', function () {
-			setScreen('detection');
+			setScreen('upload');
 		});
 		root.querySelector('[data-continue]').addEventListener('click', function () {
 			collectSetup();
@@ -1435,12 +1413,13 @@
 			'<section class="tabloria-success">',
 			'<div class="tabloria-success__icon">OK</div>',
 			'<div>',
-			'<h2>Your Display is ready.</h2>',
-			'<p class="tabloria-muted">"' + escapeHtml(state.config.title) + '" has been saved as a reusable Published Display. Insert it in Gutenberg or use the shortcode fallback.</p>',
+			'<h2>Display saved. Put it on a page.</h2>',
+			'<p class="tabloria-muted">"' + escapeHtml(state.display.name || state.config.title) + '" is saved. Create a draft page with this Display already inserted, then review and publish it in WordPress.</p>',
 			'<p><code>[tabloria id="' + escapeHtml(id) + '"]</code></p>',
 			'</div>',
 			'<div class="tabloria-actions" style="margin-top:0;justify-content:flex-end">',
-			'<button class="tabloria-button is-primary" data-copy-shortcode>Copy shortcode</button>',
+			'<button class="tabloria-button is-primary" data-create-draft-page>Create draft page</button>',
+			'<button class="tabloria-button" data-copy-shortcode>Copy shortcode</button>',
 			'<button class="tabloria-button" data-edit>Edit Display</button>',
 			'<button class="tabloria-button" data-list>Published Displays</button>',
 			'</div>',
@@ -1453,6 +1432,7 @@
 	}
 
 	function bindSuccess() {
+		root.querySelector('[data-create-draft-page]').addEventListener('click', createDraftPage);
 		root.querySelector('[data-copy-shortcode]').addEventListener('click', function (event) {
 			copyText('[tabloria id="' + state.display.id + '"]', event.currentTarget);
 		});
@@ -1462,6 +1442,23 @@
 		root.querySelector('[data-list]').addEventListener('click', function () {
 			setScreen('displays');
 		});
+	}
+
+	function createDraftPage() {
+		if (!state.display || !state.display.id) {
+			return;
+		}
+		state.error = '';
+		state.loading = true;
+		render();
+		request('/displays/' + state.display.id + '/draft-page', { method: 'POST' })
+			.then(function (page) {
+				window.location.assign(page.editUrl);
+			})
+			.catch(function (error) {
+				state.loading = false;
+				setError(error);
+			});
 	}
 
 	function renderDisplays() {

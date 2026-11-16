@@ -26,6 +26,8 @@ function tabloria_smoke_assert_not_contains( string $needle, string $haystack, s
 $database = new Database();
 $source_id = 0;
 $display_id = 0;
+$page_id = 0;
+$original_user_id = get_current_user_id();
 
 try {
 	$columns = array(
@@ -82,9 +84,52 @@ try {
 	tabloria_smoke_assert_contains( 'data-tabloria-show-coupon', $block_html, 'Coupon row should render its reveal action.' );
 	tabloria_smoke_assert_contains( 'data-tabloria-copy-coupon', $block_html, 'Coupon row should render its copy action.' );
 
-	echo "PASS WordPress shortcode and Gutenberg smoke test\n";
+	$draft_request = new WP_REST_Request( 'POST', '/tabloria/v1/displays/' . $display_id . '/draft-page' );
+	wp_set_current_user( 0 );
+	$denied_response = rest_do_request( $draft_request );
+	if ( ! in_array( $denied_response->get_status(), array( 401, 403 ), true ) ) {
+		throw new RuntimeException( 'Anonymous visitors must not create draft pages.' );
+	}
+
+	$admins = get_users( array( 'role' => 'administrator', 'number' => 1 ) );
+	if ( ! $admins ) {
+		throw new RuntimeException( 'An administrator is required for the draft-page smoke test.' );
+	}
+	wp_set_current_user( $admins[0]->ID );
+	$draft_response = rest_do_request( $draft_request );
+	if ( 201 !== $draft_response->get_status() ) {
+		throw new RuntimeException( 'An administrator should be able to create a draft page: ' . wp_json_encode( $draft_response->get_data() ) );
+	}
+	$draft_data = $draft_response->get_data();
+	$page_id = absint( $draft_data['pageId'] ?? 0 );
+	$page = get_post( $page_id );
+	if ( ! $page || 'page' !== $page->post_type || 'draft' !== $page->post_status ) {
+		throw new RuntimeException( 'The new page should exist as a WordPress draft.' );
+	}
+	if ( 'Tabloria 0.2 smoke display' !== $page->post_title ) {
+		throw new RuntimeException( 'The draft page should use the Display name as its title.' );
+	}
+	$blocks = parse_blocks( $page->post_content );
+	if ( 1 !== count( $blocks ) || 'tabloria/display' !== $blocks[0]['blockName'] || $display_id !== ( $blocks[0]['attrs']['displayId'] ?? 0 ) ) {
+		throw new RuntimeException( 'The draft page should contain the saved Display block.' );
+	}
+	tabloria_smoke_assert_contains( 'Running shoes coupon', do_blocks( $page->post_content ), 'The draft page block should render the saved Display.' );
+	if ( empty( $draft_data['editUrl'] ) || ! str_contains( $draft_data['editUrl'], 'post=' . $page_id ) ) {
+		throw new RuntimeException( 'The draft-page response should include an editor link.' );
+	}
+
+	$missing_response = rest_do_request( new WP_REST_Request( 'POST', '/tabloria/v1/displays/999999999/draft-page' ) );
+	if ( 404 !== $missing_response->get_status() ) {
+		throw new RuntimeException( 'A missing Display must not create a draft page.' );
+	}
+
+	echo "PASS WordPress shortcode, Gutenberg, and draft page smoke test\n";
 } finally {
 	global $wpdb;
+	wp_set_current_user( $original_user_id );
+	if ( $page_id ) {
+		wp_delete_post( $page_id, true );
+	}
 	if ( $display_id ) {
 		$database->delete_display( $display_id );
 	}

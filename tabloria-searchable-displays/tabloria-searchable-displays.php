@@ -3,7 +3,7 @@
  * Plugin Name: Tabloria - CSV Product Catalog & Searchable Displays
  * Plugin URI: https://tabloria.site/
  * Description: Build a searchable WordPress product catalog from CSV, with filters, cards, and a Gutenberg block.
- * Version: 0.2.3
+ * Version: 0.2.4
  * Author: Tabloria
  * Text Domain: tabloria-searchable-displays
  * Requires at least: 6.3
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'TABLORIA_VERSION', '0.2.3' );
+define( 'TABLORIA_VERSION', '0.2.4' );
 define( 'TABLORIA_FILE', __FILE__ );
 define( 'TABLORIA_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TABLORIA_URL', plugin_dir_url( __FILE__ ) );

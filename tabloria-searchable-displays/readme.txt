@@ -4,7 +4,7 @@ Tags: csv, searchable table, product catalog, directory, data table
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.2.3
+Stable tag: 0.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,13 +49,11 @@ Tabloria currently includes seven display types:
 = Core workflow =
 
 * Upload a CSV file
-* Review the detected columns
-* Choose a display type
+* Choose a display type, upload a CSV file, and review the detected columns during setup
 * Map CSV columns to titles, descriptions, images, prices, dates, links, or other visual fields
 * Configure search, filters, sorting, and pagination
 * Preview the display before publishing
-* Save a reusable display
-* Insert the display with the Tabloria Display block
+* Save a reusable display, then create a WordPress draft page with the Tabloria Display block already inserted
 * Optionally filter each block placement by a different column value
 * Arrange several displays with the Tabloria Display Grid block
 * Use the shortcode fallback: `[tabloria id="123"]`
@@ -89,8 +87,8 @@ That makes it useful when your data is more like a directory, catalog, listing, 
 1. Upload the `tabloria-searchable-displays` folder to `/wp-content/plugins/`.
 2. Activate Tabloria from the WordPress Plugins screen.
 3. Open Tabloria -> Create Display.
-4. Upload a CSV file and follow the guided setup flow.
-5. Insert a Tabloria Display block, use Tabloria Display Grid for multiple displays, or copy the shortcode.
+4. Upload a CSV file, review its columns, and follow the guided setup flow.
+5. Save the Display, then select Create draft page to open a WordPress page with its block already inserted. You can also use Tabloria Display Grid for multiple displays or copy the shortcode.
 
 == Frequently Asked Questions ==
 
@@ -151,6 +149,11 @@ Yes. Every saved display has a shortcode fallback, for example `[tabloria id="12
 5. Manage reusable Displays without rebuilding page content.
 
 == Changelog ==
+
+= 0.2.4 =
+
+* Create a WordPress draft page with the saved Display block directly from the setup success screen.
+* Show detected CSV columns within Display setup and remove the separate review step.
 
 = 0.2.3 =
 
