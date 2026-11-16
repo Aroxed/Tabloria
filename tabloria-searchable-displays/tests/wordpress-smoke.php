@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.DB.DirectDatabaseQuery -- CLI-only test runner: top-level variables are script-scoped and the test cleans up its own rows.
 
 use Tabloria\Database;
 use Tabloria\Services\DisplayGenerator;

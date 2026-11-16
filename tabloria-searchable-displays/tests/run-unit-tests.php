@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals, WordPress.DB.DirectDatabaseQuery, WordPress.PHP.DevelopmentFunctions -- CLI-only test runner: top-level variables are script-scoped, tests clean up their own rows, and var_export() only formats failure messages.
 
 use Tabloria\Database;
 use Tabloria\REST\UploadController;
